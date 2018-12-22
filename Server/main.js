@@ -70,6 +70,7 @@ if (cluster.isMaster) {
                         if (user.id == message.id) {
                             user.uuid = message.uuid;
                             check = -1;
+                            console.log("   " + message.id + " 유저 재접속".gray);
                         }
                     });
 
@@ -77,10 +78,7 @@ if (cluster.isMaster) {
                         // 새로 들어온 유저!
                         var new_user = User.create(message.uuid, -1, message.id);
                         authenticated_users.addUser(new_user);
-                    }
-                    
-                    for (var id in cluster.workers) {
-                        cluster.workers[id].send({ type: 'login', to: 'worker', uuid: message.uuid});
+                        console.log("   " + message.id + " 유저 신규 로드".gray);
                     }
                     break;
 
@@ -134,13 +132,6 @@ if (cluster.isWorker) {
                     worker_id = message.id;
                     break;
 
-                case 'login':
-                    if (authenticated_users.findUserById(message.id) == null) {
-                        var new_user = User.create(message.uuid, -1, 0);
-                        authenticated_users.addUser(new_user);
-                    }
-                    break;
-
                 case 'logout':
                     removeUser(message.uuid);
                     break;
@@ -183,6 +174,7 @@ if (cluster.isWorker) {
                                     var new_user = User.create(0, dsocket, 1);
                                     authenticated_users.addUser(new_user);
                                     process.send({ type: 'login', to: 'master', uuid: new_user.uuid, id: msg });
+                                    console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
                                 }
                                 break;
 
