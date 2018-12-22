@@ -1,6 +1,7 @@
 /* 
  * 이 서버의 문제점
- * 1) 유저가 접속할때마다 데이터가 생성이 되는데, 이게 사라지지 않는다. 심각. 정기점검으로 매번 지워주는 수 밖에 없을 것 같다.
+ * 1) 유저가 접속할때마다 데이터가 생성이 되는데, 이게 사라지지 않는다. 심각. 정기점검으로 매번 지워주는 수 밖에 없을 것 같다. << 마스터에만 쌓이는 걸 제외하면 해결. (이건 핸드오프 때문에 어쩔 수 없는 듯)
+ * 2) 
  * 
  */
 
@@ -35,15 +36,10 @@ if (cluster.isMaster) {
     // 워커 생성
     var tasks = [
         function (callback) {
-            worker_list = new Array();
-            callback(null, "Master processor start");
-        },
-        function (callback) {
             console.log("- - - - - - - - - - - - - ".inverse);
             console.log("- 워커들을 생성합니다.".white);
             for (i = 0; i < worker_max; i++) {
                 cluster.fork();
-                worker_list[i] = 0;
             }
             callback(null, "Worker forked!");
         }
@@ -67,10 +63,6 @@ if (cluster.isMaster) {
     cluster.on('message', function (worker, message) {
         if ((message.to == 'master') || (message.to == 'all')) {
             switch (message.type) {
-                case 'process_user_count':
-                    worker_list[message.id] = message.value;
-                    break;
-
                 case 'login': 
                     var check = 1;
                     authenticated_users.each(function (user) {
