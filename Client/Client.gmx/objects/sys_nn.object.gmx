@@ -185,13 +185,14 @@ if (os_browser == browser_not_a_browser) {
             <kind>1</kind>
             <string>///ENUM
 enum NN{
-    port = 20000,
-    signal_ping = 0,
-    signal_move = 1,
+    port         = 20000,
+    signal_ping  = 0,
+    signal_login = 1,
+    signal_move  = 2,
     
     status_disconnected = -1,
-    status_connecting = 0,
-    status_connected = 1
+    status_connecting   = 0,
+    status_connected    = 1
 }
 </string>
           </argument>

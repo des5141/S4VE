@@ -55,6 +55,7 @@
   <objects name="objects">
     <objects name="Networking with Node">
       <object>objects\sys_nn</object>
+      <object>objects\obj_login</object>
       <object>objects\obj_network</object>
     </objects>
     <object>objects\system</object>
@@ -83,6 +84,7 @@
   </objects>
   <rooms name="rooms">
     <room>rooms\rm_connecting</room>
+    <room>rooms\rm_login</room>
     <room>rooms\rm_main</room>
   </rooms>
   <help>

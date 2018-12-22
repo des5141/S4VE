@@ -47,10 +47,10 @@ if (cluster.isMaster) {
 
     // 워커는 죽지 못해요. 신안 노예랍니다.
     cluster.on('exit', function (worker, code, signal) {
-        console.log("- 워커 ".red + worker.id + " 가 죽었습니다".red);
-        if (code == 200) {
-            cluster.fork();
-        }
+        console.log("- 워커 ".red + worker.id + "이 죽었습니다".red);
+        var new_worker = cluster.fork();
+        new_worker.send({ to: 'worker', type: 'start', port: tcp_port, id: worker_id });
+        worker_id++;
     });
 
     // 일 시작이다 노예들아!
@@ -171,7 +171,7 @@ if (cluster.isWorker) {
 
                             case signal_login:
                                 if (authenticated_users.findUserBySocket(dsocket) == null) {
-                                    var new_user = User.create(0, dsocket, 1);
+                                    var new_user = User_worker.create(0, dsocket, 1);
                                     authenticated_users.addUser(new_user);
                                     process.send({ type: 'login', to: 'master', uuid: new_user.uuid, id: msg });
                                     console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
@@ -188,7 +188,7 @@ if (cluster.isWorker) {
             } catch (e) {
                 temp_buffer = "";
                 buffer_reading_string = "";
-                console.log("- pid ".error + process.pid + "에서 에러 발생 | " + e);
+                console.log("- pid ".red + process.pid + "에서 에러 발생 | ".red + e);
             }
         });
         // When client disconnect
@@ -196,9 +196,9 @@ if (cluster.isWorker) {
             //Respond for authenticated users only
             var quitter;
             if ((quitter = authenticated_users.findUserBySocket(dsocket)) != null) {
-                console.log("- 유저 ".gray, quitter.name, "나감 (".gray + (quitter.uuid).gray + ")".gray);
+                console.log("- 유저 나감 (".gray + (quitter.uuid).gray + ")".gray);
                 process.send({ type: 'logout', to: 'all', uuid: quitter.uuid });
-                removeUser(quitter.uuid);
+                authenticated_users.removeUser(quitter.uuid);
             }
         });
     });

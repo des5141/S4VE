@@ -174,7 +174,7 @@ if (status == NN.status_disconnected) {
 if (active) {
     //Connection successful in login room, show login
     if (room == rm_connecting) &amp;&amp; (status == NN.status_connected) {
-        room_goto(rm_main);
+        room_goto(rm_login);
     }
 
     //Connection broke
