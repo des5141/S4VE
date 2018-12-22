@@ -11,7 +11,7 @@ function create(uuid, name, socket) {
 		uuid   : uuid, // UUID
 		name   : name,      // User Nickname
 		socket : socket,    // User's socket
-		room   : room,      // User's room
+		room   : -1,      // User's room
         id     : "null",    // User's id
 		x      : 0,
 		y      : 0,

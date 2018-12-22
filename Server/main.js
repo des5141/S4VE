@@ -94,6 +94,9 @@ if (cluster.isMaster) {
 
     // 무한 반복 시킬 내용
     !function step() {
+        authenticated_users.each(function (user) {
+
+        });
 
         setTimeout(function () {
             step();
@@ -165,15 +168,15 @@ if (cluster.isWorker) {
                                         new_user.mine = 1;
                                         process.send({ type: 'login', to: 'master', uuid: new_user.uuid, name: new_user.name, id: new_user.id });
                                     }
-                                } else {
-                                    authenticated_users.each(function (user) {
-                                        if (msg == user.id) {
-                                            // 재 로그인
-                                            user.socket = dsocket;
-                                            new_user.mine = 1;
-                                        }
-                                    });
                                 }
+                                authenticated_users.each(function (user) {
+                                    if ((msg == user.id)&&(user.socket == -1)) {
+                                        // 재 로그인
+                                        user.socket = dsocket;
+                                        new_user.mine = 1;
+                                    }
+                                });
+                                
                                 break;
 
                             default:
