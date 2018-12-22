@@ -6,8 +6,6 @@
 
 // Requires
 var cluster = require('cluster');
-var User = require('./classes/user.js');
-var UserBox = require('./classes/user_box.js');
 var Colors = require('colors');
 var split = require('string-split');
 var fs = require('fs');
@@ -21,16 +19,18 @@ var ip         = '127.0.0.1'; //IP address
 var worker_max = 10;
 var worker_id  = 1;
 
-// 변수 설정
-var authenticated_users = UserBox.create();
-
 // 시그널 설정
 const signal_ping = 0;
 const signal_login = 1;
 
 // 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
 if (cluster.isMaster) {
+    // Requires
+    var User = require('./classes/user.js');
+    var UserBox = require('./classes/user_box.js');
+
     // 변수 설정
+    var authenticated_users = UserBox.create();
 
     // 워커 생성
     var tasks = [
@@ -65,27 +65,45 @@ if (cluster.isMaster) {
 
     // 워커들과의 파이프 통신
     cluster.on('message', function (worker, message) {
-        if (message.to == 'master') {
+        if ((message.to == 'master') || (message.to == 'all')) {
             switch (message.type) {
                 case 'process_user_count':
                     worker_list[message.id] = message.value;
                     break;
 
                 case 'login': 
-                    if (authenticated_users.findUserById(message.id) == null) {
-                        var new_user = User.create(message.uuid, message.id, -1);
+                    var check = 1;
+                    authenticated_users.each(function (user) {
+                        // 기존에 데이터가 있는 유저!
+                        if (user.id == message.id) {
+                            user.uuid = message.uuid;
+                            check = -1;
+                        }
+                    });
+
+                    if (check == 1) {
+                        // 새로 들어온 유저!
+                        var new_user = User.create(message.uuid, -1, message.id);
                         authenticated_users.addUser(new_user);
                     }
                     
                     for (var id in cluster.workers) {
-                        cluster.workers[id].send({ type: 'login', to: 'worker', uuid: message.uuid, name: message.name, id: message.id});
+                        cluster.workers[id].send({ type: 'login', to: 'worker', uuid: message.uuid});
                     }
+                    break;
+
+                case 'logout':
+                    authenticated_users.each(function (user) {
+                        if (user.uuid == message.uuid) {
+                            user.uuid = -1;
+                        }
+                    });
                     break;
             }
         }
 
         // 내가 받을 메세지가 아니니 에코
-        if (message.to == 'worker') {
+        if ((message.to == 'worker') || (message.to == 'all')) {
             for (var id in cluster.workers) {
                 cluster.workers[id].send(message);
             }
@@ -106,8 +124,13 @@ if (cluster.isMaster) {
 
 // 노동자 내용
 if (cluster.isWorker) {
+    // Requires
+    var User_worker = require('./classes/user_worker.js');
+    var UserBox_worker = require('./classes/user_box_worker.js');
+
     // 변수 설정
     var temp_buffer = "", buffer_string = "", buffer_reading_string = "", i = 0;
+    var authenticated_users = UserBox_worker.create();
 
     // 파이프 통신
     process.on('message', function (message) {
@@ -121,9 +144,13 @@ if (cluster.isWorker) {
 
                 case 'login':
                     if (authenticated_users.findUserById(message.id) == null) {
-                        var new_user = User.create(message.uuid, message.id, -1);
+                        var new_user = User.create(message.uuid, -1, 0);
                         authenticated_users.addUser(new_user);
                     }
+                    break;
+
+                case 'logout':
+                    removeUser(message.uuid);
                     break;
 
                 default:
@@ -161,22 +188,10 @@ if (cluster.isWorker) {
 
                             case signal_login:
                                 if (authenticated_users.findUserBySocket(dsocket) == null) {
-                                    if (authenticated_users.findUserById(msg) == null) {
-                                        // 첫 로그인
-                                        var new_user = User.create(0, msg, dsocket);
-                                        authenticated_users.addUser(new_user);
-                                        new_user.mine = 1;
-                                        process.send({ type: 'login', to: 'master', uuid: new_user.uuid, name: new_user.name, id: new_user.id });
-                                    }
+                                    var new_user = User.create(0, dsocket, 1);
+                                    authenticated_users.addUser(new_user);
+                                    process.send({ type: 'login', to: 'master', uuid: new_user.uuid, id: msg });
                                 }
-                                authenticated_users.each(function (user) {
-                                    if ((msg == user.id)&&(user.socket == -1)) {
-                                        // 재 로그인
-                                        user.socket = dsocket;
-                                        new_user.mine = 1;
-                                    }
-                                });
-                                
                                 break;
 
                             default:
@@ -197,10 +212,9 @@ if (cluster.isWorker) {
             //Respond for authenticated users only
             var quitter;
             if ((quitter = authenticated_users.findUserBySocket(dsocket)) != null) {
-                console.log("Out user   :".data, quitter.name, "(" + quitter.uuid + ")");
-
-                quitter.socket = -1;
-                quitter.mine = -1;
+                console.log("- 유저 ".gray, quitter.name, "나감 (".gray + (quitter.uuid).gray + ")".gray);
+                process.send({ type: 'logout', to: 'all', uuid: quitter.uuid });
+                removeUser(quitter.uuid);
             }
         });
     });
