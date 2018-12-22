@@ -9,29 +9,28 @@ var async = require('async');
 var functions = require('./classes/functions.js');
 var server = require('./classes/server.js').createServer();
 
-// Setup server information
+// 서버 세부 설정
 var tcp_port = 20000; //TCP port
 var ip = '127.0.0.1'; //IP address
 var worker_max = 10;
 
-// Set variables
+// 변수 설정
 var temp_buffer = "", buffer_string = "", buffer_reading_string = "", i = 0;
 var authenticated_users = UserBox.create();
 
-// Signal setting
+// 시그널 설정
 
 
-//Main code is start from here !
+// 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
 if (cluster.isMaster) {
     var tasks = [
         function (callback) {
-            // Master processor
             worker_list = new Array();
             callback(null, "Master processor start");
         },
         function (callback) {
-            // Make worker as much as count of cpu
-            console.log("Cluster fork - - - - - - - - - ".inverse);
+            console.log("- - - - - - - - - - - - - ".inverse);
+            console.log("- 워커들을 생성합니다.".white);
             for (i = 0; i < worker_max; i++) {
                 cluster.fork();
                 worker_list[i] = 0;
@@ -40,30 +39,20 @@ if (cluster.isMaster) {
         }
     ]; async.series(tasks, function (err, results) { });
 
-    // If suddenly, worker died
+    // 워커는 죽지 못해요. 신안 노예랍니다.
     cluster.on('exit', function (worker, code, signal) {
-
-        // Died worker
-        console.log('Worker died - '.error + "processer".gray + worker.id);
+        console.log("- 워커 ".red + worker.id + " 가 죽었습니다".red);
         if (code == 200) {
             cluster.fork();
         }
     });
 
-    // Workers server on!
+    // 일 시작이다 노예들아!
     for (var id in cluster.workers) {
         cluster.workers[id].send({ to: 'worker', type: 'start', port: tcp_port});
     }
-    
-    // Step event
-    !function step() {
 
-        setTimeout(function () {
-            step();
-        }, 10);
-    }()
-
-    // Processor Message
+    // 워커들과의 파이프 통신
     cluster.on('message', function (worker, message) {
         if (message.to == 'master') {
             switch (message.type) {
@@ -73,18 +62,26 @@ if (cluster.isMaster) {
             }
         }
 
+        // 내가 받을 메세지가 아니니 에코
         if (message.to == 'worker') {
-            //Message to worker
             for (var id in cluster.workers) {
                 cluster.workers[id].send(message);
             }
         }
     });
+
+    // 무한 반복 시킬 내용
+    !function step() {
+
+        setTimeout(function () {
+            step();
+        }, 10);
+    }()
 }
 
-//Worker processor
+// 노동자 내용
 if (cluster.isWorker) {
-    // Processor Message
+    // 파이프 통신
     process.on('message', function (message) {
         if (message.to == 'worker') {
             switch (message.type) {
@@ -100,10 +97,8 @@ if (cluster.isWorker) {
     });
 
     server.onConnection(function (dsocket) {
-        // When get the messages
         dsocket.onMessage(function (data) {
             try {
-                // Set the operation
                 buffer_string = data.toString();
                 buffer_reading_string = temp_buffer + buffer_reading_string;
                 temp_buffer = "";
@@ -122,7 +117,7 @@ if (cluster.isWorker) {
                         var id = json_data.id;
                         var msg = json_data.msg;
 
-                        //Route into different functions
+                        // 클라이언트 세부 메세지 처리
                         switch (id) {
                             default:
                                 console.log(id);
@@ -134,7 +129,7 @@ if (cluster.isWorker) {
             } catch (e) {
                 temp_buffer = "";
                 buffer_reading_string = "";
-                console.log("Error processing message :".error, e);
+                console.log("- pid ".error + process.pid + "에서 에러 발생 | " + e);
             }
         });
         // When client disconnect

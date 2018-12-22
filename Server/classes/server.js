@@ -1,4 +1,4 @@
-function Socket(socket) {
+﻿function Socket(socket) {
 	function onMessage(f) {
 		socket.on('data', function(data) {
 			f(data);
@@ -28,10 +28,10 @@ function createServer() {
 	var tcp_server = require('net').createServer();
 	tcp_server.on('listening', function() {
 		var address = tcp_server.address();
-		console.log("TCP Server Started -".gray, address.address + "," + address.port);
+        console.log("- pid ".gray + process.pid + " 바인딩 성공".gray + " ✓".green);
 	});
 	tcp_server.on('error', function(err) {
-		console.log("TCP Server crashed! Error message :".red, err.message);
+		console.log("- pid ".red + process.pid + " 에서 에러 발생 | ".red + err.message);
 	});
 	tcp_server.on('connection', function(s) {
 		
