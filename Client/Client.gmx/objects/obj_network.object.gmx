@@ -54,6 +54,10 @@ network_set_config(network_config_connect_timeout, 200);
 //Set ip
 global.ip = "127.0.0.1";
 
+//Set login
+global.login = -1 // -1 is none, 0 is wait, 1 is okay
+global.uuid  = -1 // -1 is none
+
 alarm[0] = room_speed;
 </string>
           </argument>
@@ -227,12 +231,33 @@ if (status == NN.status_connected) {
             break;
             
             case NN.signal_login:
-                show_message(message_body);
+                var signal_login_data = json_decode(message_body);
+                if not(ds_exists(ds_type_map, signal_login_data)) { break; }
+                if ((ds_map_find_value(signal_login_data, "msg") == 1)or(ds_map_find_value(signal_login_data, "msg") == 2)) {
+                    global.login = 1;
+                    global.uuid  = ds_map_find_value(signal_login_data, "uuid");
+                    room_goto(rm_main);
+                }else {
+                    with(obj_login)
+                    {
+                    //Construct message
+                    var json_data2 = ds_map_create();
+                    ds_map_add(json_data2, "id", NN.signal_login);
+                    ds_map_add(json_data2, "msg", get_string("로그인에 실패하였습니다. 다시 로그인 해주세요.", ""));
+                    var body = json_encode(json_data2);
+                    ds_map_destroy(json_data2);
+                    
+                    //Send message
+                    nn_send_message(body);
+                    }
+                }
+                ds_map_destroy(signal_login_data);
             break;
             
             case NN.signal_move:
                 //show_message(message_body);
                 var signal_move_data = json_decode(message_body);
+                if not(ds_exists(ds_type_map, signal_move_data)) { break; }
                 var check = true;
                 with(par_player) {
                     if(control == 0) {

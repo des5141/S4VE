@@ -23,6 +23,7 @@ var worker_id  = 1;
 // 시그널 설정
 const signal_ping = 0;
 const signal_login = 1;
+const signal_move = 2;
 
 // 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
 if (cluster.isMaster) {
@@ -153,7 +154,11 @@ if (cluster.isWorker) {
                 case 'login':
                     authenticated_users.each(function (user) {
                         if (user.uuid == message.uuid) {
-                            send_id_message(user.socket, signal_login, message.msg);
+                            var json_data = JSON.stringify({
+                                msg: message.msg,
+                                uuid: user.uuid
+                            });
+                            send_id_message(user.socket, signal_login, json_data);
                         }
                     });
                     break;
@@ -181,29 +186,38 @@ if (cluster.isWorker) {
 
                     if (buffer_string.charAt(i) == "#") {
                         var json_data = JSON.parse(buffer_reading_string);
-                        buffer_reading_string = "";
                         var id = json_data.id;
                         var msg = json_data.msg;
 
                         // 클라이언트 세부 메세지 처리
                         switch (id) {
                             case signal_ping:
-
+                                send_id_message(dsocket, signal_ping, msg);
                                 break;
 
                             case signal_login:
                                 if (authenticated_users.findUserBySocket(dsocket) == null) {
-                                    var new_user = User_worker.create(0, dsocket, 1);
+                                    var new_user = User_worker.create(0, dsocket);
                                     authenticated_users.addUser(new_user);
                                     process.send({ type: 'login', to: 'master', uuid: new_user.uuid, id: msg });
                                     console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
+                                } else {
+                                    var temp = authenticated_users.findUserBySocket(dsocket);
+                                    process.send({ type: 'login', to: 'master', uuid: temp.uuid, id: msg });
+                                    console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
                                 }
+                                break;
+
+                            case signal_move:
+
                                 break;
 
                             default:
                                 console.log(id);
                                 break;
                         }
+
+                        buffer_reading_string = "";
                     }
 
                 }

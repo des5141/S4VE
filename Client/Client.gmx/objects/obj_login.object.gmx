@@ -25,19 +25,17 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/// Ping
-var status = nn_status();
-if (status == NN.status_connected){
-    //Construct message
-    var json_data = ds_map_create();
-    ds_map_add(json_data, "id", NN.signal_login);
-    ds_map_add(json_data, "msg", get_string("input nickname", ""));
-    var body = json_encode(json_data);
-    ds_map_destroy(json_data);
-    
-    //Send message
-    nn_send_message(body);
-}
+            <string>/// Login
+
+//Construct message
+var json_data = ds_map_create();
+ds_map_add(json_data, "id", NN.signal_login);
+ds_map_add(json_data, "msg", get_string("input nickname", ""));
+var body = json_encode(json_data);
+ds_map_destroy(json_data);
+
+//Send message
+nn_send_message(body);
 </string>
           </argument>
         </arguments>
