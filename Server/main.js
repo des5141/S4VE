@@ -11,7 +11,7 @@ var Colors = require('colors');
 var split = require('string-split');
 var fs = require('fs');
 var async = require('async');
-var functions = require('./classes/functions.js');
+var functions = require('./classes/functions.js').create();
 var server = require('./classes/server.js').createServer();
 
 // 서버 세부 설정
@@ -19,11 +19,14 @@ var tcp_port   = 20000; //TCP port
 var ip         = '127.0.0.1'; //IP address
 var worker_max = 10;
 var worker_id  = 1;
+var room = new Array();
+var room_max = 10;
 
 // 시그널 설정
 const signal_ping = 0;
 const signal_login = 1;
-const signal_move = 2;
+const signal_search = 2;
+const signal_move = 3;
 
 // 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
 if (cluster.isMaster) {
@@ -33,6 +36,27 @@ if (cluster.isMaster) {
 
     // 변수 설정
     var authenticated_users = UserBox.create();
+
+    // 큐
+    class Queue {
+        constructor() {
+            this._arr = [];
+        }
+        enqueue(item) {
+            this._arr.push(item);
+        }
+        dequeue() {
+            return this._arr.shift();
+        }
+        length() {
+            return this._arr.length;
+        }
+        destroy(message) {
+            this._arr.splice(this._arr.indexOf(message), 1);
+        }
+    }
+    const match_wait = new Queue();
+    
 
     // 워커 생성
     var tasks = [
@@ -48,7 +72,7 @@ if (cluster.isMaster) {
 
     // 워커는 죽지 못해요. 신안 노예랍니다.
     cluster.on('exit', function (worker, code, signal) {
-        console.log("- 워커 ".red + worker.id + "이 죽었습니다".red);
+        console.log("- 워커 ".red + worker.process.pid + "가 죽었습니다 - 사망원인 | ".red + code);
         var new_worker = cluster.fork();
         new_worker.send({ to: 'worker', type: 'start', port: tcp_port, id: worker_id });
         worker_id++;
@@ -93,9 +117,22 @@ if (cluster.isMaster) {
                 case 'logout':
                     authenticated_users.each(function (user) {
                         if (user.uuid == message.uuid) {
+                            match_wait.destroy(message.uuid);
                             user.uuid = -1;
                         }
                     });
+                    break;
+
+                case 'search':
+                    if (message.id == 1) {
+                        // 대기열 삽입
+                        match_wait.enqueue(message.uuid);
+                        console.log(match_wait._arr);
+                    } else if (message.id == 2){
+                        // 대기열에서 삭제
+                        match_wait.destroy(message.uuid);
+                        console.log(match_wait._arr);
+                    }
                     break;
             }
         }
@@ -206,6 +243,10 @@ if (cluster.isWorker) {
                                     process.send({ type: 'login', to: 'master', uuid: temp.uuid, id: msg });
                                     console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
                                 }
+                                break;
+
+                            case signal_search:
+                                process.send({ type: 'search', to: 'master', uuid: authenticated_users.findUserBySocket(dsocket).uuid, id: msg });
                                 break;
 
                             case signal_move:

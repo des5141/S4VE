@@ -23,6 +23,7 @@
     <sprite>sprites\spr_tree02</sprite>
     <sprite>sprites\spr_tree03</sprite>
     <sprite>sprites\spr_grass</sprite>
+    <sprite>sprites\spr_searching</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -81,10 +82,12 @@
     <object>objects\obj_tree02</object>
     <object>objects\obj_tree03</object>
     <object>objects\obj_grass</object>
+    <object>objects\obj_searching</object>
   </objects>
   <rooms name="rooms">
     <room>rooms\rm_connecting</room>
     <room>rooms\rm_login</room>
+    <room>rooms\rm_search</room>
     <room>rooms\rm_main</room>
   </rooms>
   <help>

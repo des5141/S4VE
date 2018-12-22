@@ -46,7 +46,7 @@ my_ping = current_time;
 ping = current_time;
 
 //Out ping
-global.out_ping = 20000;
+global.out_ping = 2000;
 
 //Set timeout
 network_set_config(network_config_connect_timeout, 200);
@@ -236,10 +236,8 @@ if (status == NN.status_connected) {
                 if ((ds_map_find_value(signal_login_data, "msg") == 1)or(ds_map_find_value(signal_login_data, "msg") == 2)) {
                     global.login = 1;
                     global.uuid  = ds_map_find_value(signal_login_data, "uuid");
-                    room_goto(rm_main);
+                    room_goto(rm_search);
                 }else {
-                    with(obj_login)
-                    {
                     //Construct message
                     var json_data2 = ds_map_create();
                     ds_map_add(json_data2, "id", NN.signal_login);
@@ -249,7 +247,6 @@ if (status == NN.status_connected) {
                     
                     //Send message
                     nn_send_message(body);
-                    }
                 }
                 ds_map_destroy(signal_login_data);
             break;

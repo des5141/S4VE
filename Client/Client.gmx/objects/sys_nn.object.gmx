@@ -188,7 +188,8 @@ enum NN{
     port         = 20000,
     signal_ping  = 0,
     signal_login = 1,
-    signal_move  = 2,
+    signal_search= 2,
+    signal_move  = 3,
     
     status_disconnected = -1,
     status_connecting   = 0,
