@@ -226,6 +226,10 @@ if (status == NN.status_connected) {
                 ping    = real(message_body);
             break;
             
+            case NN.signal_login:
+                show_message(message_body);
+            break;
+            
             case NN.signal_move:
                 //show_message(message_body);
                 var signal_move_data = json_decode(message_body);

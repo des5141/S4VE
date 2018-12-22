@@ -40,13 +40,3 @@ function clear() {
 function length() {
     return this.top + 1;
 }
-
-function send_id_message(sock, id, msg) {
-    if (sock != -1) {
-        var json_string = JSON.stringify({
-            id: id,
-            msg: msg
-        });
-        sock.send("§ï" + json_string.length + "¢ç" + json_string);
-    }
-}

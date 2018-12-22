@@ -68,9 +68,15 @@ if (cluster.isMaster) {
                     authenticated_users.each(function (user) {
                         // 기존에 데이터가 있는 유저!
                         if (user.id == message.id) {
-                            user.uuid = message.uuid;
-                            check = -1;
-                            console.log("   " + message.id + " 유저 재접속".gray);
+                            if (user.uuid == -1) {
+                                user.uuid = message.uuid;
+                                check = -1;
+                                console.log("   " + message.id + " 유저 재접속".gray);
+                                worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid });
+                            } else {
+                                check = -1;
+                                worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
+                            }
                         }
                     });
 
@@ -79,6 +85,7 @@ if (cluster.isMaster) {
                         var new_user = User.create(message.uuid, -1, message.id);
                         authenticated_users.addUser(new_user);
                         console.log("   " + message.id + " 유저 신규 로드".gray);
+                        worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid });
                     }
                     break;
 
@@ -122,6 +129,17 @@ if (cluster.isWorker) {
     var temp_buffer = "", buffer_string = "", buffer_reading_string = "", i = 0;
     var authenticated_users = UserBox_worker.create();
 
+    // 메세지 보내는 방법
+    function send_id_message(sock, id, msg) {
+        if (sock != -1) {
+            var json_string = JSON.stringify({
+                id: id,
+                msg: msg
+            });
+            sock.send("㏆" + json_string.length + "®" + json_string);
+        }
+    }
+
     // 파이프 통신
     process.on('message', function (message) {
         if (message.to == 'worker') {
@@ -131,9 +149,13 @@ if (cluster.isWorker) {
                     server.listen(message.port, ip);
                     worker_id = message.id;
                     break;
-
-                case 'logout':
-                    removeUser(message.uuid);
+                
+                case 'login':
+                    authenticated_users.each(function (user) {
+                        if (user.uuid == message.uuid) {
+                            send_id_message(user.socket, signal_login, message.msg);
+                        }
+                    });
                     break;
 
                 default:
@@ -191,13 +213,12 @@ if (cluster.isWorker) {
                 console.log("- pid ".red + process.pid + "에서 에러 발생 | ".red + e);
             }
         });
-        // When client disconnect
+        // 클라이언트와의 연결이 끊겼을때
         dsocket.onClose(function () {
-            //Respond for authenticated users only
             var quitter;
             if ((quitter = authenticated_users.findUserBySocket(dsocket)) != null) {
                 console.log("- 유저 나감 (".gray + (quitter.uuid).gray + ")".gray);
-                process.send({ type: 'logout', to: 'all', uuid: quitter.uuid });
+                process.send({ type: 'logout', to: 'master', uuid: quitter.uuid });
                 authenticated_users.removeUser(quitter.uuid);
             }
         });
