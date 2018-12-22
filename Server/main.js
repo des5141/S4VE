@@ -21,6 +21,8 @@ var worker_max = 10;
 var worker_id  = 1;
 var room = new Array();
 var room_max = 10;
+for (var i = 0; i < room_max; i++)
+    room[i] = -1;
 
 // 시그널 설정
 const signal_ping = 0;
@@ -144,17 +146,53 @@ if (cluster.isMaster) {
             }
         }
     });
+    
+    // 큐 내용을 확인하고 1초에 한번씩 매칭
+    !function input_match() {
+        console.log("test");
+        if (match_wait.length() >= 6) {
+        var i, temp_data, temp_room, check = -1;
+            for (i = 0; i < room_max; i++) {
+                if (room[i] == -1) {
+                    var uuid_v4 = require('uuid-v4');
+                    room[i] = uuid_v4();
+                    temp_room = room[i];
+                    check = 1;
+                    for (i = 0; i < 6; i++) {
+                        temp_data = match_wait.dequeue();
+                        authenticated_users.each(function (user) {
+                            if (user.uuid == temp_data) {
+                                user.room = temp_room;
+                                for (var id in cluster.workers) {
+                                    cluster.workers[id].send({ type: 'search', to: 'worker', uuid: user.uuid, id: 1 });
+                                }
+                            }
+                        });
+                    }
+                    break;
+                }
+                if (check)
+                    break;
+            }
+        }
+       
+        setTimeout(function () {
+            input_match();
+        }, 1000);
+    }()
 
     // 무한 반복 시킬 내용
     !function step() {
         authenticated_users.each(function (user) {
-
+            
         });
 
         setTimeout(function () {
             step();
-        }, 10);
+        }, 15);
     }()
+
+
 }
 
 // 노동자 내용
@@ -200,6 +238,15 @@ if (cluster.isWorker) {
                     });
                     break;
 
+                case 'search':
+                    if (message.id == 1) {
+                        authenticated_users.each(function (user) {
+                            if (user.uuid == message.uuid) {
+                                send_id_message(user.socket, signal_search, 1);
+                            }
+                        });
+                    }
+                    break;
                 default:
                     break;
             }
