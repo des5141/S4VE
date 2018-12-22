@@ -1,4 +1,4 @@
 @echo off
-cd ./
+cd /d .
 node main.js
 pause

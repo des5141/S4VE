@@ -49,7 +49,10 @@ ping = current_time;
 global.out_ping = 20000;
 
 //Set timeout
-//network_set_config(network_config_connect_timeout, 200);
+network_set_config(network_config_connect_timeout, 200);
+
+//Set ip
+global.ip = "127.0.0.1";
 
 alarm[0] = room_speed;
 </string>
@@ -75,7 +78,7 @@ alarm[0] = room_speed;
           <argument>
             <kind>1</kind>
             <string>///Connect to the correct server
-nn_connect("198.13.36.114", NN.port);
+nn_connect(global.ip, NN.port);
 
 //Mark connection as active (or at least, actively in progress)
 active = true;

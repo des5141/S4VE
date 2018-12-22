@@ -34,15 +34,6 @@ function create() {
 		}
 	}
 	
-	//Find a user by id
-	function findUserById(id) {
-		for (uuid in users) {
-			if (users[uuid].id == id) {
-				return users[uuid];
-			}
-		}
-	}
-	
 	//Utility function for iterating through users
 	function each(f) {
 		for (uuid in users) {
@@ -58,7 +49,6 @@ function create() {
 		findUser: findUser,
 		findUserByName: findUserByName,
 		findUserBySocket: findUserBySocket,
-		findUserById: findUserById,
 		each: each
 	};
 }
