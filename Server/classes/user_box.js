@@ -23,7 +23,16 @@ function create() {
 				return users[uuid];
 			}
 		}
-	}
+    }
+
+    //Find a user by id
+    function findUserById(id) {
+        for (uuid in users) {
+            if (users[uuid].id == id) {
+                return users[uuid];
+            }
+        }
+    }
 	
 	//Find a user by socket
 	function findUserBySocket(socket) {
@@ -47,7 +56,8 @@ function create() {
 		addUser: addUser,
 		removeUser: removeUser,
 		findUser: findUser,
-		findUserByName: findUserByName,
+        findUserByName: findUserByName,
+        findUserById: findUserById,
 		findUserBySocket: findUserBySocket,
 		each: each
 	};

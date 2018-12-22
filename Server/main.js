@@ -1,3 +1,9 @@
+/* 
+ * 이 서버의 문제점
+ * 1) 유저가 접속할때마다 데이터가 생성이 되는데, 이게 사라지지 않는다. 심각. 정기점검으로 매번 지워주는 수 밖에 없을 것 같다.
+ * 
+ */
+
 // Requires
 var cluster = require('cluster');
 var User = require('./classes/user.js');
@@ -10,19 +16,23 @@ var functions = require('./classes/functions.js');
 var server = require('./classes/server.js').createServer();
 
 // 서버 세부 설정
-var tcp_port = 20000; //TCP port
-var ip = '127.0.0.1'; //IP address
+var tcp_port   = 20000; //TCP port
+var ip         = '127.0.0.1'; //IP address
 var worker_max = 10;
+var worker_id  = 1;
 
 // 변수 설정
-var temp_buffer = "", buffer_string = "", buffer_reading_string = "", i = 0;
 var authenticated_users = UserBox.create();
 
 // 시그널 설정
-
+const signal_ping = 0;
+const signal_login = 1;
 
 // 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
 if (cluster.isMaster) {
+    // 변수 설정
+
+    // 워커 생성
     var tasks = [
         function (callback) {
             worker_list = new Array();
@@ -49,7 +59,8 @@ if (cluster.isMaster) {
 
     // 일 시작이다 노예들아!
     for (var id in cluster.workers) {
-        cluster.workers[id].send({ to: 'worker', type: 'start', port: tcp_port});
+        cluster.workers[id].send({ to: 'worker', type: 'start', port: tcp_port, id: worker_id });
+        worker_id++;
     }
 
     // 워커들과의 파이프 통신
@@ -58,6 +69,17 @@ if (cluster.isMaster) {
             switch (message.type) {
                 case 'process_user_count':
                     worker_list[message.id] = message.value;
+                    break;
+
+                case 'login': 
+                    if (authenticated_users.findUserById(message.id) == null) {
+                        var new_user = User.create(message.uuid, message.id, -1);
+                        authenticated_users.addUser(new_user);
+                    }
+                    
+                    for (var id in cluster.workers) {
+                        cluster.workers[id].send({ type: 'login', to: 'worker', uuid: message.uuid, name: message.name, id: message.id});
+                    }
                     break;
             }
         }
@@ -81,6 +103,9 @@ if (cluster.isMaster) {
 
 // 노동자 내용
 if (cluster.isWorker) {
+    // 변수 설정
+    var temp_buffer = "", buffer_string = "", buffer_reading_string = "", i = 0;
+
     // 파이프 통신
     process.on('message', function (message) {
         if (message.to == 'worker') {
@@ -88,6 +113,14 @@ if (cluster.isWorker) {
 
                 case 'start':
                     server.listen(message.port, ip);
+                    worker_id = message.id;
+                    break;
+
+                case 'login':
+                    if (authenticated_users.findUserById(message.id) == null) {
+                        var new_user = User.create(message.uuid, message.id, -1);
+                        authenticated_users.addUser(new_user);
+                    }
                     break;
 
                 default:
@@ -119,6 +152,30 @@ if (cluster.isWorker) {
 
                         // 클라이언트 세부 메세지 처리
                         switch (id) {
+                            case signal_ping:
+
+                                break;
+
+                            case signal_login:
+                                if (authenticated_users.findUserBySocket(dsocket) == null) {
+                                    if (authenticated_users.findUserById(msg) == null) {
+                                        // 첫 로그인
+                                        var new_user = User.create(0, msg, dsocket);
+                                        authenticated_users.addUser(new_user);
+                                        new_user.mine = 1;
+                                        process.send({ type: 'login', to: 'master', uuid: new_user.uuid, name: new_user.name, id: new_user.id });
+                                    }
+                                } else {
+                                    authenticated_users.each(function (user) {
+                                        if (msg == user.id) {
+                                            // 재 로그인
+                                            user.socket = dsocket;
+                                            new_user.mine = 1;
+                                        }
+                                    });
+                                }
+                                break;
+
                             default:
                                 console.log(id);
                                 break;
@@ -138,17 +195,9 @@ if (cluster.isWorker) {
             var quitter;
             if ((quitter = authenticated_users.findUserBySocket(dsocket)) != null) {
                 console.log("Out user   :".data, quitter.name, "(" + quitter.uuid + ")");
-                //Let everyone else know the user is leaving
-                var logout_announcement = JSON.stringify({
-                    name: quitter.name,
-                    uuid: quitter.uuid
-                });
-                authenticated_users.each(function (user) {
-                    if (user.uuid != quitter.uuid) {
-                        send_id_message(user.socket, outsig_user_leave, logout_announcement);
-                    }
-                });
+
                 quitter.socket = -1;
+                quitter.mine = -1;
             }
         });
     });
