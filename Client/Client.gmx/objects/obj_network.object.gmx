@@ -54,10 +54,6 @@ network_set_config(network_config_connect_timeout, 200);
 //Set ip
 global.ip = "127.0.0.1";
 
-//Set login
-global.login = -1 // -1 is none, 0 is wait, 1 is okay
-global.uuid  = -1 // -1 is none
-
 alarm[0] = room_speed;
 </string>
           </argument>
@@ -263,7 +259,7 @@ if (status == NN.status_connected) {
                 var check = true;
                 with(par_player) {
                     if(control == 0) {
-                        if(user_id == ds_map_find_value(signal_move_data, "user_id")) {
+                        if(user_uuid == ds_map_find_value(signal_move_data, "uuid")) {
                             check = false;
                             other_x = ds_map_find_value(signal_move_data, "x");
                             other_y = ds_map_find_value(signal_move_data, "y");
@@ -272,7 +268,7 @@ if (status == NN.status_connected) {
                     }
                 }
                 
-                if(check) {
+                if(check)and(ds_map_find_value(signal_move_data, "uuid") != global.uuid) {
                     switch(ds_map_find_value(signal_move_data, "type")) {
                         case 1:
                             var user_ins = instance_create(ds_map_find_value(signal_move_data, "x"), ds_map_find_value(signal_move_data, "y"), obj_sworder);
@@ -295,7 +291,7 @@ if (status == NN.status_connected) {
                         break;
                     }
                     user_ins.type    = ds_map_find_value(signal_move_data, "type");
-                    user_ins.user_id = ds_map_find_value(signal_move_data, "user_id");
+                    user_ins.user_uuid = ds_map_find_value(signal_move_data, "uuid");
                 }
                 ds_map_destroy(signal_move_data);
             break;

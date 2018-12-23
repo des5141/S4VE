@@ -275,7 +275,7 @@ if (weapon_delay &lt;= 0) {
 if(control == 1) {
     var json_data = ds_map_create();
     ds_map_add(json_data, "id",      NN.signal_move);
-    ds_map_add(json_data, "user_id", global.user_id);
+    ds_map_add(json_data, "uuid",    global.uuid);
     ds_map_add(json_data, "x",       x);
     ds_map_add(json_data, "y",       y);
     ds_map_add(json_data, "z",       z);

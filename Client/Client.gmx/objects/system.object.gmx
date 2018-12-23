@@ -48,7 +48,6 @@ global.skill_delay    [4] = 0;
 global.skill_delay_max[4] = 0;
 global.skill_index    [4] = 0;
 global.skill_point        = 0;
-global.user_id            = "guest" + string(irandom_range(10000, 99999));
 </string>
           </argument>
         </arguments>

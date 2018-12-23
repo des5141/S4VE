@@ -13,6 +13,7 @@ var fs = require('fs');
 var async = require('async');
 var functions = require('./classes/functions.js').create();
 var server = require('./classes/server.js').createServer();
+var uuid_v4 = require('uuid-v4');
 
 // 서버 세부 설정
 var tcp_port   = 20000; //TCP port
@@ -21,8 +22,10 @@ var worker_max = 10;
 var worker_id  = 1;
 var room = new Array();
 var room_max = 10;
-for (var i = 0; i < room_max; i++)
-    room[i] = -1;
+var game_max = 3;
+for (var i = 0; i < room_max; i++) {
+    room[i] = "";
+}
 
 // 시그널 설정
 const signal_ping = 0;
@@ -98,8 +101,8 @@ if (cluster.isMaster) {
                             if (user.uuid == -1) {
                                 user.uuid = message.uuid;
                                 check = -1;
-                                console.log("   " + message.id + " 유저 재접속".gray);
-                                worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid });
+                                console.log("   " + message.id + " 유저 재접속".gray + "(" + user.uuid+")");
+                                worker.send({ to: 'worker', type: 'login', msg: 2, uuid: user.uuid });
                             } else {
                                 check = -1;
                                 worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
@@ -111,7 +114,7 @@ if (cluster.isMaster) {
                         // 새로 들어온 유저!
                         var new_user = User.create(message.uuid, -1, message.id);
                         authenticated_users.addUser(new_user);
-                        console.log("   " + message.id + " 유저 신규 로드".gray);
+                        console.log("   " + message.id + " 유저 신규 로드".gray + "(" + message.uuid + ")");
                         worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid });
                     }
                     break;
@@ -136,6 +139,22 @@ if (cluster.isMaster) {
                         console.log(match_wait._arr);
                     }
                     break;
+
+                case 'move':
+                    console.log(message.uuid);
+                    var ins2 = authenticated_users.findUser(message.uuid);
+                    //console.log(ins.uuid + " | " + ins.room);
+                    if (ins2 != undefined) {
+                        
+                        authenticated_users.each(function (user) {
+                            if ((ins2.room == user.room) && (ins2.uuid != user.uuid)) {
+                                for (var id in cluster.workers) {
+                                    cluster.workers[id].send({ type: 'move', to: 'worker', uuid: ins2.uuid, x: message.x, y: message.y, z: message.z, _type: message._type, user_id: message.uuid });
+                                }
+                            }
+                        });
+                    }
+                    break;
             }
         }
 
@@ -149,36 +168,34 @@ if (cluster.isMaster) {
     
     // 큐 내용을 확인하고 1초에 한번씩 매칭
     !function input_match() {
-        console.log("test");
-        if (match_wait.length() >= 6) {
+        if (match_wait.length() >= game_max) {
         var i, temp_data, temp_room, check = -1;
             for (i = 0; i < room_max; i++) {
-                if (room[i] == -1) {
-                    var uuid_v4 = require('uuid-v4');
-                    room[i] = uuid_v4();
-                    temp_room = room[i];
-                    check = 1;
-                    for (i = 0; i < 6; i++) {
+                if (room[i] == "") {
+                    temp_room = uuid_v4();
+                    console.log(room[i]);
+                    for (i = 0; i < game_max; i++) {
                         temp_data = match_wait.dequeue();
                         authenticated_users.each(function (user) {
                             if (user.uuid == temp_data) {
+                                console.log(user.uuid);
                                 user.room = temp_room;
+                                console.log("- " + user.room);
                                 for (var id in cluster.workers) {
                                     cluster.workers[id].send({ type: 'search', to: 'worker', uuid: user.uuid, id: 1 });
                                 }
                             }
                         });
                     }
+                    room[i] = temp_room;
                     break;
                 }
-                if (check)
-                    break;
             }
         }
        
         setTimeout(function () {
             input_match();
-        }, 1000);
+        }, 5000);
     }()
 
     // 무한 반복 시킬 내용
@@ -191,8 +208,6 @@ if (cluster.isMaster) {
             step();
         }, 15);
     }()
-
-
 }
 
 // 노동자 내용
@@ -225,7 +240,7 @@ if (cluster.isWorker) {
                     server.listen(message.port, ip);
                     worker_id = message.id;
                     break;
-                
+
                 case 'login':
                     authenticated_users.each(function (user) {
                         if (user.uuid == message.uuid) {
@@ -247,6 +262,23 @@ if (cluster.isWorker) {
                         });
                     }
                     break;
+
+                case 'move':
+                    var ins = authenticated_users.findUser(message.uuid);
+
+                    if (ins != undefined) {
+                        var json_data = JSON.stringify({
+                            uuid: message.user_id,
+                            type: message._type,
+                            x: message.x,
+                            y: message.y,
+                            z: message.z
+                        });
+
+                        send_id_message(ins.socket, signal_move, json_data);
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -272,6 +304,7 @@ if (cluster.isWorker) {
                         var json_data = JSON.parse(buffer_reading_string);
                         var id = json_data.id;
                         var msg = json_data.msg;
+                        var ins = authenticated_users.findUserBySocket(dsocket);
 
                         // 클라이언트 세부 메세지 처리
                         switch (id) {
@@ -285,19 +318,15 @@ if (cluster.isWorker) {
                                     authenticated_users.addUser(new_user);
                                     process.send({ type: 'login', to: 'master', uuid: new_user.uuid, id: msg });
                                     console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
-                                } else {
-                                    var temp = authenticated_users.findUserBySocket(dsocket);
-                                    process.send({ type: 'login', to: 'master', uuid: temp.uuid, id: msg });
-                                    console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
                                 }
                                 break;
 
                             case signal_search:
-                                process.send({ type: 'search', to: 'master', uuid: authenticated_users.findUserBySocket(dsocket).uuid, id: msg });
+                                process.send({ type: 'search', to: 'master', uuid: ins.uuid, id: msg });
                                 break;
 
                             case signal_move:
-
+                                process.send({ type: 'move', to: 'master', uuid: ins.uuid, x: json_data.x, y: json_data.y, z: json_data.z, _type: json_data.type });
                                 break;
 
                             default:
