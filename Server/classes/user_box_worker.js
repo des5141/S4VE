@@ -7,7 +7,7 @@ function create() {
 	}
 	
 	//Remove a user
-	function removeUser(uuid) {
+	function removeUserData(uuid) {
 		delete users[uuid];
 	}
 	
@@ -36,7 +36,7 @@ function create() {
 	return {
 		users: users,
 		addUser: addUser,
-		removeUser: removeUser,
+		removeUserData: removeUserData,
 		findUser: findUser,
 		findUserBySocket: findUserBySocket,
 		each: each

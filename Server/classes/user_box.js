@@ -3,50 +3,50 @@ function create() {
 
 	//Add a user
 	function addUser(user) {
-		users[user.uuid] = user;
+		users[user.id] = user;
 	}
 	
 	//Remove a user
-	function removeUser(uuid) {
-		delete users[uuid];
+	function removeUser(id) {
+		delete users[id];
 	}
 	
 	//Find a user by UUID
-	function findUser(uuid) {
-		return users[uuid];
+	function findUser(id) {
+		return users[id];
 	}
 	
 	//Find a user by name
 	function findUserByName(name) {
-		for (uuid in users) {
-			if (users[uuid].name == name) {
-				return users[uuid];
+		for (id in users) {
+			if (users[id].name == name) {
+				return users[id];
 			}
 		}
     }
 
     //Find a user by id
     function findUserById(id) {
-        for (uuid in users) {
-            if (users[uuid].id == id) {
-                return users[uuid];
+        for (id in users) {
+            if (users[id].id == id) {
+                return users[id];
             }
         }
     }
 	
 	//Find a user by socket
 	function findUserBySocket(socket) {
-		for (uuid in users) {
-			if (users[uuid].socket == socket) {
-				return users[uuid];
+		for (id in users) {
+			if (users[id].socket == socket) {
+				return users[id];
 			}
 		}
 	}
 	
 	//Utility function for iterating through users
 	function each(f) {
-		for (uuid in users) {
-			f(users[uuid]);
+		for (id in users) {
+			f(users[id]);
 		}
 	}
 	

@@ -1,6 +1,6 @@
 var uuid_v4 = require('uuid-v4');
 
-function create(uuid, socket, id) {
+function create(uuid, id) {
     if (uuid == 0) {
         uuid = uuid_v4();
     } else if(uuid == -1){
@@ -9,8 +9,7 @@ function create(uuid, socket, id) {
 	//Interface
 	return {
 		uuid   : uuid, // UUID
-		name   : "null",      // User Nickname
-		socket : socket,    // User's socket
+		name   : "null",      // User Nickname\
 		room   : "null",      // User's room
         id     : id,    // User's id
 		x      : 0,

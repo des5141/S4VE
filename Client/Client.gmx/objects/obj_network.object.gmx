@@ -336,6 +336,8 @@ if(my_ping - ping &gt; 0)
     draw_set_alpha(0.5)
     draw_text(5, 5, "ping " + string(my_ping - ping))
     draw_set_alpha(1)
+    
+    draw_text(5, 15, global.uuid )
 }
 </string>
           </argument>

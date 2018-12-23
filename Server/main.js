@@ -22,7 +22,7 @@ var worker_max = 10;
 var worker_id  = 1;
 var room = new Array();
 var room_max = 10;
-var game_max = 3;
+var game_max = 2;
 for (var i = 0; i < room_max; i++) {
     room[i] = "";
 }
@@ -40,7 +40,7 @@ if (cluster.isMaster) {
     var UserBox = require('./classes/user_box.js');
 
     // 변수 설정
-    var authenticated_users = UserBox.create();
+    authenticated_users = UserBox.create();
 
     // 큐
     class Queue {
@@ -57,7 +57,9 @@ if (cluster.isMaster) {
             return this._arr.length;
         }
         destroy(message) {
-            this._arr.splice(this._arr.indexOf(message), 1);
+            if (this._arr.indexOf(message) != -1) {
+                this._arr.splice(this._arr.indexOf(message), 1);
+            }
         }
     }
     const match_wait = new Queue();
@@ -112,7 +114,7 @@ if (cluster.isMaster) {
 
                     if (check == 1) {
                         // 새로 들어온 유저!
-                        var new_user = User.create(message.uuid, -1, message.id);
+                        var new_user = User.create(message.uuid, message.id);
                         authenticated_users.addUser(new_user);
                         console.log("   " + message.id + " 유저 신규 로드".gray + "(" + message.uuid + ")");
                         worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid });
@@ -121,8 +123,8 @@ if (cluster.isMaster) {
 
                 case 'logout':
                     authenticated_users.each(function (user) {
-                        if (user.uuid == message.uuid) {
-                            match_wait.destroy(message.uuid);
+                        if ((user.uuid == message.uuid)&&(user.uuid != -1)) {
+                            match_wait.destroy(user.uuid);
                             user.uuid = -1;
                         }
                     });
@@ -141,18 +143,26 @@ if (cluster.isMaster) {
                     break;
 
                 case 'move':
-                    console.log(message.uuid);
-                    var ins2 = authenticated_users.findUser(message.uuid);
+                    var _id;
+                    authenticated_users.each(function (user) {
+                        if (user.uuid == message.uuid) {
+                            _id = user.id;
+                        }
+                    });
+                    var ins2 = authenticated_users.findUser(_id);
                     //console.log(ins.uuid + " | " + ins.room);
                     if (ins2 != undefined) {
-                        
+                        console.log(ins2.id);
                         authenticated_users.each(function (user) {
-                            if ((ins2.room == user.room) && (ins2.uuid != user.uuid)) {
+                            if (ins2.room == user.room) {
                                 for (var id in cluster.workers) {
-                                    cluster.workers[id].send({ type: 'move', to: 'worker', uuid: ins2.uuid, x: message.x, y: message.y, z: message.z, _type: message._type, user_id: message.uuid });
+                                    cluster.workers[id].send({ type: 'move', to: 'worker', uuid: user.uuid, x: message.x, y: message.y, z: message.z, _type: message._type, user_id: ins2.uuid });
                                 }
                             }
                         });
+                    } else {
+                        console.log(authenticated_users.findUser(message.id));
+                        console.log(message.id);
                     }
                     break;
             }
@@ -218,7 +228,7 @@ if (cluster.isWorker) {
 
     // 변수 설정
     var temp_buffer = "", buffer_string = "", buffer_reading_string = "", i = 0;
-    var authenticated_users = UserBox_worker.create();
+    authenticated_users = UserBox_worker.create();
 
     // 메세지 보내는 방법
     function send_id_message(sock, id, msg) {
@@ -326,7 +336,7 @@ if (cluster.isWorker) {
                                 break;
 
                             case signal_move:
-                                process.send({ type: 'move', to: 'master', uuid: ins.uuid, x: json_data.x, y: json_data.y, z: json_data.z, _type: json_data.type });
+                                process.send({ type: 'move', to: 'master', uuid: json_data.uuid, x: json_data.x, y: json_data.y, z: json_data.z, _type: json_data.type});
                                 break;
 
                             default:
@@ -350,7 +360,7 @@ if (cluster.isWorker) {
             if ((quitter = authenticated_users.findUserBySocket(dsocket)) != null) {
                 console.log("- 유저 나감 (".gray + (quitter.uuid).gray + ")".gray);
                 process.send({ type: 'logout', to: 'master', uuid: quitter.uuid });
-                authenticated_users.removeUser(quitter.uuid);
+                authenticated_users.removeUserData(quitter.uuid);
             }
         });
     });
