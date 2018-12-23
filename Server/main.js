@@ -150,9 +150,7 @@ if (cluster.isMaster) {
                         }
                     });
                     var ins2 = authenticated_users.findUser(_id);
-                    //console.log(ins.uuid + " | " + ins.room);
                     if (ins2 != undefined) {
-                        console.log(ins2.id);
                         authenticated_users.each(function (user) {
                             if (ins2.room == user.room) {
                                 for (var id in cluster.workers) {
