@@ -63,7 +63,7 @@ if (cluster.isMaster) {
         }
     }
     const match_wait = new Queue();
-    
+
 
     // 워커 생성
     var tasks = [
@@ -95,7 +95,7 @@ if (cluster.isMaster) {
     cluster.on('message', function (worker, message) {
         if ((message.to == 'master') || (message.to == 'all')) {
             switch (message.type) {
-                case 'login': 
+                case 'login':
                     var check = 1;
                     authenticated_users.each(function (user) {
                         // 기존에 데이터가 있는 유저!
@@ -103,7 +103,7 @@ if (cluster.isMaster) {
                             if (user.uuid == -1) {
                                 user.uuid = message.uuid;
                                 check = -1;
-                                console.log("   " + message.id + " 유저 재접속".gray + "(" + user.uuid+")");
+                                console.log("   " + message.id + " 유저 재접속".gray + "(" + user.uuid + ")");
                                 worker.send({ to: 'worker', type: 'login', msg: 2, uuid: user.uuid });
                             } else {
                                 check = -1;
@@ -123,7 +123,7 @@ if (cluster.isMaster) {
 
                 case 'logout':
                     authenticated_users.each(function (user) {
-                        if ((user.uuid == message.uuid)&&(user.uuid != -1)) {
+                        if ((user.uuid == message.uuid) && (user.uuid != -1)) {
                             match_wait.destroy(user.uuid);
                             user.uuid = -1;
                         }
@@ -135,7 +135,7 @@ if (cluster.isMaster) {
                         // 대기열 삽입
                         match_wait.enqueue(message.uuid);
                         console.log(match_wait._arr);
-                    } else if (message.id == 2){
+                    } else if (message.id == 2) {
                         // 대기열에서 삭제
                         match_wait.destroy(message.uuid);
                         console.log(match_wait._arr);
@@ -173,11 +173,11 @@ if (cluster.isMaster) {
             }
         }
     });
-    
+
     // 큐 내용을 확인하고 1초에 한번씩 매칭
     !function input_match() {
         if (match_wait.length() >= game_max) {
-        var i, temp_data, temp_room, check = -1;
+            var i, temp_data, temp_room, check = -1;
             for (i = 0; i < room_max; i++) {
                 if (room[i] == "") {
                     temp_room = uuid_v4();
@@ -200,7 +200,7 @@ if (cluster.isMaster) {
                 }
             }
         }
-       
+
         setTimeout(function () {
             input_match();
         }, 5000);
@@ -209,7 +209,7 @@ if (cluster.isMaster) {
     // 무한 반복 시킬 내용
     !function step() {
         authenticated_users.each(function (user) {
-            
+
         });
 
         setTimeout(function () {
@@ -334,7 +334,7 @@ if (cluster.isWorker) {
                                 break;
 
                             case signal_move:
-                                process.send({ type: 'move', to: 'master', uuid: json_data.uuid, x: json_data.x, y: json_data.y, z: json_data.z, _type: json_data.type});
+                                process.send({ type: 'move', to: 'master', uuid: json_data.uuid, x: json_data.x, y: json_data.y, z: json_data.z, _type: json_data.type });
                                 break;
 
                             default:
