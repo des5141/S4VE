@@ -14,6 +14,7 @@ var async = require('async');
 var functions = require('./classes/functions.js').create();
 var server = require('./classes/server.js').createServer();
 var uuid_v4 = require('uuid-v4');
+var database = require('./classes/database');
 
 // 서버 세부 설정
 var tcp_port   = 20000; //TCP port
@@ -32,6 +33,8 @@ const signal_ping = 0;
 const signal_login = 1;
 const signal_search = 2;
 const signal_move = 3;
+const signal_sql_login = 4;
+const signal_sql_register = 5;
 
 // 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
 if (cluster.isMaster) {
@@ -339,6 +342,16 @@ if (cluster.isWorker) {
                                 process.send({ type: 'move', to: 'master', uuid: json_data.uuid, x: json_data.x, y: json_data.y, z: json_data.z, _type: json_data.type });
                                 break;
 
+                            case signal_sql_login:
+                                const result = database.login(json_data.input_id, json_data.input_pass);
+                                send_id_message(dsocket, signal_sql_login, result ? 1 : -1);
+                                break;
+
+                            case signal_sql_register:
+                                const result = database.register(json_data.input_id, json_data.input_pass,json_data.input_name);
+                                send_id_message(dsocket, signal_sql_register, result ? 1 : -1);
+                                break;
+                                
                             default:
                                 console.log(id);
                                 break;
