@@ -163,6 +163,7 @@ if (cluster.isMaster) {
                                     .then(result=>{
                                         if(result.exist){
                                             worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid, nickname: result.name });
+                                            user.uuid = message.uuid;
                                             for (i = 0; i < room_max; i++) {
                                                 if (room[i] == user.room) {
                                                     // 현재 활성화되어있는 방이니 핸드오프 합니다.
