@@ -20,10 +20,10 @@ async function login(id, password) {
                 chain(false);
             }
             if (results.length === 0) {
-                chain(false);
+                chain({exist:false});
             }
             if (results.length > 0) {
-                chain(true);
+                chain({exist:true,name:results[0].name});
             }
         });
     }).then((data) => {
@@ -92,8 +92,3 @@ module.exports.raise_point = raise_point;
 module.exports.login = login;
 module.exports.end = end_connection;
 module.exports.save_play = save_play;
-
-save_play('id123', 'asdfadsgbtrhc', 'champ', 20, 'TeamA', 'sdfgiojfsdlgkjs')
-    .then(data =>
-        console.log(data)
-    );

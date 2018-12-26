@@ -14,7 +14,7 @@ var async = require('async');
 var functions = require('./classes/functions.js').create();
 var server = require('./classes/server.js').createServer();
 var uuid_v4 = require('uuid-v4');
-var isUndefined = require("is-undefined");
+var database = require('./classes/database');
 
 // 서버 세부 설정
 var debug_mode = 1; // 1 is on, 0 is off
@@ -139,24 +139,21 @@ if (cluster.isMaster) {
                         });
 
                         if (check == 1) {
-                            connection.query('insert into user values("' + message.id + '", "' + message.pass + '", "' + message.nickname + '", 0, 0, 0, 1)', function (error, results, fields) {
-                                if (error) {
-                                    worker.send({ to: 'worker', type: 'register', msg: 0, uuid: message.uuid });
-                                } else {
-                                    if (results != undefined) {
+                            await database.register(message.id, message.pass, message.nickname)
+                                .then(result => {
+                                    if (result) {
                                         worker.send({ to: 'worker', type: 'register', msg: 1, uuid: message.uuid });
-                                        console.log("   " + message.id + " 유저 회원가입".gray + "(" + message.uuid + ")");
-                                    } else {
+                                    }
+                                    else {
                                         worker.send({ to: 'worker', type: 'register', msg: 0, uuid: message.uuid });
                                     }
-                                }
-                            });
+                                });
                         }
                         break;
 
                     case 'login':
                         var check = 1;
-                        authenticated_users.each(function (user) {
+                        authenticated_users.each(async function (user) {
                             // 기존에 데이터가 있는 유저!
                             if (user.id == message.id) {
                                 check = -1;
@@ -198,25 +195,14 @@ if (cluster.isMaster) {
 
                         if (check == 1) {
                             // 새로 들어온 유저!
-                            connection.query('SELECT * FROM user where id ="' + message.id + '" and block = 0', function (error, results, fields) {
-                                if (error) {
-                                    worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
-                                    console.log(error);
-                                } else {
-                                    if (typeof results != "undefined" && results != null && results.length != null && results.length > 0) {
-                                        if (results[0].password == message.pass) {
-                                            var new_user = User.create(message.uuid, message.id);
-                                            authenticated_users.addUser(new_user);
-                                            console.log("   " + message.id + " 유저 신규 로드".gray + "(" + message.uuid + ")");
-                                            worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid, nickname: results[0].nickname });
-                                        } else {
-                                            worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
-                                        }
-                                    } else {
+                            await database.login(message.id,message.pass)
+                                .then(result=>{
+                                    if(result.exist){
+                                        worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid, nickname: result.name });
+                                    }else{
                                         worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                     }
-                                }
-                            });
+                                });
                         }
                         break;
 
