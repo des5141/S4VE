@@ -9,13 +9,13 @@ const connection = mysql.createConnection({
     database: 'Heroes',
     insecureAuth: true
 });
+connection.connect();
 async function login(id, password) {
     const hashed_pass = hash.makeHash(password);
     const sql = `select * from Users where id='${id}' and password='${hashed_pass}'`;
     var result = false;
     await new Promise((chain, rej) => {
         connection.query(sql, (err, results) => {
-            console.log('asd : ' + results);
             if (err) {
                 chain(false);
             }
@@ -27,7 +27,6 @@ async function login(id, password) {
             }
         });
     }).then((data) => {
-        console.log(data);
         result = data;
     });
     return result;
@@ -41,34 +40,60 @@ async function register(id, password, name) {
         connection.query(sql, (err) => {
             if (err) {
                 result = false;
+            } else {
+                result = true;
             }
-            result = true;
             a();
         });
     });
     return result;
 };
 
-const win_game = point =>
+const raise_point = point =>
     async id => {
+        var result = false;
         const sql = `update Users set point=Users.point+${point} where id='${id}'`;
         await new Promise((a, b) => {
             connection.query(sql, (err) => {
                 if (err) {
                     result = false;
                 }
-                result = true;
+                else {
+                    result = true;
+                }
                 a();
             });
         });
         return result;
     };
-
 function end_connection() {
     connection.end();
 }
 
+async function save_play(id, userid, champ, win, team_name, game_id) {
+    const sql = `insert into SaveHistory values('${id}','${userid}','${champ}',${win},'${team_name}','${game_id}')`;
+    var result = false;
+    await new Promise((a, b) => {
+        connection.query(sql, (err) => {
+            if (err) {
+                result = false;
+            }
+            else {
+                result = true;
+            }
+            a();
+        });
+    });
+    return result;
+}
 
 module.exports.register = register;
-module.exports.raise_point = win_game(10);
+module.exports.raise_point = raise_point;
 module.exports.login = login;
+module.exports.end = end_connection;
+module.exports.save_play = save_play;
+
+save_play('id123', 'asdfadsgbtrhc', 'champ', 20, 'TeamA', 'sdfgiojfsdlgkjs')
+    .then(data =>
+        console.log(data)
+    );
