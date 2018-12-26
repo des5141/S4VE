@@ -14,7 +14,7 @@ var async = require('async');
 var functions = require('./classes/functions.js').create();
 var server = require('./classes/server.js').createServer();
 var uuid_v4 = require('uuid-v4');
-var isUndefined = require("is-undefined");
+var database = require('./classes/database');
 
 // 서버 세부 설정
 var debug_mode = 1; // 1 is on, 0 is off
