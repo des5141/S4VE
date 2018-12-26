@@ -26,11 +26,12 @@
           <argument>
             <kind>1</kind>
             <string>/// DEFAULT INIT
-move    = 0;
-sprite  = -1;
-turn    = -1;
-from    = -1; // 누구에게서 왔나?
-damage  = 0;  // 데미지
+move      = 0;
+sprite    = -1;
+turn      = -1;
+from      = -1; // 누구에게서 왔나?
+damage    = 0;  // 데미지
+from_team = "";
 </string>
           </argument>
         </arguments>
@@ -96,7 +97,7 @@ if(turn) {
           <argument>
             <kind>1</kind>
             <string>/// damage
-if(from != other.user_id) {
+if(other.team != "")and(from_team != other.team)and(from != other.user_id) {
     if(other.control == 0)and(from == global.login_id){
         var json_data = ds_map_create();
         ds_map_add(json_data, "id", NN.signal_hp);

@@ -38,6 +38,8 @@ global.iuRed       = col16($ED3255);
 global.iuPiss      = col16($EABF11);
 global.iuBrown     = col16($5A4D48);
 
+global.team        = "";
+
 alarm[0] = 1;
 </string>
           </argument>

@@ -27,7 +27,7 @@ var worker_max = 10;
 var worker_id  = 1;
 var room = new Array();
 var room_max = 10;
-var game_max = 2;
+var game_max = 6;
 for (var i = 0; i < room_max; i++) {
     room[i] = "";
 }
@@ -180,7 +180,8 @@ if (cluster.isMaster) {
                                                             uuid: user.uuid,
                                                             x: user.x,
                                                             y: user.y,
-                                                            _type: user._type
+                                                            _type: user._type,
+                                                            team: user.team
                                                         });
                                                     }
                                                 }
@@ -312,15 +313,29 @@ if (cluster.isMaster) {
                 if (room[i] == "") {
                     temp_room = uuid_v4();
                     console.log(room[i]);
+                    var team = "red";
                     for (i = 0; i < game_max; i++) {
                         temp_data = match_wait.dequeue();
                         authenticated_users.each(function (user) {
                             if (user.uuid == temp_data) {
+
+                                if (team == "red") {
+                                    team = "blue";
+                                    user.x = 762;
+                                    user.y = 1408;
+                                }
+                                else {
+                                    team = "red";
+                                    user.x = 96;
+                                    user.y = 1408;
+                                }
+
                                 console.log(user.uuid);
                                 user.room = temp_room;
+                                user.team = team;
                                 console.log("- " + user.room);
                                 for (var id in cluster.workers) {
-                                    cluster.workers[id].send({ type: 'search', to: 'worker', uuid: user.uuid, id: 1 });
+                                    cluster.workers[id].send({ type: 'search', to: 'worker', uuid: user.uuid, id: 1, team: user.team, x: user.x, y: user.y });
                                 }
                             }
                         });
@@ -333,7 +348,7 @@ if (cluster.isMaster) {
        
         setTimeout(function () {
             input_match();
-        }, 5000);
+        }, 1000);
     }()
 
     // 무한 반복 시킬 내용
@@ -360,7 +375,8 @@ if (cluster.isMaster) {
                                 weapon_xdir: user.weapon_xdir,
                                 xdir: user.xdir,
                                 hp: user.hp,
-                                sp: user.sp
+                                sp: user.sp,
+                                team: user.team
                             });
                         }
 
@@ -370,22 +386,31 @@ if (cluster.isMaster) {
         });
 
         authenticated_users.each(function (user) {
-            if ((user.room != "null") && (user.uuid != -1)) {
+            if ((user.room != "null")) {
                 if (user.hp <= 0) {
                     user.hp = 100;
-                    user.x = 704;
-                    user.y = 1344;
-                    for (var id in cluster.workers) {
-                        cluster.workers[id].send({ type: 'restart', to: 'worker', uuid: user.uuid, x: user.x, y: user.y });
+                    if (user.team == "blue") {
+                        user.x = 762;
+                        user.y = 1408;
+                    }else {
+                        user.x = 96;
+                        user.y = 1408;
+                    }
+                    if (user.uuid != -1) {
+                        for (var id in cluster.workers) {
+                            cluster.workers[id].send({ type: 'restart', to: 'worker', uuid: user.uuid, x: user.x, y: user.y });
+                        }
                     }
                 }
-                for (var id in cluster.workers) {
-                    cluster.workers[id].send({
-                        type: 'myinfo', to: 'worker',
-                        uuid: user.uuid,
-                        hp: user.hp,
-                        sp: user.sp
-                    });
+                if (user.uuid != -1) {
+                    for (var id in cluster.workers) {
+                        cluster.workers[id].send({
+                            type: 'myinfo', to: 'worker',
+                            uuid: user.uuid,
+                            hp: user.hp,
+                            sp: user.sp
+                        });
+                    }
                 }
             }
         });
@@ -459,7 +484,13 @@ if (cluster.isWorker) {
                     if (message.id == 1) {
                         authenticated_users.each(function (user) {
                             if (user.uuid == message.uuid) {
-                                send_id_message(user.socket, signal_search, 1);
+                                var json_data = JSON.stringify({
+                                    id: 1,
+                                    team: message.team,
+                                    x: message.x,
+                                    y: message.y
+                                });
+                                send_id_message(user.socket, signal_search, json_data);
                             }
                         });
                     }
@@ -483,7 +514,8 @@ if (cluster.isWorker) {
                             weapon_xdir: message.weapon_xdir,
                             xdir: message.xdir,
                             hp: message.hp,
-                            sp: message.sp
+                            sp: message.sp,
+                            team: message.team
                         });
 
                         send_id_message(ins.socket, signal_move, json_data);
@@ -496,7 +528,8 @@ if (cluster.isWorker) {
                         var json_data = JSON.stringify({
                             type: message._type,
                             x: message.x,
-                            y: message.y
+                            y: message.y,
+                            team: message.team
                         });
                         send_id_message(ins.socket, signal_handoff, json_data);
                     }

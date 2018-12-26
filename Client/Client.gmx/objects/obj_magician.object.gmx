@@ -71,6 +71,7 @@ if (attack_delay &lt;= 0)and(control == 1)
     ds_map_add(json_data_weapon, "x", x);
     ds_map_add(json_data_weapon, "y", y);
     ds_map_add(json_data_weapon, "from", global.login_id);
+    ds_map_add(json_data_weapon, "team", global.team);
     ds_map_add(json_data_weapon, "damage", a.damage);
     ds_map_add(json_data, "msg", json_encode(json_data_weapon));
     ds_map_destroy(json_data_weapon);
@@ -163,6 +164,7 @@ if (global.skill_delay[3] &lt;= 0)
         ds_map_add(json_data_weapon, "i", i );
         ds_map_add(json_data_weapon, "from", global.login_id);
         ds_map_add(json_data_weapon, "damage", a.damage);
+        ds_map_add(json_data_weapon, "team", global.team);
         ds_map_add(json_data, "msg", json_encode(json_data_weapon));
         ds_map_destroy(json_data_weapon);
         var body = json_encode(json_data);
@@ -185,6 +187,7 @@ if (global.skill_delay[3] &lt;= 0)
     ds_map_add(json_data_weapon, "y", y);
     ds_map_add(json_data_weapon, "from", global.login_id);
     ds_map_add(json_data_weapon, "damage", a.damage);
+    ds_map_add(json_data_weapon, "team", global.team);
     ds_map_add(json_data, "msg", json_encode(json_data_weapon));
     ds_map_destroy(json_data_weapon);
     var body = json_encode(json_data);
@@ -254,6 +257,7 @@ if (global.skill_delay[3] &lt;= 0)
     ds_map_add(json_data_weapon, "y", y);
     ds_map_add(json_data_weapon, "from", global.login_id);
     ds_map_add(json_data_weapon, "damage", a.damage);
+    ds_map_add(json_data_weapon, "team", global.team);
     ds_map_add(json_data, "msg", json_encode(json_data_weapon));
     ds_map_destroy(json_data_weapon);
     var body = json_encode(json_data);
@@ -381,6 +385,7 @@ if (global.skill_delay[0] &lt;= 0)
     ds_map_add(json_data_weapon, "y", y);
     ds_map_add(json_data_weapon, "from", global.login_id);
     ds_map_add(json_data_weapon, "damage", a.damage);
+    ds_map_add(json_data_weapon, "team", global.team);
     ds_map_add(json_data, "msg", json_encode(json_data_weapon));
     ds_map_destroy(json_data_weapon);
     var body = json_encode(json_data);

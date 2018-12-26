@@ -22,6 +22,7 @@ function create(uuid, id) {
         name: "null",      // User Nickname\
         room: "null",      // User's room
         id: id,    // User's id
+        team: "",
         x: 0,
         y: 0,
         z: 0,
