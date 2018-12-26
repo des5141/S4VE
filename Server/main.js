@@ -156,7 +156,7 @@ if (cluster.isMaster) {
 
                     case 'login':
                         var check = 1;
-                        authenticated_users.each(function (user) {
+                        authenticated_users.each(async function (user) {
                             // 기존에 데이터가 있는 유저!
                             if (user.id == message.id) {
                                 check = -1;
