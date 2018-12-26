@@ -159,33 +159,8 @@ if (cluster.isMaster) {
                                 check = -1;
                                 if (user.uuid == -1) {
                                     // 받은 id에 매칭되는 pass인지 확인합니다.
-                                    connection.query('SELECT * FROM user where id ="' + message.id + '" and block = 0', function (error, results, fields) {
-                                        if (error) {
-                                            worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
-                                        } else if (typeof results != "undefined" && results != null && results.length != null && results.length > 0) {
-                                            if (results[0].password == message.pass) {
-                                                user.uuid = message.uuid;
-                                                console.log("   " + message.id + " 유저 재접속".gray + "(" + user.uuid + ")");
-                                                worker.send({ to: 'worker', type: 'login', msg: 2, uuid: user.uuid, nickname: results[0].nickname});
-
-                                                for (i = 0; i < room_max; i++) {
-                                                    if (room[i] == user.room) {
-                                                        // 현재 활성화되어있는 방이니 핸드오프 합니다.
-                                                        console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
-                                                        worker.send({
-                                                            to: 'worker', type: 'handoff',
-                                                            uuid: user.uuid,
-                                                            x: user.x,
-                                                            y: user.y,
-                                                            _type: user._type,
-                                                            team: user.team
-                                                        });
-                                                    }
                                                 }
-                                            } else {
-                                                worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                             }
-                                        } else { worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid }); }
                                     });
                                 } else {
                                     worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
