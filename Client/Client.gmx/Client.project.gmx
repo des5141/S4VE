@@ -76,6 +76,7 @@
     <object>objects\obj_effect2</object>
     <object>objects\obj_effect3</object>
     <object>objects\obj_effect4</object>
+    <object>objects\obj_effect5</object>
     <object>objects\obj_bullet</object>
     <object>objects\obj_boomeffect</object>
     <object>objects\obj_tree01</object>

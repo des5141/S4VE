@@ -639,7 +639,6 @@
     <instance objName="obj_block1" x="-96" y="288" name="inst_026CA623" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="obj_block1" x="-160" y="352" name="inst_214BC8C7" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="obj_block1" x="-96" y="352" name="inst_23C6141A" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
-    <instance objName="obj_magician" x="736" y="1408" name="inst_FC339B35" locked="0" code="system.target = id&#xA;control       = 1&#xA;" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
   </instances>
   <tiles/>
   <PhysicsWorld>0</PhysicsWorld>

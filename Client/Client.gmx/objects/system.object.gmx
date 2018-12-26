@@ -41,8 +41,8 @@ target                    = -1; // -1 none , else viewing
 // values
 global.maxhp              = 10;
 global.hp                 = global.maxhp;
-global.maxmp              = 10;
-global.mp                 = global.maxmp;
+global.maxsp              = 10;
+global.sp                 = global.maxsp;
 global.skill_enable   [4] = 0;
 global.skill_delay    [4] = 0;
 global.skill_delay_max[4] = 0;
@@ -263,12 +263,12 @@ nBlurInit();
 draw_set_color(c_black);
 draw_rectangle(400 - 150, 480 - 50, 400 + 150, 480, false);
 draw_set_color(c_gray);
-draw_rectangle(400 - 145, 480 - 45, 400 + 145, 480 - 25, false);
-draw_rectangle(400 - 145, 480 - 20, 400 + 145, 480 - 5, false);
+draw_rectangle(255, 480 - 45, 255+290, 480 - 25, false);
+draw_rectangle(255, 480 - 20, 255+290, 480 - 5, false);
 draw_set_color(c_red);
-draw_rectangle(400 - 145, 480 - 45, 400 + 145, 480 - 25, false);
+draw_rectangle(255, 480 - 45, 255+290/100*global.hp, 480 - 25, false);
 draw_set_color(c_blue);
-draw_rectangle(400 - 145, 480 - 20, 400 + 145, 480 - 5, false);
+draw_rectangle(255, 480 - 20, 255+290/100*global.sp, 480 - 5, false);
 
 
 var i;

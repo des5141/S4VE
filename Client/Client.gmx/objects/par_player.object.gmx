@@ -62,12 +62,39 @@ max_experence  = 0;
 user_id        = "";// null
 type           = 0; // 0 none
 character_img  = 0;
+hp             = 0;
+sp             = 0;
+damaged        = 0; // trigger. 1 is on, 0 is off
 go[0]          = 0; // go to place (x)
 go[1]          = 1; // go to place (y)
 go[2]          = 0; // check going
 
 // child create event
 event_user(0);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// damaged = 0
+damaged = 0;
 </string>
           </argument>
         </arguments>
@@ -94,6 +121,11 @@ event_user(0);
 
 if(control == 1)
 {
+    if(instance_place(x, y, par_block) != noone) {
+        x = xprevious;
+        y = yprevious;
+    }
+    
     // variables init
     var mouse_count;
     var mv;
@@ -218,9 +250,14 @@ if(control == 1)
     move = mv;
     z   += zspeed;
 }else {
-    x += (other_x - x)/4;
-    y += (other_y - y)/4;
-    z += (other_z - z)/4;
+    if(point_distance(other_x, other_y, x, y) &gt; 30) {
+        x = other_x;
+        y = other_y;
+    }else {
+        x += (other_x - x)/3;
+        y += (other_y - y)/3;
+        z += (other_z - z)/3;
+    }
 }
 </string>
           </argument>
@@ -243,13 +280,15 @@ if(control == 1)
           <argument>
             <kind>1</kind>
             <string>/// ATTACK
-
-// delay decrease'
-if (attack_delay &gt; 0) { attack_delay--; }
-if (weapon_delay &gt; 0) { weapon_delay--; if (weapon_delay_j != 0) { weapon_delay_i += ((200 * weapon_trigger) / weapon_delay_j); }}
-weapon_range += (0 - weapon_range)/8;
-if (weapon_delay &lt;= 0) {
-    weapon_angle += (0 - weapon_angle)/8;
+if(control == 1)
+{
+    // delay decrease'
+    if (attack_delay &gt; 0) { attack_delay--; }
+    if (weapon_delay &gt; 0) { weapon_delay--; if (weapon_delay_j != 0) { weapon_delay_i += ((200 * weapon_trigger) / weapon_delay_j); }}
+    weapon_range += (0 - weapon_range)/8;
+    if (weapon_delay &lt;= 0) {
+        weapon_angle += (0 - weapon_angle)/8;
+    }
 }
 </string>
           </argument>
@@ -280,6 +319,14 @@ if(control == 1) {
     ds_map_add(json_data, "y",       y);
     ds_map_add(json_data, "z",       z);
     ds_map_add(json_data, "type",    type);
+    ds_map_add(json_data, "weapon_range", weapon_range);
+    ds_map_add(json_data, "weapon_angle", weapon_angle);
+    ds_map_add(json_data, "weapon_delay_i", weapon_delay_i);
+    ds_map_add(json_data, "weapon_dir", weapon_dir);
+    ds_map_add(json_data, "weapon_xdir", weapon_xdir);
+    ds_map_add(json_data, "move", move);
+    ds_map_add(json_data, "jump", jump);
+    ds_map_add(json_data, "xdir", xdir);
     var body = json_encode(json_data);
     ds_map_destroy(json_data);
     
@@ -329,13 +376,28 @@ draw_sprite_ext(spr_body, character_img, x, y - z, xdir, 1, 0, c_white, 1); // b
 // weapon
 draw_sprite_ext(spr_weapon, weapon_index, x + lengthdir_x(weapon_range, weapon_dir), y - 12 - z + lengthdir_y(weapon_range, weapon_dir), 1, weapon_xdir, weapon_dir + (97 + weapon_delay_i)*weapon_xdir + weapon_angle*weapon_xdir, c_white, 1);
 
+if(damaged == 1) {
+    d3d_set_fog(true,c_white,0,0);
+    // player
+    draw_sprite_ext(sprite_index, img, x, y - z, xdir, 1, 0, c_white, 1); // leg
+    draw_sprite_ext(spr_body, character_img, x, y - z, xdir, 1, 0, c_white, 1); // body
+    
+    // weapon
+    draw_sprite_ext(spr_weapon, weapon_index, x + lengthdir_x(weapon_range, weapon_dir), y - 12 - z + lengthdir_y(weapon_range, weapon_dir), 1, weapon_xdir, weapon_dir + (97 + weapon_delay_i)*weapon_xdir + weapon_angle*weapon_xdir, c_white, 2);
+    d3d_set_fog(false,c_white,0,0);
+}
+
+
 // hp
 draw_set_color(c_black);
 draw_rectangle(x - 20, y - 35 - z, x + 20, y - 30 - z, false);
 draw_set_color(c_gray);
 draw_rectangle(x - 19, y - 34 - z, x + 19, y - 31 - z, false);
 draw_set_color(c_red);
-draw_rectangle(x - 19, y - 34 - z, x + 19/global.maxhp*global.hp, y - 31 - z, false);
+if(control == 1)
+    draw_rectangle(x - 19, y - 34 - z, x - 19 + 38/100*global.hp, y - 31 - z, false);
+else
+    draw_rectangle(x - 19, y - 34 - z, x - 19 + 38/100*hp, y - 31 - z, false);
 
 // nickname
 draw_set_halign(fa_center);
@@ -348,6 +410,8 @@ draw_text(x, y - 35 + 1 - z, "des");
 draw_text(x, y - 35 - 1 - z, "des");
 draw_set_color(c_white);
 draw_text(x, y - 35 - z, "des");
+
+
 </string>
           </argument>
         </arguments>

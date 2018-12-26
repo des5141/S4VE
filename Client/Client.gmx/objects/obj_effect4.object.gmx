@@ -27,6 +27,8 @@
             <kind>1</kind>
             <string>z = 100;
 shake = 0;
+from = -1;
+damage = -1;
 </string>
           </argument>
         </arguments>
@@ -62,6 +64,24 @@ if(z &lt;= 0) {
         a = instance_create(x, y - 20, obj_boomeffect);
         a.image_xscale = irandom(30);
         a.image_yscale = image_xscale;
+    }
+    with(par_player) {
+        if(other.from != user_id)and(point_distance(x, y, other.x, other.y) &lt; 40) {
+            if(control == 0)and(other.from == global.login_id){
+                var json_data = ds_map_create();
+                ds_map_add(json_data, "id", NN.signal_hp);
+                ds_map_add(json_data, "msg", other.damage);
+                ds_map_add(json_data, "who", user_id);
+                var body = json_encode(json_data);
+                ds_map_destroy(json_data);
+                nn_send_message(body);
+            }
+            
+            damaged = 1;
+            alarm[0] = 20;
+            var ins = instance_create(x, y - 16, obj_effect5);
+            obj_effect5.message = other.damage;
+        }
     }
 }
 </string>

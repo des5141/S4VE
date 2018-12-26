@@ -190,6 +190,14 @@ enum NN{
     signal_login = 1,
     signal_search= 2,
     signal_move  = 3,
+    signal_handoff = 4,
+    signal_instance = 5,
+    signal_myinfo = 6,
+    signal_hp = 7,
+    signal_restart = 8,
+    signal_register = 9,
+    
+    debug_modes = 1, // 1 is on, 0 is off
     
     status_disconnected = -1,
     status_connecting   = 0,

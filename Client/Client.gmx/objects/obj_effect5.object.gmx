@@ -3,9 +3,9 @@
   <spriteName>&lt;undefined&gt;</spriteName>
   <solid>0</solid>
   <visible>-1</visible>
-  <depth>0</depth>
+  <depth>-9</depth>
   <persistent>0</persistent>
-  <parentName>&lt;undefined&gt;</parentName>
+  <parentName>self</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
     <event eventtype="0" enumb="0">
@@ -25,29 +25,71 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/// Auto login
-if(file_exists("auto_login.ini")) {
-    // 이미 한번 로그인 한 기록이 있으니, 이걸 가지고 로그인 시도!
-    ini_open("auto_login.ini");
-    global.login_id = ini_read_string("user", "id", "");
-    global.login_pass = ini_read_string("user", "password", "");
-    
-    var json_data = ds_map_create();
-    ds_map_add(json_data, "id", NN.signal_login);
-    ds_map_add(json_data, "msg",global.login_id);
-    ds_map_add(json_data, "pass",global.login_pass);
-    var body = json_encode(json_data);
-    ds_map_destroy(json_data);
-    nn_send_message(body);
-    
-    ini_close();
+            <string>// INIT
+message = "";
+trigger = 0;
+alarm[0] = 30;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// trigger
+trigger = 1;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="3" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// move
+y += ( (ystart - 30) - y)/12;
+if(trigger) {
+    image_alpha -= 0.025;
+}
+
+if(image_alpha &lt;= 0) {
+    instance_destroy()
 }
 </string>
           </argument>
         </arguments>
       </action>
     </event>
-    <event eventtype="9" enumb="83">
+    <event eventtype="8" enumb="0">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -64,58 +106,24 @@ if(file_exists("auto_login.ini")) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/// Login
-global.login_id = get_string("id", "");
-login_pass = get_string("password", "");
-login_nickname = get_string("nickname", "");
+            <string>/// draw
 
-//Construct message
-var json_data = ds_map_create();
-ds_map_add(json_data, "id", NN.signal_register);
-ds_map_add(json_data, "msg",global.login_id);
-ds_map_add(json_data, "pass",login_pass);
-ds_map_add(json_data, "nickname",login_nickname);
-var body = json_encode(json_data);
-ds_map_destroy(json_data);
+draw_set_halign(fa_center);
+draw_set_valign(fa_middle);
 
-//Send message
-nn_send_message(body);
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
-    <event eventtype="9" enumb="65">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>/// Login
-global.login_id = get_string("id", "");
-global.login_pass = get_string("password", "");
+draw_set_alpha(image_alpha);
+draw_set_color(c_black);
+draw_text(x+1, y, message);
+draw_text(x-1, y, message);
+draw_text(x, y+1, message);
+draw_text(x, y-1, message);
 
-//Construct message
-var json_data = ds_map_create();
-ds_map_add(json_data, "id", NN.signal_login);
-ds_map_add(json_data, "msg",global.login_id);
-ds_map_add(json_data, "pass",global.login_pass);
-var body = json_encode(json_data);
-ds_map_destroy(json_data);
+draw_set_color(c_white);
+draw_text(x, y, message);
+draw_set_alpha(1);
 
-//Send message
-nn_send_message(body);
+draw_set_valign(fa_top);
+draw_set_halign(fa_left);
 </string>
           </argument>
         </arguments>
