@@ -92,8 +92,3 @@ module.exports.raise_point = raise_point;
 module.exports.login = login;
 module.exports.end = end_connection;
 module.exports.save_play = save_play;
-
-save_play('id123', 'asdfadsgbtrhc', 'champ', 20, 'TeamA', 'sdfgiojfsdlgkjs')
-    .then(data =>
-        console.log(data)
-    );
