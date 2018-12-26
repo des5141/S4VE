@@ -20,10 +20,10 @@ async function login(id, password) {
                 chain(false);
             }
             if (results.length === 0) {
-                chain(false);
+                chain({exist:false});
             }
             if (results.length > 0) {
-                chain(true);
+                chain({exist:true,name:results[0].name});
             }
         });
     }).then((data) => {
