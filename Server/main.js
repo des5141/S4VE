@@ -126,7 +126,7 @@ if (cluster.isMaster) {
     }
 
     // 워커들과의 파이프 통신
-    cluster.on('message', function (worker, message) {
+    cluster.on('message', async function (worker, message) {
         try {
             if ((message.to == 'master') || (message.to == 'all')) {
                 switch (message.type) {
@@ -194,6 +194,8 @@ if (cluster.isMaster) {
                                 .then(result=>{
                                     if(result.exist){
                                         worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid, nickname: result.name });
+                                        var new_user = User.create(message.uuid, message.id);
+                                        authenticated_users.addUser(new_user);
                                     }else{
                                         worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                     }
