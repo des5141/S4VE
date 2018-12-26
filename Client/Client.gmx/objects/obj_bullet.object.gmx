@@ -26,9 +26,12 @@
           <argument>
             <kind>1</kind>
             <string>/// DEFAULT INIT
-move    = 0;
-sprite  = -1;
-turn    = -1;
+move      = 0;
+sprite    = -1;
+turn      = -1;
+from      = -1; // 누구에게서 왔나?
+damage    = 0;  // 데미지
+from_team = "";
 </string>
           </argument>
         </arguments>
@@ -70,6 +73,73 @@ if(turn) {
     if(image_angle &gt; 360) {
         image_angle = 0;
     }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="4" ename="par_player">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// damage
+if(other.team != "")and(from_team != other.team)and(from != other.user_id) {
+    if(other.control == 0)and(from == global.login_id){
+        var json_data = ds_map_create();
+        ds_map_add(json_data, "id", NN.signal_hp);
+        ds_map_add(json_data, "msg", damage);
+        ds_map_add(json_data, "who", other.user_id);
+        var body = json_encode(json_data);
+        ds_map_destroy(json_data);
+        nn_send_message(body);
+    }
+    
+    switch(sprite_index){
+        case spr_fireball:
+            repeat(50) {
+                var a = instance_create(x, y, obj_boomeffect);
+                a.image_xscale = irandom(30);
+                a.image_yscale = image_xscale;
+            }
+        break;
+        
+        case spr_firehead:
+            repeat(50) {
+                var a = instance_create(x, y, obj_boomeffect);
+            }
+        break;
+    }
+    
+    if(other.control == 1) {
+        var _x = other.x, _y = other.y;
+        _x += lengthdir_x(10, direction);
+        _y += lengthdir_y(10, direction);
+        
+        if (instance_place(_x, _y, par_block) == noone) {
+            other.x = _x;
+            other.y = _y;
+        }
+    }
+    
+    other.damaged = 1;
+    with(other){alarm[0] = 20;}
+    var ins = instance_create(x, y - 16, obj_effect5);
+    obj_effect5.message = damage;
+    instance_destroy();
 }
 </string>
           </argument>

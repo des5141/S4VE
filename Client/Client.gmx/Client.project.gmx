@@ -3,7 +3,9 @@
   <Configs name="configs">
     <Config>Configs\Default</Config>
   </Configs>
-  <NewExtensions/>
+  <NewExtensions>
+    <extension index="0">extensions\ImNotGUI</extension>
+  </NewExtensions>
   <sounds name="sound"/>
   <sprites name="sprites">
     <sprite>sprites\spr_leg</sprite>
@@ -24,6 +26,8 @@
     <sprite>sprites\spr_tree03</sprite>
     <sprite>sprites\spr_grass</sprite>
     <sprite>sprites\spr_searching</sprite>
+    <sprite>sprites\spr_uiwhitepixel</sprite>
+    <sprite>sprites\spr_uiwhitepixel1</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -48,6 +52,42 @@
       <script>scripts\nn_get_message.gml</script>
       <script>scripts\only_single.gml</script>
     </scripts>
+    <scripts name="IMNOTGUI">
+      <scripts name="DRAW">
+        <scripts name="VTX">
+          <script>scripts\iui_vtx_begin.gml</script>
+          <script>scripts\iui_vtx.gml</script>
+          <script>scripts\iui_vtx_rect.gml</script>
+          <script>scripts\iui_vtx_tri.gml</script>
+        </scripts>
+        <script>scripts\iui_rect.gml</script>
+        <script>scripts\iui_line.gml</script>
+      </scripts>
+      <scripts name="ELEMENT">
+        <script>scripts\iui_button.gml</script>
+        <script>scripts\iui_tab.gml</script>
+        <script>scripts\iui_textbox.gml</script>
+        <script>scripts\iui_label.gml</script>
+        <script>scripts\iui_slider_h.gml</script>
+        <script>scripts\iui_sprite.gml</script>
+      </scripts>
+      <script>scripts\iui_reset.gml</script>
+      <script>scripts\iui_init.gml</script>
+      <script>scripts\iui_init_vars.gml</script>
+      <script>scripts\iui_trim_label.gml</script>
+      <script>scripts\iui_align_push.gml</script>
+      <script>scripts\iui_get_all.gml</script>
+      <script>scripts\iui_begin.gml</script>
+      <script>scripts\iui_end.gml</script>
+      <script>scripts\iui_update_io.gml</script>
+      <script>scripts\col16.gml</script>
+      <script>scripts\colLighter.gml</script>
+      <script>scripts\iui_throwup.gml</script>
+      <script>scripts\strTrim.gml</script>
+      <script>scripts\pack.gml</script>
+      <script>scripts\shove.gml</script>
+      <script>scripts\asciiShift.gml</script>
+    </scripts>
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_nickname</font>
@@ -59,6 +99,8 @@
       <object>objects\obj_login</object>
       <object>objects\obj_network</object>
     </objects>
+    <object>objects\obj_menu</object>
+    <object>objects\obj_init</object>
     <object>objects\system</object>
     <object>objects\all_unit</object>
     <object>objects\par_block</object>
@@ -76,6 +118,7 @@
     <object>objects\obj_effect2</object>
     <object>objects\obj_effect3</object>
     <object>objects\obj_effect4</object>
+    <object>objects\obj_effect5</object>
     <object>objects\obj_bullet</object>
     <object>objects\obj_boomeffect</object>
     <object>objects\obj_tree01</object>
@@ -85,6 +128,7 @@
     <object>objects\obj_searching</object>
   </objects>
   <rooms name="rooms">
+    <room>rooms\room4</room>
     <room>rooms\rm_connecting</room>
     <room>rooms\rm_login</room>
     <room>rooms\rm_search</room>

@@ -3,7 +3,7 @@
   <spriteName>&lt;undefined&gt;</spriteName>
   <solid>0</solid>
   <visible>-1</visible>
-  <depth>0</depth>
+  <depth>-999999999</depth>
   <persistent>-1</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
@@ -52,9 +52,121 @@ global.out_ping = 10000;
 network_set_config(network_config_connect_timeout, 200);
 
 //Set ip
-global.ip = "127.0.0.1";
+if(NN.debug_modes)
+    global.ip = "127.0.0.1";
+else
+    global.ip = "61.84.196.75";
+
+/* 아이피에 관해
+* KT IDC 서버 외부 연결 : 61.84.196.75
+* KT IDC 서버 내부 연결 : 172.16.113.102 
+* 포트는 아마 기억상 20000번부터 쭉 20005번까지 열려있을거임
+*/
 
 alarm[0] = room_speed;
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Init values
+delay_x = 0;
+delay_y = 0;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="10">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Handoff
+user_ins = -1;
+switch(handoff_type) {
+    case 1:
+        user_ins = instance_create(handoff_x, handoff_y, obj_sworder);
+    break;
+     
+    case 2:
+        user_ins = instance_create(handoff_x, handoff_y, obj_hammer);
+    break;
+                                   
+    case 3:
+        user_ins = instance_create(handoff_x, handoff_y, obj_hammer);
+    break;
+                            
+    case 4:
+        user_ins = instance_create(handoff_x, handoff_y, obj_magician);
+    break;
+                                
+    case 5:
+        user_ins = instance_create(handoff_x, handoff_y, obj_healer);
+    break;
+}
+if(user_ins != -1) {
+    user_ins.control = 1;
+    user_ins.user_id = global.login_id;
+    user_ins.team = global.team;
+    system.target = user_ins;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="9">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// New client
+user_ins = -1;
+user_ins = instance_create(delay_x, delay_y, obj_magician);
+user_ins.control = 1;
+user_ins.user_id = global.login_id;
+user_ins.team = global.team;
+system.target = user_ins;
 </string>
           </argument>
         </arguments>
@@ -232,24 +344,148 @@ if (status == NN.status_connected) {
                 if ((ds_map_find_value(signal_login_data, "msg") == 1)or(ds_map_find_value(signal_login_data, "msg") == 2)) {
                     global.login = 1;
                     global.uuid  = ds_map_find_value(signal_login_data, "uuid");
+                    ini_open("auto_login.ini");
+                    ini_write_string("user", "id", global.login_id);
+                    ini_write_string("user", "password", global.login_pass);
+                    ini_close();
                     room_goto(rm_search);
                 }else {
-                    //Construct message
-                    var json_data2 = ds_map_create();
-                    ds_map_add(json_data2, "id", NN.signal_login);
-                    ds_map_add(json_data2, "msg", get_string("로그인에 실패하였습니다. 다시 로그인 해주세요.", ""));
-                    var body = json_encode(json_data2);
-                    ds_map_destroy(json_data2);
-                    
-                    //Send message
-                    nn_send_message(body);
+                    show_message_async("로그인에 실패하였습니다 ;ㅅ;");
+                    file_delete("auto_login.ini");
                 }
                 ds_map_destroy(signal_login_data);
             break;
             
             case NN.signal_search:
-                if(message_body == 1)
+                var signal_search_data = json_decode(message_body);
+                if not(ds_exists(ds_type_map, signal_search_data)) { break; }
+                if(ds_map_find_value(signal_search_data, "id") == 1) {
+                    global.team = ds_map_find_value(signal_search_data, "team");
+                    delay_x = ds_map_find_value(signal_search_data, "x");
+                    delay_y = ds_map_find_value(signal_search_data, "y");
+                    show_message_async(global.team);
                     room_goto(rm_main);
+                    alarm[9] = 1;
+                }
+                ds_map_destroy(signal_search_data);
+            break;
+            
+            case NN.signal_register:
+                var signal_register_data = json_decode(message_body);
+                if not(ds_exists(ds_type_map, signal_register_data)) { break; }
+                show_message(ds_map_find_value(signal_register_data, "msg"));
+                ds_map_destroy(signal_register_data);
+            break;
+            
+            case NN.signal_restart:
+                var temp_data = json_decode(message_body);
+                if not(ds_exists(ds_type_map, temp_data)) { break; }
+                with(par_player) {
+                    if(variable_instance_exists(id, "control")) {
+                        if(control == 1) {
+                            x = ds_map_find_value(temp_data, "x");
+                            y = ds_map_find_value(temp_data, "y");
+                        }
+                    }
+                }
+                ds_map_destroy(temp_data);
+            break;
+            
+            case NN.signal_myinfo:
+                var temp_data = json_decode(message_body);
+                if not(ds_exists(ds_type_map, temp_data)) { break; }
+                global.hp = ds_map_find_value(temp_data, "hp");
+                global.sp = ds_map_find_value(temp_data, "sp");
+                ds_map_destroy(temp_data);
+            break;
+            
+            case NN.signal_instance:
+                var temp_data = json_decode(message_body);
+                if not(ds_exists(ds_type_map, temp_data)) { break; }
+                var signal_instance_data = json_decode(ds_map_find_value(temp_data, "msg"));
+                ds_map_destroy(temp_data);
+                if not(ds_exists(ds_type_map, signal_instance_data)) { break; }
+                
+                switch(ds_map_find_value(signal_instance_data, "type"))
+                {
+                    case 0:
+                        // effect
+                        var a = instance_create(ds_map_find_value(signal_instance_data, "x"), ds_map_find_value(signal_instance_data, "y") - 16, obj_effect);
+                        a.image_angle = ds_map_find_value(signal_instance_data, "weapon_dir") - 47;
+                        a.sprite_index = spr_effect;
+                        a.image_single = 1;
+                    break;
+                    
+                    case 1:
+                        // fire
+                        var a = instance_create(ds_map_find_value(signal_instance_data, "x") + lengthdir_x(20, ds_map_find_value(signal_instance_data, "weapon_dir")), ds_map_find_value(signal_instance_data, "y") + lengthdir_y(20, ds_map_find_value(signal_instance_data, "weapon_dir")) - 12, obj_bullet);
+                        a.speed = ds_map_find_value(signal_instance_data, "speed");
+                        a.direction = ds_map_find_value(signal_instance_data, "direction");
+                        a.image_angle = ds_map_find_value(signal_instance_data, "weapon_dir");
+                        a.image_speed = ds_map_find_value(signal_instance_data, "image_speed");
+                        a.sprite_index = ds_map_find_value(signal_instance_data, "sprite_index");
+                        a.move = ds_map_find_value(signal_instance_data, "move");
+                        a.sprite = ds_map_find_value(signal_instance_data, "sprite");
+                        a.damage = ds_map_find_value(signal_instance_data, "damage");
+                        a.from = ds_map_find_value(signal_instance_data, "from");
+                        a.from_team = ds_map_find_value(signal_instance_data, "team");
+                    break;
+                    
+                    case 2:
+                        // fire
+                        var a = instance_create(ds_map_find_value(signal_instance_data, "x") + lengthdir_x(50, ds_map_find_value(signal_instance_data, "i")*20), ds_map_find_value(signal_instance_data, "y") + lengthdir_y(50, ds_map_find_value(signal_instance_data, "i")*20) - 12, obj_bullet);
+                        a.speed = ds_map_find_value(signal_instance_data, "speed");
+                        a.direction = ds_map_find_value(signal_instance_data, "direction");
+                        a.image_angle = ds_map_find_value(signal_instance_data, "weapon_dir");
+                        a.image_speed = ds_map_find_value(signal_instance_data, "image_speed");
+                        a.sprite_index = ds_map_find_value(signal_instance_data, "sprite_index");
+                        a.move = ds_map_find_value(signal_instance_data, "move");
+                        a.sprite = ds_map_find_value(signal_instance_data, "sprite");
+                        a.damage = ds_map_find_value(signal_instance_data, "damage");
+                        a.from = ds_map_find_value(signal_instance_data, "from");
+                        a.from_team = ds_map_find_value(signal_instance_data, "team");
+                    break;
+                    
+                    case 3:
+                        var a = instance_create(ds_map_find_value(signal_instance_data, "x") + lengthdir_x(20, ds_map_find_value(signal_instance_data, "weapon_dir")), ds_map_find_value(signal_instance_data, "y") + lengthdir_y(20, ds_map_find_value(signal_instance_data, "weapon_dir")) - 12, obj_bullet);
+                        a.speed = ds_map_find_value(signal_instance_data, "speed")
+                        a.direction = ds_map_find_value(signal_instance_data, "direction");
+                        a.image_angle = ds_map_find_value(signal_instance_data, "weapon_dir");
+                        a.image_speed = ds_map_find_value(signal_instance_data, "image_speed");
+                        a.sprite_index = ds_map_find_value(signal_instance_data, "sprite_index");
+                        a.turn = 1;
+                        a.move = ds_map_find_value(signal_instance_data, "move");
+                        a.sprite = ds_map_find_value(signal_instance_data, "sprite");
+                        a.damage = ds_map_find_value(signal_instance_data, "damage");
+                        a.from = ds_map_find_value(signal_instance_data, "from");
+                        a.from_team = ds_map_find_value(signal_instance_data, "team");
+                    break;
+                    
+                    case 4:
+                        var a = instance_create(ds_map_find_value(signal_instance_data, "x"), ds_map_find_value(signal_instance_data, "y"), obj_effect4);
+                        a.damage = ds_map_find_value(signal_instance_data, "damage");
+                        a.from = ds_map_find_value(signal_instance_data, "from");
+                        a.from_team = ds_map_find_value(signal_instance_data, "team");
+                    break;
+                    
+                    default:
+                    
+                    break;
+                }
+                
+                ds_map_destroy(signal_instance_data);
+            break;
+            
+            case NN.signal_handoff:
+                var signal_handoff_data = json_decode(message_body);
+                room_goto(rm_main);
+                handoff_x = ds_map_find_value(signal_handoff_data, "x");
+                handoff_y = ds_map_find_value(signal_handoff_data, "y");
+                handoff_type = ds_map_find_value(signal_handoff_data, "type");
+                global.team = ds_map_find_value(signal_handoff_data, "team");
+                user_ins = -1;
+                ds_map_destroy(signal_handoff_data);
+                alarm[10] = 1;
             break;
             
             case NN.signal_move:
@@ -258,40 +494,58 @@ if (status == NN.status_connected) {
                 if not(ds_exists(ds_type_map, signal_move_data)) { break; }
                 var check = true;
                 with(par_player) {
-                    if(control == 0) {
-                        if(user_uuid == ds_map_find_value(signal_move_data, "uuid")) {
-                            check = false;
-                            other_x = ds_map_find_value(signal_move_data, "x");
-                            other_y = ds_map_find_value(signal_move_data, "y");
-                            other_z = ds_map_find_value(signal_move_data, "z");
+                    if(variable_instance_exists(id, "control")) {
+                        if(control == 0) {
+                            if(user_id == ds_map_find_value(signal_move_data, "id")) {
+                                check = false;
+                                other_x = ds_map_find_value(signal_move_data, "x");
+                                other_y = ds_map_find_value(signal_move_data, "y");
+                                other_z = ds_map_find_value(signal_move_data, "z");
+                                weapon_delay_i = ds_map_find_value(signal_move_data, "weapon_delay_i");
+                                weapon_range = ds_map_find_value(signal_move_data, "weapon_range");
+                                weapon_angle = ds_map_find_value(signal_move_data, "weapon_angle");
+                                weapon_dir = ds_map_find_value(signal_move_data, "weapon_dir");
+                                weapon_xdir = ds_map_find_value(signal_move_data, "weapon_xdir");
+                                move = ds_map_find_value(signal_move_data, "move");
+                                jump = ds_map_find_value(signal_move_data, "jump");
+                                xdir = ds_map_find_value(signal_move_data, "xdir");
+                                hp = ds_map_find_value(signal_move_data, "hp");
+                                sp = ds_map_find_value(signal_move_data, "sp");
+                                team = ds_map_find_value(signal_move_data, "team");
+                            }
                         }
                     }
                 }
                 
-                if(check)and(ds_map_find_value(signal_move_data, "uuid") != global.uuid) {
+                if(check)and(ds_map_find_value(signal_move_data, "id") != global.login_id) {
+                    var _x = ds_map_find_value(signal_move_data, "x");
+                    var _y = ds_map_find_value(signal_move_data, "y");
+                    var user_ins = -1;
                     switch(ds_map_find_value(signal_move_data, "type")) {
                         case 1:
-                            var user_ins = instance_create(ds_map_find_value(signal_move_data, "x"), ds_map_find_value(signal_move_data, "y"), obj_sworder);
+                            user_ins = instance_create(_x, _y, obj_sworder);
                         break;
                         
                         case 2:
-                            var user_ins = instance_create(ds_map_find_value(signal_move_data, "x"), ds_map_find_value(signal_move_data, "y"), obj_hammer);
+                            user_ins = instance_create(_x, _y, obj_hammer);
                         break;
                             
                         case 3:
-                            var user_ins = instance_create(ds_map_find_value(signal_move_data, "x"), ds_map_find_value(signal_move_data, "y"), obj_hammer);
+                            user_ins = instance_create(_x, _y, obj_hammer);
                         break;
                         
                         case 4:
-                            var user_ins = instance_create(ds_map_find_value(signal_move_data, "x"), ds_map_find_value(signal_move_data, "y"), obj_magician);
+                            user_ins = instance_create(_x, _y, obj_magician);
                         break;
                         
                         case 5:
-                            var user_ins = instance_create(ds_map_find_value(signal_move_data, "x"), ds_map_find_value(signal_move_data, "y"), obj_healer);
+                            user_ins = instance_create(_x, _y, obj_healer);
                         break;
                     }
-                    user_ins.type    = ds_map_find_value(signal_move_data, "type");
-                    user_ins.user_uuid = ds_map_find_value(signal_move_data, "uuid");
+                    if(user_ins != -1) {
+                        user_ins.type    = ds_map_find_value(signal_move_data, "type");
+                        user_ins.user_id = ds_map_find_value(signal_move_data, "id");
+                    }
                 }
                 ds_map_destroy(signal_move_data);
             break;
@@ -338,6 +592,7 @@ if(my_ping - ping &gt; 0)
     draw_set_alpha(1)
     
     draw_text(5, 15, global.uuid )
+    draw_text(5, 30, global.team )
 }
 </string>
           </argument>
