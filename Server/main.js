@@ -139,18 +139,15 @@ if (cluster.isMaster) {
                         });
 
                         if (check == 1) {
-                            connection.query('insert into user values("' + message.id + '", "' + message.pass + '", "' + message.nickname + '", 0, 0, 0, 1)', function (error, results, fields) {
-                                if (error) {
-                                    worker.send({ to: 'worker', type: 'register', msg: 0, uuid: message.uuid });
-                                } else {
-                                    if (results != undefined) {
+                            await database.register(message.id, message.pass, message.nickname)
+                                .then(result => {
+                                    if (result) {
                                         worker.send({ to: 'worker', type: 'register', msg: 1, uuid: message.uuid });
-                                        console.log("   " + message.id + " 유저 회원가입".gray + "(" + message.uuid + ")");
-                                    } else {
+                                    }
+                                    else {
                                         worker.send({ to: 'worker', type: 'register', msg: 0, uuid: message.uuid });
                                     }
-                                }
-                            });
+                                });
                         }
                         break;
 
