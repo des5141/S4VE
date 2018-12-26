@@ -198,10 +198,14 @@ if (cluster.isMaster) {
 
                         if (check == 1) {
                             // 새로 들어온 유저!
+                            await database.login(message.id,message.pass)
+                                .then(result=>{
+                                    if(result.exist){
+                                        worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid, nickname: result.name });
+                                    }else{
                                         worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                     }
-                                }
-                            });
+                                });
                         }
                         break;
 
