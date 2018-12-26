@@ -349,6 +349,7 @@ if (status == NN.status_connected) {
                     ini_write_string("user", "password", global.login_pass);
                     ini_close();
                     room_goto(rm_search);
+                    global.nickname = ds_map_find_value(signal_login_data, "nickname");
                 }else {
                     show_message_async("로그인에 실패하였습니다 ;ㅅ;");
                     file_delete("auto_login.ini");
