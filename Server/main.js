@@ -198,21 +198,6 @@ if (cluster.isMaster) {
 
                         if (check == 1) {
                             // 새로 들어온 유저!
-                            connection.query('SELECT * FROM user where id ="' + message.id + '" and block = 0', function (error, results, fields) {
-                                if (error) {
-                                    worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
-                                    console.log(error);
-                                } else {
-                                    if (typeof results != "undefined" && results != null && results.length != null && results.length > 0) {
-                                        if (results[0].password == message.pass) {
-                                            var new_user = User.create(message.uuid, message.id);
-                                            authenticated_users.addUser(new_user);
-                                            console.log("   " + message.id + " 유저 신규 로드".gray + "(" + message.uuid + ")");
-                                            worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid, nickname: results[0].nickname });
-                                        } else {
-                                            worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
-                                        }
-                                    } else {
                                         worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                     }
                                 }
