@@ -415,7 +415,8 @@ if (cluster.isMaster) {
                 // 게이지 찬 값이 같으면 동점이니 계속 연장
                 if (red_gage[i] > 1000) {
                     // user.team 이 "red" 이거나, "blue" 임
-
+                    Games[i].RedTeam.EndGame(true);
+                    Games[i].BlueTeam.EndGame(false);
                     // 빨강 승리
                     authenticated_users.each(function (user) {
                         if (user.room == room[i]) {
@@ -432,6 +433,8 @@ if (cluster.isMaster) {
                 }
 
                 if (blue_gage[i] > 1000) {
+                    Games[i].RedTeam.EndGame(false);
+                    Games[i].BlueTeam.EndGame(true);
                     // 파랑 승리
                     authenticated_users.each(function (user) {
                         if (user.room == room[i]) {
