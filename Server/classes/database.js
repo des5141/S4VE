@@ -87,8 +87,26 @@ async function save_play(id, userid, champ, win, team_name, game_id) {
     return result;
 }
 
+async function ShowMeTheMoney(id){
+    var result = false;
+    const sql = `update Users set point=Users.money+${500} where id='${id}'`;
+    await new Promise((a, b) => {
+        connection.query(sql, (err) => {
+            if (err) {
+                result = false;
+            }
+            else {
+                result = true;
+            }
+            a();
+        });
+    });
+    return result;
+};
+
 module.exports.register = register;
 module.exports.raise_point = raise_point;
 module.exports.login = login;
 module.exports.end = end_connection;
 module.exports.save_play = save_play;
+module.exports.showmeyhemoney = ShowMeTheMoney;
