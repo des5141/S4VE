@@ -169,7 +169,7 @@ if (cluster.isMaster) {
                                                 console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
                                                 handoff(worker,message.uuid,user.x,user.y,user._type,user.team);
                                             });
-                                            if (check) {
+                                            if (check_) {
                                                 user.room = "";
                                                 user.room_i = -1;
                                             }
