@@ -323,13 +323,17 @@ if (cluster.isMaster) {
                             if (user.uuid == temp_data) {
                                 user.hp = 100;
                                 user.sp = 100;
+                                
+                                var player = new Player(user.id,"test",user._type);
 
                                 if (team == "red") {
+                                    TeamBlue.AddPlayer(player);
                                     team = "blue";
                                     user.x = 762;
                                     user.y = 1408;
                                 }
                                 else {
+                                    TeamRed.AddPlayer(player);
                                     team = "red";
                                     user.x = 96;
                                     user.y = 1408;
