@@ -26,8 +26,8 @@ else
 var worker_max = 10;
 var worker_id  = 1;
 var room = new Array();
-var room_max = 10;
-var game_max = 6;
+var room_max = 1;
+var game_max = 2;
 for (var i = 0; i < room_max; i++) {
     room[i] = "";
 }
@@ -289,19 +289,22 @@ if (cluster.isMaster) {
         }
     });
     
-    // 큐 내용을 확인하고 1초에 한번씩 매칭
+    // 큐 내용을 확인하고 1초에 한번씩 매칭, 아무도 없는 방이면 삭제
     !function input_match() {
         if (match_wait.length() >= game_max) {
-        var i, temp_data, temp_room, check = -1;
+        var i, temp_data, temp_room, check = -1, j;
             for (i = 0; i < room_max; i++) {
                 if (room[i] == "") {
                     temp_room = uuid_v4();
+                    room[i] = temp_room;
                     console.log(room[i]);
                     var team = "red";
-                    for (i = 0; i < game_max; i++) {
+                    for (j = 0; j < game_max; j++) {
                         temp_data = match_wait.dequeue();
                         authenticated_users.each(function (user) {
                             if (user.uuid == temp_data) {
+                                user.hp = 100;
+                                user.sp = 100;
 
                                 if (team == "red") {
                                     team = "blue";
@@ -324,8 +327,19 @@ if (cluster.isMaster) {
                             }
                         });
                     }
-                    room[i] = temp_room;
                     break;
+                } else {
+                    // 사용중인 방
+                    var check = 1;
+                    authenticated_users.each(function (user) {
+                        if ((user.room == room[i]) && (user.uuid != -1)) {
+                            check = -1;
+                        }
+                    });
+
+                    if (check == 1) {
+                        room[i] = "";
+                    }
                 }
             }
         }
