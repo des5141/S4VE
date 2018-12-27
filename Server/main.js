@@ -39,7 +39,7 @@ for (var i = 0; i < room_max; i++) {
     red_gage[i] = 0;
 }
 
-var Games = new Array();
+var Games = new Array(room_max);
 
 // 시그널 설정
 const signal_ping = 0;
@@ -351,7 +351,7 @@ if (cluster.isMaster) {
                         });
                     }
                     var game = new Game(TeamRed,TeamBlue);
-                    Games.push(game);
+                    Games[i]=game;
                     break;
                 }
             }
