@@ -350,6 +350,8 @@ if (cluster.isMaster) {
                             }
                         });
                     }
+                    var game = new Game(TeamRed,TeamBlue);
+                    Games.push(game);
                     break;
                 }
             }
