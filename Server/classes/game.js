@@ -75,7 +75,12 @@ var Team = /** @class */ (function () {
         });
     };
     Team.prototype.SaveHistory = function (win, user) {
-        user.SaveResultToDB(10, this.name, this.game_id);
+        if (win) {
+            user.SaveResultToDB(10, this.name, this.game_id);
+        }
+        else {
+            user.SaveResultToDB(-10, this.name, this.game_id);
+        }
     };
     Team.prototype.FindPlayer = function (id) {
         for (var i = 0; i < this.players.length; i++) {
@@ -114,7 +119,13 @@ var Player = /** @class */ (function () {
         this.health -= demage;
     };
     Player.prototype.SaveResultToDB = function (win, team_name, game_id) {
-        database_1.raise_point(10)(this.userid);
+        if (win > 0) {
+            database_1.showmeyhemoney(this.userid, 500);
+        }
+        else {
+            database_1.showmeyhemoney(this.userid, 50);
+        }
+        database_1.raise_point(win)(this.userid);
         return database_1.save_play(this.id, this.userid, this.champion, win, team_name, game_id);
     };
     return Player;

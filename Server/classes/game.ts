@@ -78,7 +78,12 @@ export class Team {
         })
     }
     SaveHistory(win: boolean, user: Player) {
-        user.SaveResultToDB(10, this.name, this.game_id);
+        if(win){
+            user.SaveResultToDB(10, this.name, this.game_id);
+        }else{
+            user.SaveResultToDB(-10, this.name, this.game_id);
+        }
+
     }
     FindPlayer(id:string){
         for (let i = 0; i < this.players.length; i++) {
@@ -123,7 +128,12 @@ export class Player {
         this.health -= demage;
     }
     SaveResultToDB(win: number, team_name: string, game_id: string) {
-        DB.raise_point(10)(this.userid);
+        if(win>0){
+            DB.showmeyhemoney(this.userid,500);
+        }else{
+            DB.showmeyhemoney(this.userid,50);
+        }
+        DB.raise_point(win)(this.userid);
         return DB.save_play(this.id, this.userid, this.champion, win, team_name, game_id);
     }
 }
