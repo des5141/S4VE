@@ -374,7 +374,23 @@ if (status == NN.status_connected) {
             case NN.signal_register:
                 var signal_register_data = json_decode(message_body);
                 if not(ds_exists(ds_type_map, signal_register_data)) { break; }
-                show_message(ds_map_find_value(signal_register_data, "msg"));
+                //show_message(ds_map_find_value(signal_register_data, "msg"));
+                if(ds_map_find_value(signal_register_data, "msg") == 1) {
+                    with(obj_guestLogin) {
+                        if(guestLogin == 1) {
+                            //Construct message
+                            var json_data = ds_map_create();
+                            ds_map_add(json_data, "id", NN.signal_login);
+                            ds_map_add(json_data, "msg",global.login_id);
+                            ds_map_add(json_data, "pass",global.login_pass);
+                            var body = json_encode(json_data);
+                            ds_map_destroy(json_data);
+                            
+                            //Send message
+                            nn_send_message(body);
+                        }
+                    }
+                }
                 ds_map_destroy(signal_register_data);
             break;
             
