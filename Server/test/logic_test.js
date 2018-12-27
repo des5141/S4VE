@@ -22,10 +22,10 @@ describe('player test',()=>{
         });
     });
     it('end game',()=>{
-        assert.doesNotThrow(()=>{
+        assert.doesNotThrow(async ()=>{
             const las = new Player('LasWonho','LAs aka Ika','Riven');
-            las.SaveResultToDB(true,'TeamA','afkjlkjhaskfdjahsldkfjhasscvz')
-            .then(data=>assert.deepEqual(data,true));
+            await las.SaveResultToDB(10,'TeamA','afkjlkjhaskfdjahsldkfjhasz')
+            .then(data=>console.log('data id '+data));
         })
     });
 })

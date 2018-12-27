@@ -23,9 +23,9 @@ describe('데이터베이스 테스트', function () {
     });
     it('유저 게임 결과 기록', async() => {
         await db
-            .save_play('id123', 'asdfadsgbtrhc', 'champ', 20, 'TeamA', 'sdfgiojfsdlgkjs')
+            .save_play('aasdsdfadsgbtrhc','id123', 'champ', 20, 'TeamA', 'sdfgiojfsdlgkjs')
             .then(data =>
-                assert.deepEqual(data, false)
+                assert.deepEqual(data, true)
             );
     });
     after(async () => {
