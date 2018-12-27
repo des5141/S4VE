@@ -51,6 +51,8 @@
     </sprites>
     <sprite>sprites\spr_temp</sprite>
     <sprite>sprites\spr_guest</sprite>
+    <sprite>sprites\spr_circle</sprite>
+    <sprite>sprites\spr_small_circle</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -112,6 +114,9 @@
       <script>scripts\asciiShift.gml</script>
     </scripts>
     <script>scripts\string_padding.gml</script>
+    <script>scripts\joy_get_direction.gml</script>
+    <script>scripts\joy_get_distance.gml</script>
+    <script>scripts\joy_circle_distance.gml</script>
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_nickname</font>
@@ -130,6 +135,7 @@
     <object>objects\system</object>
     <object>objects\all_unit</object>
     <object>objects\par_block</object>
+    <object>objects\obj_joy</object>
     <object>objects\par_player</object>
     <object>objects\obj_sworder</object>
     <object>objects\obj_hammer</object>
