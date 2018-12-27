@@ -47,6 +47,7 @@ const signal_myinfo = 6;
 const signal_hp = 7;
 const signal_restart = 8;
 const signal_register = 9;
+const signal_endgame = 10;
 
 function handoff(worker,uuid,x,y,type,team){
     worker.send({
@@ -396,7 +397,44 @@ if (cluster.isMaster) {
         }
 
         // 게임이 끝났는지 확인
+        for (i = 0; i < room_max; i++) {
+            if (red_gage[i] != blue_gage[i]) {
+                // 게이지 찬 값이 같으면 동점이니 계속 연장
+                if (red_gage[i] > 1000) {
+                    // user.team 이 "red" 이거나, "blue" 임
 
+                    // 빨강 승리
+                    authenticated_users.each(function (user) {
+                        if (user.room == room[i]) {
+                            user.room = "null";
+                            user.room_i = -1;
+
+                            for (var id in cluster.workers) {
+                                cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "red"});
+                            }
+                        }
+                    });
+
+                    room[i] = "";
+                }
+
+                if (blue_gage[i] > 1000) {
+                    // 파랑 승리
+                    authenticated_users.each(function (user) {
+                        if (user.room == room[i]) {
+                            user.room = "null";
+                            user.room_i = -1;
+                        }
+
+                        for (var id in cluster.workers) {
+                            cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "blue" });
+                        }
+                    });
+
+                    room[i] = "";
+                }
+            }
+        }
 
 
         authenticated_users.each(function (user) {
@@ -495,6 +533,14 @@ if (cluster.isWorker) {
                                 uuid: user.uuid
                             });
                             send_id_message(user.socket, signal_register, json_data);
+                        }
+                    });
+                    break;
+
+                case 'endgame':
+                    authenticated_users.each(function (user) {
+                        if (user.uuid == message.uuid) {
+                            send_id_message(user.socket, signal_endgame, message.team);
                         }
                     });
                     break;

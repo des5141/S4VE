@@ -378,6 +378,11 @@ if (status == NN.status_connected) {
                 ds_map_destroy(signal_register_data);
             break;
             
+            case NN.signal_endgame:
+                show_message_async(message_body);
+                room_goto(rm_search);
+            break;
+            
             case NN.signal_restart:
                 var temp_data = json_decode(message_body);
                 if not(ds_exists(ds_type_map, temp_data)) { break; }
