@@ -87,9 +87,9 @@ async function save_play(id, userid, champ, win, team_name, game_id) {
     return result;
 }
 
-async function ShowMeTheMoney(id){
+async function ShowMeTheMoney(id,money){
     var result = false;
-    const sql = `update Users set point=Users.money+${500} where id='${id}'`;
+    const sql = `update Users set point=Users.money+${money} where id='${id}'`;
     await new Promise((a, b) => {
         connection.query(sql, (err) => {
             if (err) {
