@@ -176,7 +176,7 @@ if (cluster.isMaster) {
                                                 handoff(worker,message.uuid,user.x,user.y,user._type,user.team);
                                             });
                                             if (check_) {
-                                                user.room = "";
+                                                user.room = "null";
                                                 user.room_i = -1;
                                             }
                                         }
