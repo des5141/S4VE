@@ -315,6 +315,8 @@ if (cluster.isMaster) {
                     blue_gage[i] = 0;
                     console.log(room[i]);
                     var team = "red";
+                    var TeamRed = new Team(1,"red");
+                    var TeamBlue = new Team(1,"blue");
                     for (j = 0; j < game_max; j++) {
                         temp_data = match_wait.dequeue();
                         authenticated_users.each(function (user) {
