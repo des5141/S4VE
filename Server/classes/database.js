@@ -7,8 +7,10 @@ const connection = mysql.createConnection({
     password: 'jin123',
     port: '4000',
     database: 'Heroes',
-    insecureAuth: true
+    insecureAuth: true,
+    multipleStatements:true,
 });
+
 connection.connect();
 async function login(id, password) {
     const hashed_pass = hash.makeHash(password);
@@ -89,7 +91,7 @@ async function save_play(id, userid, champ, win, team_name, game_id) {
 
 async function ShowMeTheMoney(id,money){
     var result = false;
-    const sql = `update Users set point=Users.money+${money} where id='${id}'`;
+    const sql = `update Users set money=Users.money+${money} where id='${id}'`;
     await new Promise((a, b) => {
         connection.query(sql, (err) => {
             if (err) {
@@ -97,6 +99,45 @@ async function ShowMeTheMoney(id,money){
             }
             else {
                 result = true;
+            }
+            a();
+        });
+    });
+    return result;
+};
+
+async function check_money(id,price){
+    var result = false;
+    const sql = `select * from Users where id='${id}'`;
+    await new Promise((a, b) => {
+        connection.query(sql, (err,results) => {
+            if (err) {
+                result = false;
+            }
+            else {
+                result = results[0].money>=price;
+            }
+            a();
+        });
+    });
+    return result;
+};
+
+async function buy_items(id,item){
+    var result = false;
+    new Promise((a,b)=>{
+        check_money(id,item.price).then(x=>{
+            if(x){
+                const sql = `update Users set money=Users.money-${item.price} where id='${id}'; insert into Items values('${item.name}','${id}',${item.price});`;
+                connection.query(sql, (err,results) => {
+                    if (err) {
+                        result = false;
+                    }
+                    else {
+                        result = true;
+                    }
+                    a();
+                });
             }
             a();
         });
