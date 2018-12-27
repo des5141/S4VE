@@ -406,7 +406,7 @@ if (cluster.isMaster) {
                     // 빨강 승리
                     authenticated_users.each(function (user) {
                         if (user.room == room[i]) {
-                            user.room = "";
+                            user.room = "null";
                             user.room_i = -1;
 
                             for (var id in cluster.workers) {
@@ -422,7 +422,7 @@ if (cluster.isMaster) {
                     // 파랑 승리
                     authenticated_users.each(function (user) {
                         if (user.room == room[i]) {
-                            user.room = "";
+                            user.room = "null";
                             user.room_i = -1;
                         }
 
