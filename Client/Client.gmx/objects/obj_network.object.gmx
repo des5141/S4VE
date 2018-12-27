@@ -397,6 +397,8 @@ if (status == NN.status_connected) {
                 if not(ds_exists(ds_type_map, temp_data)) { break; }
                 global.hp = ds_map_find_value(temp_data, "hp");
                 global.sp = ds_map_find_value(temp_data, "sp");
+                global.red_gage = ds_map_find_value(temp_data, "red_gage");
+                global.blue_gage = ds_map_find_value(temp_data, "blue_gage");
                 ds_map_destroy(temp_data);
             break;
             
@@ -594,6 +596,7 @@ if(my_ping - ping &gt; 0)
     
     draw_text(5, 15, global.uuid )
     draw_text(5, 30, global.team )
+    draw_text(5, 45, string(global.red_gage) + " / " + string(global.blue_gage));
 }
 </string>
           </argument>
