@@ -27,6 +27,13 @@
             <kind>1</kind>
             <string>/// draw
 draw_self();
+
+for( fff=0; fff&lt;=4; fff+=1 )    //최대 4개의 멀티터치를 인식하기위해서 for문 사용
+{
+mx = 0;
+my = 0;
+// 여기에 스킬 눌렀을때 효과 나오는 걸 만들거라!
+}
 </string>
           </argument>
         </arguments>

@@ -136,7 +136,7 @@
     <object>objects\all_unit</object>
     <object>objects\par_block</object>
     <object>objects\obj_joy</object>
-    <object>objects\object55</object>
+    <object>objects\obj_skill</object>
     <object>objects\par_player</object>
     <object>objects\obj_sworder</object>
     <object>objects\obj_hammer</object>
