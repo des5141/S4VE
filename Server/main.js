@@ -48,37 +48,32 @@ const signal_hp = 7;
 const signal_restart = 8;
 const signal_register = 9;
 
+function handoff(worker,uuid,x,y,type,team){
+    worker.send({
+        to: 'worker', type: 'handoff',
+        uuid: uuid,
+        x: x,
+        y: y,
+        _type: type,
+        team: team
+    });  
+};
+function find_room(target_room,f) {
+    for (i = 0; i < room_max; i++) {
+        if (room[i] == target_room) {
+            f();
+        }
+    }
+}
+
 // 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
 if (cluster.isMaster) {
     // Requires
     var User = require('./classes/user.js');
     var UserBox = require('./classes/user_box.js');
-    var mysql = require('mysql');
 
     // 변수 설정
     authenticated_users = UserBox.create();
-    if (debug_mode == 1) {
-        var connection = mysql.createConnection({
-            host: '61.84.196.75',
-            port: '20001',
-            user: 'rhea31',
-            password: 'Rheapass5141*',
-            database: 'Battlebox',
-            insecureAuth: true
-        });
-    } else {
-        var connection = mysql.createConnection({
-            host: '172.16.113.102',
-            port: '20001',
-            user: 'rhea31',
-            password: 'Rheapass5141*',
-            database: 'Battlebox',
-            insecureAuth: true
-        });
-    }
-
-    // DB 연결
-    connection.connect();
 
     // 큐
     class Queue {
@@ -168,31 +163,21 @@ if (cluster.isMaster) {
                                         if(result.exist){
                                             worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid, nickname: result.name });
                                             user.uuid = message.uuid;
-                                            var check = 1;
-                                            for (i = 0; i < room_max; i++) {
-                                                if (room[i] == user.room) {
-                                                    // 현재 활성화되어있는 방이니 핸드오프 합니다.
-                                                    check = -1;
-                                                    console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
-                                                    worker.send({
-                                                        to: 'worker', type: 'handoff',
-                                                        uuid: user.uuid,
-                                                        x: user.x,
-                                                        y: user.y,
-                                                        _type: user._type,
-                                                        team: user.team
-                                                    });
-                                                }
-                                            }
+                                            var check_ = true;
+                                            find_room(user.room,()=>{
+                                                check_ = false;
+                                                console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
+                                                handoff(worker,message.uuid,user.x,user.y,user._type,user.team);
+                                            });
                                             if (check) {
                                                 user.room = "";
                                                 user.room_i = -1;
                                             }
-                                        }else{
+                                        }
+                                        else {
                                             worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                         }
                                     });
-
                                 } else {
                                     worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                 }
