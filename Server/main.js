@@ -182,21 +182,12 @@ if (cluster.isMaster) {
                                         if(result.exist){
                                             worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid, nickname: result.name });
                                             user.uuid = message.uuid;
-                                            for (i = 0; i < room_max; i++) {
-                                                if (room[i] == user.room) {
-                                                    // 현재 활성화되어있는 방이니 핸드오프 합니다.
-                                                    console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
-                                                    worker.send({
-                                                        to: 'worker', type: 'handoff',
-                                                        uuid: user.uuid,
-                                                        x: user.x,
-                                                        y: user.y,
-                                                        _type: user._type,
-                                                        team: user.team
-                                                    });
-                                                }
-                                            }
-                                        }else{
+                                            find_room(user.room,()=>{
+                                                console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
+                                                handoff(worker,message.uuid,user.x,user.y,user._type,user.team);
+                                            })
+                                        }
+                                        else {
                                             worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                         }
                                     });
