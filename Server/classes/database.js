@@ -34,7 +34,7 @@ async function login(id, password) {
 async function register(id, password, name) {
     const pass = hash.makeHash(password);
     const point = 0;
-    const sql = `insert into Users values('${id}','${name}','${pass}','${point}')`;
+    const sql = `insert into Users values('${id}','${name}','${pass}','${point}',0)`;
     var result = false;
     await new Promise((a, b) => {
         connection.query(sql, (err) => {
