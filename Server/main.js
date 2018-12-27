@@ -408,8 +408,14 @@ if (cluster.isMaster) {
                         if (user.room == room[i]) {
                             user.room = "";
                             user.room_i = -1;
+
+                            for (var id in cluster.workers) {
+                                cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "red"});
+                            }
                         }
                     });
+
+                    room[i] = "";
                 }
 
                 if (blue_gage[i] > 1000) {
@@ -419,7 +425,13 @@ if (cluster.isMaster) {
                             user.room = "";
                             user.room_i = -1;
                         }
+
+                        for (var id in cluster.workers) {
+                            cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "blue" });
+                        }
                     });
+
+                    room[i] = "";
                 }
             }
         }
@@ -521,6 +533,14 @@ if (cluster.isWorker) {
                                 uuid: user.uuid
                             });
                             send_id_message(user.socket, signal_register, json_data);
+                        }
+                    });
+                    break;
+
+                case 'endgame':
+                    authenticated_users.each(function (user) {
+                        if (user.uuid == message.uuid) {
+                            send_id_message(user.socket, signal_endgame, message.team);
                         }
                     });
                     break;

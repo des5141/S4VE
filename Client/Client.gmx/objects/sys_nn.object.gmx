@@ -196,6 +196,7 @@ enum NN{
     signal_hp = 7,
     signal_restart = 8,
     signal_register = 9,
+    signal_endgame = 10,
     
     debug_modes = 1, // 1 is on, 0 is off
     
