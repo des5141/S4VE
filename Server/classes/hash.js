@@ -1,5 +1,6 @@
 var crypto = require('crypto');
-var count = 0;
+
+var count = Math.random();
 
 module.exports.makeHash = function (msg) {
     var shasum = crypto.createHash('sha1');
@@ -10,5 +11,6 @@ module.exports.makeHash = function (msg) {
 module.exports.autoHash = function () {
     var shasum = crypto.createHash('sha1');
     shasum.update('count'+count);
+    count+=1;
     return shasum.digest('hex');
 };

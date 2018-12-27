@@ -10,6 +10,9 @@ export class Game {
     constructor(teamA: Team, teamB: Team) {
         this.GameID = HASH.autoHash();
         teamA.EnterGame(this.GameID);
+        teamB.EnterGame(this.GameID);
+        this.RedTeam = teamA;
+        this.BlueTeam = teamB;
     }
     UpGauge(team_name: string) {
         if (this.RedTeam.name == team_name) {
@@ -22,17 +25,29 @@ export class Game {
         this.CheckEnd();
     }
     CheckEnd() {
-        if (this.RedTeam_gauge == 100) {
+        if (this.RedTeam_gauge >= 100) {
             this.RedTeam.EndGame(true);
             this.BlueTeam.EndGame(false);
-        } else if (this.BlueTeam_gauge == 100) {
+        } else if (this.BlueTeam_gauge >= 100) {
             this.RedTeam.EndGame(false);
             this.BlueTeam.EndGame(true);
         } else {
 
         }
     }
+    toString(){
+        var red = this.RedTeam.toString();
+        var blue = this.BlueTeam.toString();
+        const result = {id:this.GameID,RedTeam:red,BlueTeam:blue};
+        return JSON.stringify(result);
+    }
+    MovePlayer(id:string,x:number,y:number){
+        this.RedTeam.MovePlayer(id,x,y);
+        this.BlueTeam.MovePlayer(id,x,y);
+    }
+    isGuageIN(){
 
+    }
 }
 export class Team {
     private players: Array<Player>;
@@ -63,9 +78,26 @@ export class Team {
         })
     }
     SaveHistory(win: boolean, user: Player) {
-        user.SaveResultToDB(win, this.name, this.game_id);
+        user.SaveResultToDB(10, this.name, this.game_id);
     }
-
+    FindPlayer(id:string){
+        for (let i = 0; i < this.players.length; i++) {
+            const element = this.players[i];
+            if(element.userid==id)
+                return i;
+        }
+    }
+    MovePlayer(id:string,x:number,y:number){
+        const player_location = this.FindPlayer(id);
+        if(player_location>=0){
+            this.players[player_location].Move(x,y);
+        }
+    }
+    toString(){
+        var result = "Players : \n";            
+        this.players.forEach(x=>{result+=" user : "+x.name;});
+        return "TeamName : "+this.name+"  "+result+"\n";
+    }
 }
 export class Player {
 
@@ -90,7 +122,8 @@ export class Player {
     Demaged(demage: number) {
         this.health -= demage;
     }
-    SaveResultToDB(win: boolean, team_name: string, game_id: string) {
+    SaveResultToDB(win: number, team_name: string, game_id: string) {
+        DB.raise_point(10)(this.userid);
         return DB.save_play(this.id, this.userid, this.champion, win, team_name, game_id);
     }
 }

@@ -71,7 +71,7 @@ function end_connection() {
 }
 
 async function save_play(id, userid, champ, win, team_name, game_id) {
-    const sql = `insert into SaveHistory values('${id}','${userid}','${champ}',${win},'${team_name}','${game_id}')`;
+    const sql = `insert into PlayHistory values('${id}','${userid}','${champ}',${win},'${team_name}','${game_id}')`;
     var result = false;
     await new Promise((a, b) => {
         connection.query(sql, (err) => {

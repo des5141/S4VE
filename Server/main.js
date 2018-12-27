@@ -15,6 +15,9 @@ var functions = require('./classes/functions.js').create();
 var server = require('./classes/server.js').createServer();
 var uuid_v4 = require('uuid-v4');
 var database = require('./classes/database');
+const Player = require('./classes/game').Player;
+const Game = require('./classes/game').Game;
+const Team = require('./classes/game').Team;
 
 // 서버 세부 설정
 var debug_mode = 1; // 1 is on, 0 is off
@@ -35,6 +38,8 @@ for (var i = 0; i < room_max; i++) {
     blue_gage[i] = 0;
     red_gage[i] = 0;
 }
+
+var Games = new Array(room_max);
 
 // 시그널 설정
 const signal_ping = 0;
@@ -310,19 +315,25 @@ if (cluster.isMaster) {
                     blue_gage[i] = 0;
                     console.log(room[i]);
                     var team = "red";
+                    var TeamRed = new Team(game_max/2,"red");
+                    var TeamBlue = new Team(game_max/2,"blue");
                     for (j = 0; j < game_max; j++) {
                         temp_data = match_wait.dequeue();
                         authenticated_users.each(function (user) {
                             if (user.uuid == temp_data) {
                                 user.hp = 100;
                                 user.sp = 100;
+                                
+                                var player = new Player(user.id,"test",user._type);
 
                                 if (team == "red") {
+                                    TeamBlue.AddPlayer(player);
                                     team = "blue";
                                     user.x = 762;
                                     user.y = 1408;
                                 }
                                 else {
+                                    TeamRed.AddPlayer(player);
                                     team = "red";
                                     user.x = 96;
                                     user.y = 1408;
@@ -339,6 +350,8 @@ if (cluster.isMaster) {
                             }
                         });
                     }
+                    var game = new Game(TeamRed,TeamBlue);
+                    Games[i]=game;
                     break;
                 }
             }
@@ -384,7 +397,9 @@ if (cluster.isMaster) {
         });
 
         var i;
+        // 게임 진행
         for (i = 0; i < room_max; i++) {
+            //게이지 올리기
             authenticated_users.each(function (user) {
                 if ((user.room == room[i])&&(user.y < 608)) {
                     if (user.team == "red") {
@@ -394,15 +409,14 @@ if (cluster.isMaster) {
                     }
                 }
             });
-        }
 
-        // 게임이 끝났는지 확인
-        for (i = 0; i < room_max; i++) {
+            //게이지 확인
             if (red_gage[i] != blue_gage[i]) {
                 // 게이지 찬 값이 같으면 동점이니 계속 연장
                 if (red_gage[i] > 1000) {
                     // user.team 이 "red" 이거나, "blue" 임
-
+                    Games[i].RedTeam.EndGame(true);
+                    Games[i].BlueTeam.EndGame(false);
                     // 빨강 승리
                     authenticated_users.each(function (user) {
                         if (user.room == room[i]) {
@@ -419,6 +433,8 @@ if (cluster.isMaster) {
                 }
 
                 if (blue_gage[i] > 1000) {
+                    Games[i].RedTeam.EndGame(false);
+                    Games[i].BlueTeam.EndGame(true);
                     // 파랑 승리
                     authenticated_users.each(function (user) {
                         if (user.room == room[i]) {
