@@ -44,6 +44,24 @@ const signal_hp = 7;
 const signal_restart = 8;
 const signal_register = 9;
 
+function handoff(worker,uuid,x,y,type,team){
+    worker.send({
+        to: 'worker', type: 'handoff',
+        uuid: uuid,
+        x: x,
+        y: y,
+        _type: type,
+        team: team
+    });  
+};
+function find_room(target_room,f) {
+    for (i = 0; i < room_max; i++) {
+        if (room[i] == target_room) {
+            f();
+        }
+    }
+}
+
 // 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
 if (cluster.isMaster) {
     // Requires
@@ -182,7 +200,6 @@ if (cluster.isMaster) {
                                             worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                         }
                                     });
-
                                 } else {
                                     worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                 }
