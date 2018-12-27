@@ -397,7 +397,9 @@ if (cluster.isMaster) {
         });
 
         var i;
+        // 게임 진행
         for (i = 0; i < room_max; i++) {
+            //게이지 올리기
             authenticated_users.each(function (user) {
                 if ((user.room == room[i])&&(user.y < 608)) {
                     if (user.team == "red") {
@@ -407,10 +409,8 @@ if (cluster.isMaster) {
                     }
                 }
             });
-        }
 
-        // 게임이 끝났는지 확인
-        for (i = 0; i < room_max; i++) {
+            //게이지 확인
             if (red_gage[i] != blue_gage[i]) {
                 // 게이지 찬 값이 같으면 동점이니 계속 연장
                 if (red_gage[i] > 1000) {
