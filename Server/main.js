@@ -39,6 +39,8 @@ for (var i = 0; i < room_max; i++) {
     red_gage[i] = 0;
 }
 
+var Games = new Array();
+
 // 시그널 설정
 const signal_ping = 0;
 const signal_login = 1;
