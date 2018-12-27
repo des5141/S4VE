@@ -1,3 +1,4 @@
+"use strict";
 /* 
  * 이 서버의 문제점
  * 1) 유저가 접속할때마다 데이터가 생성이 되는데, 이게 사라지지 않는다. 심각. 정기점검으로 매번 지워주는 수 밖에 없을 것 같다. << 마스터에만 쌓이는 걸 제외하면 해결. (이건 핸드오프 때문에 어쩔 수 없는 듯)
@@ -79,7 +80,7 @@ if (cluster.isMaster) {
     var UserBox = require('./classes/user_box.js');
 
     // 변수 설정
-    authenticated_users = UserBox.create();
+    var authenticated_users = UserBox.create();
 
     // 큐
     class Queue {
@@ -414,7 +415,7 @@ if (cluster.isMaster) {
             });
 
             //게이지 확인
-            if (red_gage[i] != blue_gage[i]) {
+            if (red_gage[i] != blue_gage[i] && room[i]!="") {
                 // 게이지 찬 값이 같으면 동점이니 계속 연장
                 if (red_gage[i] > 1000) {
                     // user.team 이 "red" 이거나, "blue" 임
@@ -433,6 +434,10 @@ if (cluster.isMaster) {
                     });
 
                     room[i] = "";
+                    
+                    red_gage[i] = 0;
+                    blue_gage[i] = 0;
+
                 }
 
                 if (blue_gage[i] > 1000) {
@@ -451,6 +456,8 @@ if (cluster.isMaster) {
                     });
 
                     room[i] = "";
+                    red_gage[i] = 0;
+                    blue_gage[i] = 0;
                 }
             }
         }
