@@ -66,6 +66,7 @@ hp             = 0;
 sp             = 0;
 team           = "";// red or blue
 damaged        = 0; // trigger. 1 is on, 0 is off
+nickname       = "";
 go[0]          = 0; // go to place (x)
 go[1]          = 1; // go to place (y)
 go[2]          = 0; // check going
@@ -413,8 +414,12 @@ if(team != global.team)
     draw_set_color(c_red);
 else
     draw_set_color(c_white);
-draw_text(x, y - 35 - z, "des");
-draw_text(x, y - 60, team);
+
+if(control == 1)
+    draw_text(x, y - 35 - z, global.nickname);
+else
+    draw_text(x, y - 35 - z, nickname);
+//draw_text(x, y - 60, team);
 
 
 </string>
