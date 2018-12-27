@@ -411,7 +411,30 @@ if (cluster.isMaster) {
         }
 
         // 게임이 끝났는지 확인
+        for (i = 0; i < room_max; i++) {
+            if (red_gage[i] != blue_gage[i]) {
+                // 게이지 찬 값이 같으면 동점이니 계속 연장
+                if (red_gage[i] > 1000) {
+                    // 빨강 승리
+                    authenticated_users.each(function (user) {
+                        if (user.room == room[i]) {
+                            user.room = "";
+                            user.room_i = -1;
+                        }
+                    });
+                }
 
+                if (blue_gage[i] > 1000) {
+                    // 파랑 승리
+                    authenticated_users.each(function (user) {
+                        if (user.room == room[i]) {
+                            user.room = "";
+                            user.room_i = -1;
+                        }
+                    });
+                }
+            }
+        }
 
 
         authenticated_users.each(function (user) {
