@@ -67,32 +67,9 @@ if (cluster.isMaster) {
     // Requires
     var User = require('./classes/user.js');
     var UserBox = require('./classes/user_box.js');
-    var mysql = require('mysql');
 
     // 변수 설정
     authenticated_users = UserBox.create();
-    if (debug_mode == 1) {
-        var connection = mysql.createConnection({
-            host: '61.84.196.75',
-            port: '20001',
-            user: 'rhea31',
-            password: 'Rheapass5141*',
-            database: 'Battlebox',
-            insecureAuth: true
-        });
-    } else {
-        var connection = mysql.createConnection({
-            host: '172.16.113.102',
-            port: '20001',
-            user: 'rhea31',
-            password: 'Rheapass5141*',
-            database: 'Battlebox',
-            insecureAuth: true
-        });
-    }
-
-    // DB 연결
-    connection.connect();
 
     // 큐
     class Queue {
