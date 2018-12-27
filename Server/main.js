@@ -26,10 +26,14 @@ else
 var worker_max = 10;
 var worker_id  = 1;
 var room = new Array();
-var room_max = 10;
-var game_max = 6;
+var blue_gage = new Array();
+var red_gage = new Array();
+var room_max = 1;
+var game_max = 2;
 for (var i = 0; i < room_max; i++) {
     room[i] = "";
+    blue_gage[i] = 0;
+    red_gage[i] = 0;
 }
 
 // 시그널 설정
@@ -159,10 +163,16 @@ if (cluster.isMaster) {
                                         if(result.exist){
                                             worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid, nickname: result.name });
                                             user.uuid = message.uuid;
+                                            var check_ = true;
                                             find_room(user.room,()=>{
+                                                check_ = false;
                                                 console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
                                                 handoff(worker,message.uuid,user.x,user.y,user._type,user.team);
-                                            })
+                                            });
+                                            if (check) {
+                                                user.room = "";
+                                                user.room_i = -1;
+                                            }
                                         }
                                         else {
                                             worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
@@ -274,19 +284,37 @@ if (cluster.isMaster) {
         }
     });
     
-    // 큐 내용을 확인하고 1초에 한번씩 매칭
+    // 큐 내용을 확인하고 1초에 한번씩 매칭, 아무도 없는 방이면 삭제
     !function input_match() {
+        var i, temp_data, temp_room, check = -1, j;
+        for (i = 0; i < room_max; i++) {
+            var check = 1;
+            authenticated_users.each(function (user) {
+                if ((user.room == room[i]) && (user.uuid != -1)) {
+                    check = -1;
+                }
+            });
+
+            if (check == 1) {
+                room[i] = "";
+            }
+        }
+
         if (match_wait.length() >= game_max) {
-        var i, temp_data, temp_room, check = -1;
             for (i = 0; i < room_max; i++) {
                 if (room[i] == "") {
                     temp_room = uuid_v4();
+                    room[i] = temp_room;
+                    red_gage[i] = 0;
+                    blue_gage[i] = 0;
                     console.log(room[i]);
                     var team = "red";
-                    for (i = 0; i < game_max; i++) {
+                    for (j = 0; j < game_max; j++) {
                         temp_data = match_wait.dequeue();
                         authenticated_users.each(function (user) {
                             if (user.uuid == temp_data) {
+                                user.hp = 100;
+                                user.sp = 100;
 
                                 if (team == "red") {
                                     team = "blue";
@@ -302,6 +330,7 @@ if (cluster.isMaster) {
                                 console.log(user.uuid);
                                 user.room = temp_room;
                                 user.team = team;
+                                user.room_i = i;
                                 console.log("- " + user.room);
                                 for (var id in cluster.workers) {
                                     cluster.workers[id].send({ type: 'search', to: 'worker', uuid: user.uuid, id: 1, team: user.team, x: user.x, y: user.y });
@@ -309,7 +338,6 @@ if (cluster.isMaster) {
                             }
                         });
                     }
-                    room[i] = temp_room;
                     break;
                 }
             }
@@ -354,34 +382,56 @@ if (cluster.isMaster) {
             }
         });
 
+        var i;
+        for (i = 0; i < room_max; i++) {
+            authenticated_users.each(function (user) {
+                if ((user.room == room[i])&&(user.y < 608)) {
+                    if (user.team == "red") {
+                        red_gage[i]++;
+                    } else if (user.team == "blue") {
+                        blue_gage[i]++;
+                    }
+                }
+            });
+        }
+
+        // 게임이 끝났는지 확인
+
+
+
         authenticated_users.each(function (user) {
-            if ((user.room != "null")) {
-                if (user.hp <= 0) {
-                    user.hp = 100;
-                    if (user.team == "blue") {
-                        user.x = 762;
-                        user.y = 1408;
-                    }else {
-                        user.x = 96;
-                        user.y = 1408;
+            for (i = 0; i < room_max; i++) {
+                if (user.room == room[i]) {
+                    if (user.hp <= 0) {
+                        user.hp = 100;
+                        if (user.team == "blue") {
+                            user.x = 762;
+                            user.y = 1408;
+                        } else {
+                            user.x = 96;
+                            user.y = 1408;
+                        }
+                        if (user.uuid != -1) {
+                            for (var id in cluster.workers) {
+                                cluster.workers[id].send({ type: 'restart', to: 'worker', uuid: user.uuid, x: user.x, y: user.y });
+                            }
+                        }
                     }
                     if (user.uuid != -1) {
                         for (var id in cluster.workers) {
-                            cluster.workers[id].send({ type: 'restart', to: 'worker', uuid: user.uuid, x: user.x, y: user.y });
+                            cluster.workers[id].send({
+                                type: 'myinfo', to: 'worker',
+                                uuid: user.uuid,
+                                hp: user.hp,
+                                sp: user.sp,
+                                red_gage: red_gage[user.room_i],
+                                blue_gage: blue_gage[user.room_i]
+                            });
                         }
                     }
                 }
-                if (user.uuid != -1) {
-                    for (var id in cluster.workers) {
-                        cluster.workers[id].send({
-                            type: 'myinfo', to: 'worker',
-                            uuid: user.uuid,
-                            hp: user.hp,
-                            sp: user.sp
-                        });
-                    }
-                }
             }
+
         });
 
         setTimeout(function () {
@@ -516,7 +566,9 @@ if (cluster.isWorker) {
                     if (ins != undefined) {
                         var json_data = JSON.stringify({
                             hp: message.hp,
-                            sp: message.sp
+                            sp: message.sp,
+                            red_gage: message.red_gage,
+                            blue_gage: message.blue_gage
                         });
                         send_id_message(ins.socket, signal_myinfo, json_data);
                     }

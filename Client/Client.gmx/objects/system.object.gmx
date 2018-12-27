@@ -48,6 +48,8 @@ global.skill_delay    [4] = 0;
 global.skill_delay_max[4] = 0;
 global.skill_index    [4] = 0;
 global.skill_point        = 0;
+global.red_gage           = 0;
+global.blue_gage          = 0;
 </string>
           </argument>
         </arguments>

@@ -46,6 +46,7 @@ if (attack_delay &lt;= 0)and(control == 1)
     a.move = irandom_range(2, 7);
     a.sprite = spr_fire;
     a.from = global.login_id;
+    a.from_team = global.team;
     a.damage = 5;
     
     system.shake = 1;
@@ -93,6 +94,7 @@ if (attack_delay &lt;= 0)and(control == 1)
     ds_map_add(json_data_weapon, "x", x);
     ds_map_add(json_data_weapon, "y", y);
     ds_map_add(json_data_weapon, "from", global.login_id);
+    ds_map_add(json_data_weapon, "team", global.team);
     ds_map_add(json_data_weapon, "damage", a.damage);
     ds_map_add(json_data, "msg", json_encode(json_data_weapon));
     ds_map_destroy(json_data_weapon);
@@ -147,6 +149,7 @@ if (global.skill_delay[3] &lt;= 0)
         a.move = irandom_range(2, 7);
         a.sprite = spr_fire;
         a.damage = 2;
+        a.from_team = global.team;
         
         var json_data = ds_map_create();
         ds_map_add(json_data, "id", NN.signal_instance);
@@ -236,6 +239,7 @@ if (global.skill_delay[3] &lt;= 0)
     var a = instance_create(x + lengthdir_x(min(point_distance(x, y, mouse_x, mouse_y), 120), point_direction(x, y, mouse_x, mouse_y)), y + lengthdir_y(min(point_distance(x, y, mouse_x, mouse_y), 120), point_direction(x, y, mouse_x, mouse_y)), obj_effect4);
     a.from = global.login_id;
     a.damage = 20;
+    a.from_team = global.team;
     
     system.shake = 1;
     weapon_delay = 40;
@@ -272,6 +276,7 @@ if (global.skill_delay[3] &lt;= 0)
     ds_map_add(json_data_weapon, "y", y + lengthdir_y(min(point_distance(x, y, mouse_x, mouse_y), 120), point_direction(x, y, mouse_x, mouse_y)));
     ds_map_add(json_data_weapon, "from", global.login_id);
     ds_map_add(json_data_weapon, "damage", a.damage);
+    ds_map_add(json_data_weapon, "team", global.team);
     ds_map_add(json_data, "msg", json_encode(json_data_weapon));
     ds_map_destroy(json_data_weapon);
     var body = json_encode(json_data);
@@ -361,6 +366,7 @@ if (global.skill_delay[0] &lt;= 0)
     a.move = irandom_range(2, 7);
     a.sprite = spr_fire;
     a.from = global.login_id;
+    a.from_team = global.team;
     a.damage = 15;
     
     system.shake = 1;
@@ -407,6 +413,7 @@ if (global.skill_delay[0] &lt;= 0)
     ds_map_add(json_data_weapon, "y", y );
     ds_map_add(json_data_weapon, "from", global.login_id);
     ds_map_add(json_data_weapon, "damage", a.damage);
+    ds_map_add(json_data_weapon, "team", global.team);
     ds_map_add(json_data, "msg", json_encode(json_data_weapon));
     ds_map_destroy(json_data_weapon);
     var body = json_encode(json_data);
