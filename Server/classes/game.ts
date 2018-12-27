@@ -10,6 +10,9 @@ export class Game {
     constructor(teamA: Team, teamB: Team) {
         this.GameID = HASH.autoHash();
         teamA.EnterGame(this.GameID);
+        teamB.EnterGame(this.GameID);
+        this.RedTeam = teamA;
+        this.BlueTeam = teamB;
     }
     UpGauge(team_name: string) {
         if (this.RedTeam.name == team_name) {
@@ -31,6 +34,12 @@ export class Game {
         } else {
 
         }
+    }
+    toString(){
+        var red = this.RedTeam.toString();
+        var blue = this.BlueTeam.toString();
+        const result = {id:this.GameID,RedTeam:red,BlueTeam:blue};
+        return JSON.stringify(result);
     }
 
 }
@@ -65,7 +74,11 @@ export class Team {
     SaveHistory(win: boolean, user: Player) {
         user.SaveResultToDB(win, this.name, this.game_id);
     }
-
+    toString(){
+        var result = "Players : \n";            
+        this.players.forEach(x=>{result+=" user : "+x.name;});
+        return "TeamName : "+this.name+"  "+result+"\n";
+    }
 }
 export class Player {
 

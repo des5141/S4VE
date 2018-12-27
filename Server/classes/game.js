@@ -6,6 +6,9 @@ var Game = /** @class */ (function () {
     function Game(teamA, teamB) {
         this.GameID = hash_1.autoHash();
         teamA.EnterGame(this.GameID);
+        teamB.EnterGame(this.GameID);
+        this.RedTeam = teamA;
+        this.BlueTeam = teamB;
     }
     Game.prototype.UpGauge = function (team_name) {
         if (this.RedTeam.name == team_name) {
@@ -22,14 +25,20 @@ var Game = /** @class */ (function () {
     Game.prototype.CheckEnd = function () {
         if (this.RedTeam_gauge == 100) {
             this.RedTeam.EndGame(true);
-            this.RedTeam.EndGame(false);
+            this.BlueTeam.EndGame(false);
         }
         else if (this.BlueTeam_gauge == 100) {
             this.RedTeam.EndGame(false);
-            this.RedTeam.EndGame(true);
+            this.BlueTeam.EndGame(true);
         }
         else {
         }
+    };
+    Game.prototype.toString = function () {
+        var red = this.RedTeam.toString();
+        var blue = this.BlueTeam.toString();
+        var result = { id: this.GameID, RedTeam: red, BlueTeam: blue };
+        return JSON.stringify(result);
     };
     return Game;
 }());
@@ -61,6 +70,11 @@ var Team = /** @class */ (function () {
     };
     Team.prototype.SaveHistory = function (win, user) {
         user.SaveResultToDB(win, this.name, this.game_id);
+    };
+    Team.prototype.toString = function () {
+        var result = "Players : \n";
+        this.players.forEach(function (x) { result += " user : " + x.name; });
+        return "TeamName : " + this.name + "  " + result + "\n";
     };
     return Team;
 }());
