@@ -23,11 +23,11 @@ var Game = /** @class */ (function () {
         this.CheckEnd();
     };
     Game.prototype.CheckEnd = function () {
-        if (this.RedTeam_gauge == 100) {
+        if (this.RedTeam_gauge >= 100) {
             this.RedTeam.EndGame(true);
             this.BlueTeam.EndGame(false);
         }
-        else if (this.BlueTeam_gauge == 100) {
+        else if (this.BlueTeam_gauge >= 100) {
             this.RedTeam.EndGame(false);
             this.BlueTeam.EndGame(true);
         }
@@ -39,6 +39,12 @@ var Game = /** @class */ (function () {
         var blue = this.BlueTeam.toString();
         var result = { id: this.GameID, RedTeam: red, BlueTeam: blue };
         return JSON.stringify(result);
+    };
+    Game.prototype.MovePlayer = function (id, x, y) {
+        this.RedTeam.MovePlayer(id, x, y);
+        this.BlueTeam.MovePlayer(id, x, y);
+    };
+    Game.prototype.isGuageIN = function () {
     };
     return Game;
 }());
@@ -69,7 +75,20 @@ var Team = /** @class */ (function () {
         });
     };
     Team.prototype.SaveHistory = function (win, user) {
-        user.SaveResultToDB(win, this.name, this.game_id);
+        user.SaveResultToDB(10, this.name, this.game_id);
+    };
+    Team.prototype.FindPlayer = function (id) {
+        for (var i = 0; i < this.players.length; i++) {
+            var element = this.players[i];
+            if (element.userid == id)
+                return i;
+        }
+    };
+    Team.prototype.MovePlayer = function (id, x, y) {
+        var player_location = this.FindPlayer(id);
+        if (player_location >= 0) {
+            this.players[player_location].Move(x, y);
+        }
     };
     Team.prototype.toString = function () {
         var result = "Players : \n";
@@ -95,6 +114,7 @@ var Player = /** @class */ (function () {
         this.health -= demage;
     };
     Player.prototype.SaveResultToDB = function (win, team_name, game_id) {
+        database_1.raise_point(10)(this.userid);
         return database_1.save_play(this.id, this.userid, this.champion, win, team_name, game_id);
     };
     return Player;
