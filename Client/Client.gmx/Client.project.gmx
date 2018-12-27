@@ -5,6 +5,7 @@
   </Configs>
   <NewExtensions>
     <extension index="0">extensions\ImNotGUI</extension>
+    <extension index="1">extensions\Vainglory</extension>
   </NewExtensions>
   <sounds name="sound"/>
   <sprites name="sprites">
@@ -28,6 +29,30 @@
     <sprite>sprites\spr_searching</sprite>
     <sprite>sprites\spr_uiwhitepixel</sprite>
     <sprite>sprites\spr_uiwhitepixel1</sprite>
+    <sprites name="MAIN_SPR">
+      <sprites name="game">
+        <sprite>sprites\sprSmall1</sprite>
+        <sprite>sprites\sprSmall2</sprite>
+        <sprite>sprites\sprBig1</sprite>
+      </sprites>
+      <sprites name="News">
+        <sprite>sprites\sprBig2</sprite>
+      </sprites>
+      <sprites name="Rank">
+        <sprite>sprites\sprRank_</sprite>
+      </sprites>
+      <sprites name="Icons">
+        <sprite>sprites\sprIcon1</sprite>
+        <sprite>sprites\sprIcon2</sprite>
+        <sprite>sprites\sprIcon3</sprite>
+        <sprite>sprites\sprIcon4</sprite>
+        <sprite>sprites\sprIcon5</sprite>
+      </sprites>
+    </sprites>
+    <sprite>sprites\spr_temp</sprite>
+    <sprite>sprites\spr_guest</sprite>
+    <sprite>sprites\spr_circle</sprite>
+    <sprite>sprites\spr_small_circle</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -88,10 +113,16 @@
       <script>scripts\shove.gml</script>
       <script>scripts\asciiShift.gml</script>
     </scripts>
+    <script>scripts\string_padding.gml</script>
+    <script>scripts\joy_get_direction.gml</script>
+    <script>scripts\joy_get_distance.gml</script>
+    <script>scripts\joy_circle_distance.gml</script>
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_nickname</font>
     <font>fonts\fnt_text</font>
+    <font>fonts\main_font0</font>
+    <font>fonts\main_font1</font>
   </fonts>
   <objects name="objects">
     <objects name="Networking with Node">
@@ -104,6 +135,8 @@
     <object>objects\system</object>
     <object>objects\all_unit</object>
     <object>objects\par_block</object>
+    <object>objects\obj_joy</object>
+    <object>objects\object55</object>
     <object>objects\par_player</object>
     <object>objects\obj_sworder</object>
     <object>objects\obj_hammer</object>
@@ -126,6 +159,42 @@
     <object>objects\obj_tree03</object>
     <object>objects\obj_grass</object>
     <object>objects\obj_searching</object>
+    <objects name="MAIN_OBJ">
+      <objects name="par">
+        <object>objects\parStart1</object>
+        <object>objects\parStart2</object>
+        <object>objects\parStart3</object>
+        <object>objects\parStart4</object>
+      </objects>
+      <objects name="1">
+        <object>objects\obj_gamestart</object>
+        <object>objects\object6</object>
+        <object>objects\object7</object>
+        <object>objects\object4</object>
+        <object>objects\object9</object>
+        <object>objects\object11</object>
+        <object>objects\object13</object>
+        <object>objects\object10</object>
+        <object>objects\object2</object>
+        <object>objects\object1</object>
+      </objects>
+      <objects name="2">
+        <object>objects\object15</object>
+      </objects>
+      <objects name="3">
+        <object>objects\object22</object>
+      </objects>
+      <objects name="Icon">
+        <object>objects\objIconGame</object>
+        <object>objects\objIconInfo</object>
+        <object>objects\objIconNews</object>
+        <object>objects\objIconShop</object>
+        <object>objects\objIcon</object>
+        <object>objects\objIcon2</object>
+        <object>objects\objIcon3</object>
+      </objects>
+    </objects>
+    <object>objects\obj_guestLogin</object>
   </objects>
   <rooms name="rooms">
     <room>rooms\room4</room>
@@ -133,6 +202,7 @@
     <room>rooms\rm_login</room>
     <room>rooms\rm_search</room>
     <room>rooms\rm_main</room>
+    <room>rooms\vainglory</room>
   </rooms>
   <help>
     <rtf>help.rtf</rtf>

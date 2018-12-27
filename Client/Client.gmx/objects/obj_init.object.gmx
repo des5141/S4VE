@@ -41,6 +41,9 @@ global.iuBrown     = col16($5A4D48);
 global.team        = "";
 global.red_gage    = 0;
 global.blue_gage   = 0;
+global.nickname    = "";
+
+randomize();
 
 alarm[0] = 1;
 </string>

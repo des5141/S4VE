@@ -26,7 +26,7 @@
           <argument>
             <kind>1</kind>
             <string>/// Auto login
-if(file_exists("auto_login.ini")) {
+/*if(file_exists("auto_login.ini")) {
     // 이미 한번 로그인 한 기록이 있으니, 이걸 가지고 로그인 시도!
     ini_open("auto_login.ini");
     global.login_id = ini_read_string("user", "id", "");
@@ -41,7 +41,7 @@ if(file_exists("auto_login.ini")) {
     nn_send_message(body);
     
     ini_close();
-}
+}*/
 </string>
           </argument>
         </arguments>

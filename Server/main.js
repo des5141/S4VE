@@ -170,6 +170,7 @@ if (cluster.isMaster) {
                                         if(result.exist){
                                             worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid, nickname: result.name });
                                             user.uuid = message.uuid;
+                                            user.nickname = result.name;
                                             var check_ = true;
                                             find_room(user.room,()=>{
                                                 check_ = false;
@@ -199,6 +200,7 @@ if (cluster.isMaster) {
                                         worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid, nickname: result.name });
                                         var new_user = User.create(message.uuid, message.id);
                                         authenticated_users.addUser(new_user);
+                                        new_user.nickname = result.name;
                                     }else{
                                         worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                     }
@@ -388,7 +390,8 @@ if (cluster.isMaster) {
                                 xdir: user.xdir,
                                 hp: user.hp,
                                 sp: user.sp,
-                                team: user.team
+                                team: user.team,
+                                nickname: user.nickname
                             });
                         }
 
@@ -603,7 +606,8 @@ if (cluster.isWorker) {
                             xdir: message.xdir,
                             hp: message.hp,
                             sp: message.sp,
-                            team: message.team
+                            team: message.team,
+                            nickname: message.nickname
                         });
 
                         send_id_message(ins.socket, signal_move, json_data);

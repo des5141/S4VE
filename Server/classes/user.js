@@ -19,7 +19,7 @@ function create(uuid, id) {
 
 
         uuid: uuid, // UUID
-        name: "null",      // User Nickname\
+        nickname: "null",      // User Nickname\
         room: "null",      // User's room
         room_i: -1,
         id: id,    // User's id

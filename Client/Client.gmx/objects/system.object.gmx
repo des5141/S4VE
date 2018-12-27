@@ -260,7 +260,7 @@ nBlurInit();
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>draw_set_alpha(1);
+            <string>/*draw_set_alpha(1);
 
 draw_set_color(c_black);
 draw_rectangle(400 - 150, 480 - 50, 400 + 150, 480, false);
@@ -296,7 +296,7 @@ for(i = 0; i &lt; 4; i++)
         draw_set_color(c_black);
         draw_rectangle(400 - max_size + i*(box_size+10)+5, 480 - 50 - box_size + 5, 400 - max_size + (i+1)*(box_size+10)-10-5, 480 - 50 - 5, false);
     }
-}
+}*/
 </string>
           </argument>
         </arguments>

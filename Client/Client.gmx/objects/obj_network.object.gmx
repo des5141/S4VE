@@ -364,7 +364,6 @@ if (status == NN.status_connected) {
                     global.team = ds_map_find_value(signal_search_data, "team");
                     delay_x = ds_map_find_value(signal_search_data, "x");
                     delay_y = ds_map_find_value(signal_search_data, "y");
-                    show_message_async(global.team);
                     room_goto(rm_main);
                     alarm[9] = 1;
                 }
@@ -374,7 +373,23 @@ if (status == NN.status_connected) {
             case NN.signal_register:
                 var signal_register_data = json_decode(message_body);
                 if not(ds_exists(ds_type_map, signal_register_data)) { break; }
-                show_message(ds_map_find_value(signal_register_data, "msg"));
+                //show_message(ds_map_find_value(signal_register_data, "msg"));
+                if(ds_map_find_value(signal_register_data, "msg") == 1) {
+                    with(obj_guestLogin) {
+                        if(guestLogin == 1) {
+                            //Construct message
+                            var json_data = ds_map_create();
+                            ds_map_add(json_data, "id", NN.signal_login);
+                            ds_map_add(json_data, "msg",global.login_id);
+                            ds_map_add(json_data, "pass",global.login_pass);
+                            var body = json_encode(json_data);
+                            ds_map_destroy(json_data);
+                            
+                            //Send message
+                            nn_send_message(body);
+                        }
+                    }
+                }
                 ds_map_destroy(signal_register_data);
             break;
             
@@ -520,6 +535,7 @@ if (status == NN.status_connected) {
                                 hp = ds_map_find_value(signal_move_data, "hp");
                                 sp = ds_map_find_value(signal_move_data, "sp");
                                 team = ds_map_find_value(signal_move_data, "team");
+                                nickname = ds_map_find_value(signal_move_data, "nickname");
                             }
                         }
                     }
@@ -599,9 +615,9 @@ if(my_ping - ping &gt; 0)
     draw_text(5, 5, "ping " + string(my_ping - ping))
     draw_set_alpha(1)
     
-    draw_text(5, 15, global.uuid )
-    draw_text(5, 30, global.team )
-    draw_text(5, 45, string(global.red_gage) + " / " + string(global.blue_gage));
+    //draw_text(5, 15, global.uuid )
+    //draw_text(5, 30, global.team )
+    //draw_text(5, 45, string(global.red_gage) + " / " + string(global.blue_gage));
 }
 </string>
           </argument>
