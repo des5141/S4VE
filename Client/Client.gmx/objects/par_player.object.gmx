@@ -65,10 +65,12 @@ user_id        = "";// null
 type           = 0; // 0 none
 character_img  = 0;
 hp             = 0;
+hp_previous    = 0;
 sp             = 0;
 team           = "";// red or blue
 damaged        = 0; // trigger. 1 is on, 0 is off
 nickname       = "";
+trigger        = 0;
 go[0]          = 0; // go to place (x)
 go[1]          = 1; // go to place (y)
 go[2]          = 0; // check going
@@ -410,6 +412,48 @@ if(control == 1) {
         </arguments>
       </action>
     </event>
+    <event eventtype="4" ename="obj_danger">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// HP
+if(control == 1) {
+    if(other.team != global.team){
+        var json_data = ds_map_create();
+        ds_map_add(json_data, "id", NN.signal_hp);
+        ds_map_add(json_data, "msg", 5);
+        ds_map_add(json_data, "who", global.login_id);
+        var body = json_encode(json_data);
+        ds_map_destroy(json_data);
+        nn_send_message(body);
+    }else{
+        var json_data = ds_map_create();
+        ds_map_add(json_data, "id", NN.signal_hp);
+        ds_map_add(json_data, "msg", -0.25);
+        ds_map_add(json_data, "who", global.login_id);
+        var body = json_encode(json_data);
+        ds_map_destroy(json_data);
+        nn_send_message(body);
+    }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="8" enumb="0">
       <action>
         <libid>1</libid>
@@ -464,49 +508,83 @@ if(damaged == 1) {
 
 
 // hp
-draw_set_color(c_black);
-draw_rectangle(x - 20, y - 35 - z, x + 20, y - 30 - z, false);
-draw_set_color(c_gray);
-draw_rectangle(x - 19, y - 34 - z, x + 19, y - 31 - z, false);
-draw_set_color(c_red);
-if(control == 1)
-    draw_rectangle(x - 19, y - 34 - z, x - 19 + 38/100*global.hp, y - 31 - z, false);
-else
-    draw_rectangle(x - 19, y - 34 - z, x - 19 + 38/100*hp, y - 31 - z, false);
-
-// nickname
-draw_set_halign(fa_center);
-draw_set_valign(fa_bottom);
-draw_set_font(fnt_nickname);
-draw_set_color(c_black);
-draw_text(x + 1, y - 35 - z, "des");
-draw_text(x - 1, y - 35 - z, "des");
-draw_text(x, y - 35 + 1 - z, "des");
-draw_text(x, y - 35 - 1 - z, "des");
-
 if(control == 1) {
+    if(hp_previous &gt; global.hp)
+        hp_previous -= 0.25;
+    else
+        hp_previous = global.hp;
+        
+        
+    draw_set_color(c_black);
+    draw_rectangle(x - 20, y - 35 - z, x + 20, y - 30 - z, false);
+    draw_set_color(c_gray);
+    draw_rectangle(x - 19, y - 34 - z, x + 19, y - 31 - z, false);
+    
+    draw_set_color(c_orange);
+    draw_rectangle(x - 19, y - 34 - z, x - 19 + 38/100*hp_previous, y - 31 - z, false);
+    
+    draw_set_color(c_red);
+    draw_rectangle(x - 19, y - 34 - z, x - 19 + 38/100*global.hp, y - 31 - z, false);
+    
+    // nickname
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_bottom);
+    draw_set_font(fnt_nickname);
+    draw_set_color(c_black);
+    
     draw_text(x+1, y - 35 - z, global.nickname);
     draw_text(x-1, y - 35 - z, global.nickname);
     draw_text(x, y+1 - 35 - z, global.nickname);
     draw_text(x, y-1 - 35 - z, global.nickname);
-}
-else {
-    draw_text(x+1, y - 35 - z, nickname);
-    draw_text(x-1, y - 35 - z, nickname);
-    draw_text(x, y+1 - 35 - z, nickname);
-    draw_text(x, y-1 - 35 - z, nickname);
-}
-
-if(team != global.team)
-    draw_set_color(c_red);
-else
+    
     draw_set_color(c_white);
-
-if(control == 1) {
     draw_text(x, y - 35 - z, global.nickname);
 }
 else {
-    draw_text(x, y - 35 - z, nickname);
+    var check = collision_point(x, y, obj_bushi, false, true);
+    var check2 = 0;
+    if(check == noone) {
+        check2 = 1;
+    }else if(check.trigger == 1) {
+        check2 = 1;
+    }
+    
+    
+    if(check2 == 1) {
+        if(hp_previous &gt; hp)
+            hp_previous -= 0.25;
+        else
+            hp_previous = hp;
+            
+        draw_set_color(c_black);
+        draw_rectangle(x - 20, y - 35 - z, x + 20, y - 30 - z, false);
+        draw_set_color(c_gray);
+        draw_rectangle(x - 19, y - 34 - z, x + 19, y - 31 - z, false);
+        
+        draw_set_color(c_orange);
+        draw_rectangle(x - 19, y - 34 - z, x - 19 + 38/100*hp_previous, y - 31 - z, false);
+        
+        draw_set_color(c_red);
+        draw_rectangle(x - 19, y - 34 - z, x - 19 + 38/100*hp, y - 31 - z, false);
+        
+        // nickname
+        draw_set_halign(fa_center);
+        draw_set_valign(fa_bottom);
+        draw_set_font(fnt_nickname);
+        draw_set_color(c_black);
+        
+        draw_text(x+1, y - 35 - z, nickname);
+        draw_text(x-1, y - 35 - z, nickname);
+        draw_text(x, y+1 - 35 - z, nickname);
+        draw_text(x, y-1 - 35 - z, nickname);
+        
+        if(team != global.team)
+            draw_set_color(c_red);
+        else
+            draw_set_color(c_white);
+            
+        draw_text(x, y - 35 - z, nickname);
+    }
 }
 
 //draw_text(x, y - 60, team);

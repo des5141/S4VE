@@ -127,6 +127,36 @@ skill_delay[14] = 30;
           </argument>
         </arguments>
       </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// 참고 할 것
+/*
+
+게이지는 1초에 60씩 찬다.
+적어도 1분은 채우게 하고 싶다
+60*60 이 1분
+60*30 이 최대 크기
+
+
+*/
+</string>
+          </argument>
+        </arguments>
+      </action>
     </event>
     <event eventtype="3" enumb="2">
       <action>
@@ -343,6 +373,42 @@ for(i = 0; i &lt; 4; i++)
         draw_rectangle(400 - max_size + i*(box_size+10)+5, 480 - 50 - box_size + 5, 400 - max_size + (i+1)*(box_size+10)-10-5, 480 - 50 - 5, false);
     }
 }*/
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Draw gage
+if not(instance_exists(obj_scene)) {
+    draw_set_color(c_black);
+    draw_rectangle(10-1, 20-1, 10 + 250+1, 40+1, false);
+    draw_rectangle(800 - 10+1, 20-1, 800 - 10 - 250-1, 40+1, false);
+    
+    draw_set_color(c_gray);
+    draw_rectangle(10, 20, 10 + 250, 40, false);
+    draw_rectangle(800 - 10, 20, 800 - 10 - 250, 40, false);
+    
+    draw_set_color(c_red);
+    draw_rectangle(10, 20, 10 + 250/1800*global.red_gage, 40, false);
+    
+    draw_set_color(c_blue);
+    draw_rectangle(800 - 10, 20, 800 - 10 - 250/1800*global.blue_gage, 40, false);
+}
 </string>
           </argument>
         </arguments>

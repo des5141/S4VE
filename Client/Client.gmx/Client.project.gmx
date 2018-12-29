@@ -56,6 +56,8 @@
     <sprite>sprites\spr_circle</sprite>
     <sprite>sprites\spr_small_circle</sprite>
     <sprite>sprites\spr_bulit_circle</sprite>
+    <sprite>sprites\spr_danger</sprite>
+    <sprite>sprites\spr_bushi</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -138,6 +140,7 @@
     </objects>
     <object>objects\obj_scene</object>
     <object>objects\obj_place</object>
+    <object>objects\obj_line</object>
     <object>objects\obj_menu</object>
     <object>objects\obj_init</object>
     <object>objects\system</object>
@@ -208,7 +211,10 @@
     </objects>
     <object>objects\obj_guestLogin</object>
     <object>objects\obj_count</object>
+    <object>objects\obj_danger</object>
+    <object>objects\obj_bushi</object>
   </objects>
+  <timelines name="timelines"/>
   <rooms name="rooms">
     <room>rooms\room4</room>
     <room>rooms\rm_connecting</room>

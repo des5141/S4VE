@@ -278,6 +278,8 @@ if (cluster.isMaster) {
                     case 'hp':
                         var ins = authenticated_users.findUser(message.id);
                         ins.hp -= message.msg;
+                        if (ins.hp > 100)
+                            ins.hp = 100;
                         break;
                 }
             }
@@ -404,15 +406,28 @@ if (cluster.isMaster) {
         // 게임 진행
         for (i = 0; i < room_max; i++) {
             //게이지 올리기
+            var red_check = -1;
+            var blue_check = -1;
             authenticated_users.each(function (user) {
-                if ((user.room == room[i])&&(user.y < 608)) {
+                if ((user.room == room[i])&&(user.x > 330)&&(user.x < 630)&&(user.y > 210)&&(user.y < 510)) {
                     if (user.team == "red") {
-                        red_gage[i]++;
+                        red_check = 1;
                     } else if (user.team == "blue") {
-                        blue_gage[i]++;
+                        blue_check = 1;
                     }
                 }
             });
+
+            if (!((red_check == 1) && (blue_check == 1))) {
+                if (red_check == 1) {
+                    red_gage[i]++;
+                }
+
+                if (blue_check == 1) {
+                    blue_gage[i]++;
+                }
+            }
+
 
             //게이지 확인
             if (red_gage[i] != blue_gage[i] && room[i]!="") {
