@@ -15,6 +15,7 @@
     <sprite>sprites\spr_block</sprite>
     <sprite>sprites\spr_effect</sprite>
     <sprite>sprites\spr_skill</sprite>
+    <sprite>sprites\spr_skill_delay</sprite>
     <sprite>sprites\spr_bullet</sprite>
     <sprite>sprites\spr_fire</sprite>
     <sprite>sprites\spr_firehead</sprite>
@@ -53,6 +54,7 @@
     <sprite>sprites\spr_guest</sprite>
     <sprite>sprites\spr_circle</sprite>
     <sprite>sprites\spr_small_circle</sprite>
+    <sprite>sprites\spr_bulit_circle</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -117,6 +119,8 @@
     <script>scripts\joy_get_direction.gml</script>
     <script>scripts\joy_get_distance.gml</script>
     <script>scripts\joy_circle_distance.gml</script>
+    <script>scripts\skill_play.gml</script>
+    <script>scripts\skill_play2.gml</script>
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_nickname</font>
@@ -136,7 +140,11 @@
     <object>objects\all_unit</object>
     <object>objects\par_block</object>
     <object>objects\obj_joy</object>
-    <object>objects\obj_skill</object>
+    <object>objects\obj_joy2</object>
+    <object>objects\par_skill</object>
+    <object>objects\obj_skill1</object>
+    <object>objects\obj_skill2</object>
+    <object>objects\obj_skill3</object>
     <object>objects\par_player</object>
     <object>objects\obj_sworder</object>
     <object>objects\obj_hammer</object>

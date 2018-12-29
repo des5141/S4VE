@@ -452,6 +452,7 @@ if (status == NN.status_connected) {
                         a.damage = ds_map_find_value(signal_instance_data, "damage");
                         a.from = ds_map_find_value(signal_instance_data, "from");
                         a.from_team = ds_map_find_value(signal_instance_data, "team");
+                        a.range = ds_map_find_value(signal_instance_data, "range");
                     break;
                     
                     case 2:
@@ -467,6 +468,7 @@ if (status == NN.status_connected) {
                         a.damage = ds_map_find_value(signal_instance_data, "damage");
                         a.from = ds_map_find_value(signal_instance_data, "from");
                         a.from_team = ds_map_find_value(signal_instance_data, "team");
+                        a.range = ds_map_find_value(signal_instance_data, "range");
                     break;
                     
                     case 3:
@@ -482,6 +484,7 @@ if (status == NN.status_connected) {
                         a.damage = ds_map_find_value(signal_instance_data, "damage");
                         a.from = ds_map_find_value(signal_instance_data, "from");
                         a.from_team = ds_map_find_value(signal_instance_data, "team");
+                        a.range = ds_map_find_value(signal_instance_data, "range");
                     break;
                     
                     case 4:
@@ -489,6 +492,7 @@ if (status == NN.status_connected) {
                         a.damage = ds_map_find_value(signal_instance_data, "damage");
                         a.from = ds_map_find_value(signal_instance_data, "from");
                         a.from_team = ds_map_find_value(signal_instance_data, "team");
+                        a.range = ds_map_find_value(signal_instance_data, "range");
                     break;
                     
                     default:

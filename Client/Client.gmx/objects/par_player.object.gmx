@@ -37,6 +37,7 @@ other_x        = 0;
 other_y        = 0;
 other_z        = 0;
 move           = 0; // 0 false , 1 true
+move_mode      = 0; // 0 is normal, 1 is attaking movement
 xdir           = 1; // 1 right , -1 left
 player_speed   = 2.5;
 z              = 0;
@@ -48,6 +49,7 @@ stun           = 0; // 0 false , 1 true
 stun_delay     = 0; // 0 none  , else wait on delay
 attack_max     = 0; // 0 none  , else maximum attack delay
 attack_delay   = 0; // 0 none  , else wait on delay
+skill_delay    = 0;
 weapon_index   = 0; // weapon values are using by animation
 weapon_dir     = 0;
 weapon_delay   = 0;
@@ -187,6 +189,15 @@ if(control == 1)
             }
             
             // MOBILE CONTROL
+            move_mode = 0;
+            if(obj_joy2._distance != 0)and(obj_joy2.activate == 1) {
+                move_mode = 1;
+            }
+            with(par_skill) {
+                if(click != -1) {
+                    other.move_mode = 1;
+                }
+            }
             if(obj_joy._distance/40 != 0)
             {
                 if(weapon_delay &lt;= 0)
@@ -199,18 +210,51 @@ if(control == 1)
                     weapon_dir = obj_joy._direction;
                 }
                 
-                if(!place_meeting(x+lengthdir_x(obj_joy._distance/40, obj_joy._direction), y, par_block))
-                {
-                    x += lengthdir_x(obj_joy._distance/40, obj_joy._direction)
-                }
-                
-                if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/40, obj_joy._direction), par_block))
-                {
-                    y += lengthdir_y(obj_joy._distance/40, obj_joy._direction)
+                if(move_mode == 0) {
+                    if(!place_meeting(x+lengthdir_x(obj_joy._distance/40, obj_joy._direction), y, par_block))
+                    {
+                        x += lengthdir_x(obj_joy._distance/40, obj_joy._direction)
+                    }
+                    
+                    if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/40, obj_joy._direction), par_block))
+                    {
+                        y += lengthdir_y(obj_joy._distance/40, obj_joy._direction)
+                    }
+                }else {
+                    if(!place_meeting(x+lengthdir_x(obj_joy._distance/60, obj_joy._direction), y, par_block))
+                    {
+                        x += lengthdir_x(obj_joy._distance/60, obj_joy._direction)
+                    }
+                    
+                    if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/60, obj_joy._direction), par_block))
+                    {
+                        y += lengthdir_y(obj_joy._distance/60, obj_joy._direction)
+                    }
                 }
                 mv = 1
             }else{
                 mv = 0
+            }
+            
+            if(obj_joy2._distance != 0)and(obj_joy2.activate == 1) {
+                if(obj_joy2._direction &gt; 90)and(obj_joy2._direction &lt; 270)
+                        xdir = -1;
+                    else
+                        xdir = 1;
+                weapon_xdir = xdir;
+                weapon_dir = obj_joy2._direction;
+            }
+            
+            with(par_skill) {
+                if(click != -1) {
+                    var md = point_direction(x, y, pointer[0], pointer[1]);
+                    if(md &gt; 90)and(md &lt; 270)
+                        other.xdir = -1;
+                    else
+                        other.xdir = 1;
+                    other.weapon_xdir = other.xdir;
+                    other.weapon_dir = md;
+                }
             }
         }else { // on stun
             
@@ -384,6 +428,8 @@ if(control == 1) {
           <argument>
             <kind>1</kind>
             <string>/// DRAW
+
+
 img = -1;
 if (jump == 0) {
     if (move == 0) {
@@ -462,6 +508,7 @@ if(control == 1) {
 else {
     draw_text(x, y - 35 - z, nickname);
 }
+
 //draw_text(x, y - 60, team);
 
 
