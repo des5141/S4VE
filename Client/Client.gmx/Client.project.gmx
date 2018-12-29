@@ -6,6 +6,7 @@
   <NewExtensions>
     <extension index="0">extensions\ImNotGUI</extension>
     <extension index="1">extensions\Vainglory</extension>
+    <extension index="2">extensions\AndroidBetterTouchExtension</extension>
   </NewExtensions>
   <sounds name="sound"/>
   <sprites name="sprites">
@@ -79,41 +80,37 @@
       <script>scripts\nn_get_message.gml</script>
       <script>scripts\only_single.gml</script>
     </scripts>
-    <scripts name="IMNOTGUI">
-      <scripts name="DRAW">
-        <scripts name="VTX">
-          <script>scripts\iui_vtx_begin.gml</script>
-          <script>scripts\iui_vtx.gml</script>
-          <script>scripts\iui_vtx_rect.gml</script>
-          <script>scripts\iui_vtx_tri.gml</script>
-        </scripts>
-        <script>scripts\iui_rect.gml</script>
-        <script>scripts\iui_line.gml</script>
-      </scripts>
-      <scripts name="ELEMENT">
-        <script>scripts\iui_button.gml</script>
-        <script>scripts\iui_tab.gml</script>
-        <script>scripts\iui_textbox.gml</script>
-        <script>scripts\iui_label.gml</script>
-        <script>scripts\iui_slider_h.gml</script>
-        <script>scripts\iui_sprite.gml</script>
-      </scripts>
-      <script>scripts\iui_reset.gml</script>
-      <script>scripts\iui_init.gml</script>
-      <script>scripts\iui_init_vars.gml</script>
-      <script>scripts\iui_trim_label.gml</script>
-      <script>scripts\iui_align_push.gml</script>
-      <script>scripts\iui_get_all.gml</script>
-      <script>scripts\iui_begin.gml</script>
-      <script>scripts\iui_end.gml</script>
-      <script>scripts\iui_update_io.gml</script>
-      <script>scripts\col16.gml</script>
-      <script>scripts\colLighter.gml</script>
-      <script>scripts\iui_throwup.gml</script>
-      <script>scripts\strTrim.gml</script>
-      <script>scripts\pack.gml</script>
-      <script>scripts\shove.gml</script>
-      <script>scripts\asciiShift.gml</script>
+    <scripts name="easing_library">
+      <script>scripts\ease_in_quad.gml</script>
+      <script>scripts\ease_out_quad.gml</script>
+      <script>scripts\ease_in_out_quad.gml</script>
+      <script>scripts\ease_in_cubic.gml</script>
+      <script>scripts\ease_out_cubic.gml</script>
+      <script>scripts\ease_in_out_cubic.gml</script>
+      <script>scripts\ease_in_quartic.gml</script>
+      <script>scripts\ease_out_quartic.gml</script>
+      <script>scripts\ease_in_out_quartic.gml</script>
+      <script>scripts\ease_in_quintic.gml</script>
+      <script>scripts\ease_out_quintic.gml</script>
+      <script>scripts\ease_in_out_quintic.gml</script>
+      <script>scripts\ease_in_sine.gml</script>
+      <script>scripts\ease_out_sine.gml</script>
+      <script>scripts\ease_in_out_sine.gml</script>
+      <script>scripts\ease_in_expo.gml</script>
+      <script>scripts\ease_out_expo.gml</script>
+      <script>scripts\ease_in_out_expo.gml</script>
+      <script>scripts\ease_in_circ.gml</script>
+      <script>scripts\ease_out_circ.gml</script>
+      <script>scripts\ease_in_out_circ.gml</script>
+      <script>scripts\ease_in_elastic.gml</script>
+      <script>scripts\ease_out_elastic.gml</script>
+      <script>scripts\ease_in_out_elastic.gml</script>
+      <script>scripts\ease_in_back.gml</script>
+      <script>scripts\ease_out_back.gml</script>
+      <script>scripts\ease_in_out_back.gml</script>
+      <script>scripts\ease_in_bounce.gml</script>
+      <script>scripts\ease_out_bounce.gml</script>
+      <script>scripts\ease_in_out_bounce.gml</script>
     </scripts>
     <script>scripts\string_padding.gml</script>
     <script>scripts\joy_get_direction.gml</script>
@@ -121,12 +118,17 @@
     <script>scripts\joy_circle_distance.gml</script>
     <script>scripts\skill_play.gml</script>
     <script>scripts\skill_play2.gml</script>
+    <script>scripts\col16.gml</script>
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_nickname</font>
     <font>fonts\fnt_text</font>
     <font>fonts\main_font0</font>
     <font>fonts\main_font1</font>
+    <font>fonts\main_scene</font>
+    <font>fonts\main_scene2</font>
+    <font>fonts\main_count</font>
+    <font>fonts\main_count2</font>
   </fonts>
   <objects name="objects">
     <objects name="Networking with Node">
@@ -134,6 +136,8 @@
       <object>objects\obj_login</object>
       <object>objects\obj_network</object>
     </objects>
+    <object>objects\obj_scene</object>
+    <object>objects\obj_place</object>
     <object>objects\obj_menu</object>
     <object>objects\obj_init</object>
     <object>objects\system</object>
@@ -203,6 +207,7 @@
       </objects>
     </objects>
     <object>objects\obj_guestLogin</object>
+    <object>objects\obj_count</object>
   </objects>
   <rooms name="rooms">
     <room>rooms\room4</room>

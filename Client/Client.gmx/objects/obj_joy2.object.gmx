@@ -57,7 +57,7 @@ activate = 1;
             <kind>1</kind>
             <string>///Draw 이벤트는 Step 이벤트를 대신할수 있음.
 //draw_self() //자기자신을 일단 그린다
-if(activate == 1) {
+if(activate == 1)and(global.can_control == 1) {
     var check = 0;
     mx = 0;
     my = 0;

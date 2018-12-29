@@ -3,7 +3,7 @@
   <spriteName>&lt;undefined&gt;</spriteName>
   <solid>0</solid>
   <visible>-1</visible>
-  <depth>0</depth>
+  <depth>99999999</depth>
   <persistent>0</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
@@ -25,34 +25,18 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/// Init variables
-global.iuHellaDark = col16($191817);
-global.iuDark      = col16($313435);
-global.iuDark2     = col16($3F494F);
-global.iuNormal    = col16($637674);
-global.iuCream     = col16($EFE8C4);
-global.iuCreamDark = col16($E0D3A7);
-global.iuMint      = col16($25CDA3);
-global.iuSky       = col16($68B9C8);
-global.iuRed       = col16($ED3255);
-global.iuPiss      = col16($EABF11);
-global.iuBrown     = col16($5A4D48);
-
-global.team        = "";
-global.red_gage    = 0;
-global.blue_gage   = 0;
-global.nickname    = "";
-global.can_control = 0;
-
-randomize();
-
-alarm[0] = 1;
+            <string>/// Init
+color1         = c_red;
+color2         = c_orange;
+level          = 0;
+size           = 150;
+size2          = 5;
 </string>
           </argument>
         </arguments>
       </action>
     </event>
-    <event eventtype="2" enumb="0">
+    <event eventtype="8" enumb="0">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -69,8 +53,30 @@ alarm[0] = 1;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/// Start game
-room_goto_next();
+            <string>/// Draw
+level += 0.08;
+if (level &gt;= 1) {
+    color1 = color2;
+    switch(color1) {
+        case c_red: color2 = c_orange; break;
+        case c_orange: color2 = c_yellow; break;
+        case c_yellow: color2 = c_green; break;
+        case c_green: color2 = c_blue; break;
+        case c_blue: color2 = c_navy; break;
+        case c_navy: color2 = c_purple; break;
+        case c_purple: color2 = c_red; break;
+    }
+    level = 0;
+}
+draw_set_alpha(0.5);
+draw_set_color(c_white);
+draw_rectangle(x - size, y - size, x + size, y + size, false);
+draw_set_alpha(1);
+draw_set_color(merge_color(color1, color2, level));
+draw_rectangle(x - size, y - size, x + size, y - size + size2, false);
+draw_rectangle(x - size, y + size, x + size, y + size - size2, false);
+draw_rectangle(x - size, y - size, x - size + size2, y + size, false);
+draw_rectangle(x + size, y - size, x + size - size2, y + size, false);
 </string>
           </argument>
         </arguments>

@@ -57,53 +57,55 @@ delay_max = 0;
           <argument>
             <kind>1</kind>
             <string>/// Mouse pointer movement check
-var mx, my;
-for( fff=0; fff&lt;=4; fff+=1 ) {
-    mx = device_mouse_x_to_gui(fff);
-    my = device_mouse_y_to_gui(fff);
-    if(device_mouse_check_button_pressed(fff, mb_left)) {
-        if(point_distance(x, y, mx, my) &lt; 35) {
-            click = fff;
-            event_user(0);
-            with(par_skill) {
-                activate = 0;
+if(global.can_control == 1) {
+    var mx, my;
+    for( fff=0; fff&lt;=4; fff+=1 ) {
+        mx = device_mouse_x_to_gui(fff);
+        my = device_mouse_y_to_gui(fff);
+        if(device_mouse_check_button_pressed(fff, mb_left)) {
+            if(point_distance(x, y, mx, my) &lt; 35) {
+                click = fff;
+                event_user(0);
+                with(par_skill) {
+                    activate = 0;
+                }
+                obj_joy2.activate = 0;
+                activate = 1;
             }
-            obj_joy2.activate = 0;
-            activate = 1;
+        }
+        
+        if(device_mouse_check_button_released(fff, mb_left))and(click == fff) {
+            click = -1;
+            if(delay == 0)and(point_distance(x, y, pointer[0], pointer[1]) &gt; 65) {
+                skill_play2(skill_index);
+            }
+            with(par_skill) {
+                activate = 1;
+            }
+            obj_joy2.activate = 1;
         }
     }
     
-    if(device_mouse_check_button_released(fff, mb_left))and(click == fff) {
+    if(click != -1)and(activate == 1) {
+        pointer[0] = device_mouse_x_to_gui(click);
+        pointer[1] = device_mouse_y_to_gui(click);
+        
+        if(point_distance(x, y, pointer[0], pointer[1]) &gt; 65)and(delay == 0) {
+            if(skill_play(skill_index) == 1)
+                delay = system.skill_delay[skill_index];
+                delay_max = delay;
+        }
+    }
+    
+    if(activate == 0) {
+        if(click != -1) {
+            obj_joy2.activate = 1;
+            with(par_skill) {
+                activate = 1;
+            }
+        }
         click = -1;
-        if(delay == 0)and(point_distance(x, y, pointer[0], pointer[1]) &gt; 65) {
-            skill_play2(skill_index);
-        }
-        with(par_skill) {
-            activate = 1;
-        }
-        obj_joy2.activate = 1;
     }
-}
-
-if(click != -1)and(activate == 1) {
-    pointer[0] = device_mouse_x_to_gui(click);
-    pointer[1] = device_mouse_y_to_gui(click);
-    
-    if(point_distance(x, y, pointer[0], pointer[1]) &gt; 65)and(delay == 0) {
-        if(skill_play(skill_index) == 1)
-            delay = system.skill_delay[skill_index];
-            delay_max = delay;
-    }
-}
-
-if(activate == 0) {
-    if(click != -1) {
-        obj_joy2.activate = 1;
-        with(par_skill) {
-            activate = 1;
-        }
-    }
-    click = -1;
 }
 </string>
           </argument>
@@ -152,7 +154,7 @@ if(delay != 0) {
           <argument>
             <kind>1</kind>
             <string>/// Draw
-if(activate == 1)and(skill_index != -1) {
+if(activate == 1)and(skill_index != -1)and(global.can_control == 1) {
     if(click != -1) {
         draw_sprite(spr_bulit_circle, 0, x, y);
         draw_sprite(sprite_index, skill_index, x + lengthdir_x(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1])), y + lengthdir_y(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1])));
@@ -213,10 +215,13 @@ if(click != -1) {
                 break;    
             
                 default:
+                    draw_set_alpha(0.2);
                     draw_set_color(c_black);
                     draw_line_width(x, y, x + lengthdir_x(other.range, point_direction(other.x, other.y, other.pointer[0], other.pointer[1])), y + lengthdir_y(other.range, point_direction(other.x, other.y, other.pointer[0], other.pointer[1])), 3)
+                    draw_set_alpha(0.5);
                     draw_set_color(c_white);
                     draw_line_width(x, y, x + lengthdir_x(other.range, point_direction(other.x, other.y, other.pointer[0], other.pointer[1])), y + lengthdir_y(other.range, point_direction(other.x, other.y, other.pointer[0], other.pointer[1])), 2)
+                    draw_set_alpha(1);
                 break;
             }
         }
