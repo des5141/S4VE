@@ -108,7 +108,7 @@ if(range &lt;= 0) {
           <argument>
             <kind>1</kind>
             <string>/// damage
-if(other.team != "")and(from_team != other.team)and(from != other.user_id) {
+if(other.team != "")and(from_team != other.team)and(from != other.user_id)and(other.respawn == -1) {
     if(other.control == 0)and(from == global.login_id){
         var json_data = ds_map_create();
         ds_map_add(json_data, "id", NN.signal_hp);

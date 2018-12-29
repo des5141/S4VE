@@ -354,12 +354,16 @@ if (cluster.isMaster) {
                                     team = "blue";
                                     user.x = 762 + functions.getRandomInt(10, 30);
                                     user.y = 1408 + functions.getRandomInt(10, 30);
+                                    user.respawn = -1;
+                                    user.hp = 100;
                                 }
                                 else {
                                     TeamRed.AddPlayer(player);
                                     team = "red";
                                     user.x = 96 + functions.getRandomInt(10, 30);
                                     user.y = 1408 + functions.getRandomInt(10, 30);
+                                    user.respawn = -1;
+                                    user.hp = 100;
                                 }
 
                                 console.log(user.uuid);
@@ -478,7 +482,7 @@ if (cluster.isMaster) {
 
                 }
 
-                if (blue_gage[i] > 1000) {
+                if (blue_gage[i] > 1800) {
                     Games[i].RedTeam.EndGame(false);
                     Games[i].BlueTeam.EndGame(true);
                     // 파랑 승리

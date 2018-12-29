@@ -445,7 +445,7 @@ for(i = 0; i &lt; 4; i++)
           <argument>
             <kind>1</kind>
             <string>/// Draw gage
-if not(instance_exists(obj_scene)) {
+if not(instance_exists(obj_scene))and not(instance_exists(obj_end)) {
     draw_set_color(c_black);
     draw_rectangle(10-1, 20-1, 10 + 250+1, 40+1, false);
     draw_rectangle(800 - 10+1, 20-1, 800 - 10 - 250-1, 40+1, false);
@@ -481,17 +481,19 @@ if not(instance_exists(obj_scene)) {
           <argument>
             <kind>1</kind>
             <string>/// Draw kill log
-draw_set_font(fnt_text);
-draw_set_halign(fa_left);
-draw_set_valign(fa_top);
-for(var i = 0; i &lt; ds_list_size(global.kill_log_left); i++) {
-    draw_set_color(c_black);
-    draw_text(20+1, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
-    draw_text(20-1, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
-    draw_text(20, 50 + i*13+1, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
-    draw_text(20, 50 + i*13-1, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
-    draw_set_color(c_white);
-    draw_text(20, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+if not(instance_exists(obj_scene))and not(instance_exists(obj_end)) {
+    draw_set_font(fnt_text);
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    for(var i = 0; i &lt; ds_list_size(global.kill_log_left); i++) {
+        draw_set_color(c_black);
+        draw_text(20+1, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+        draw_text(20-1, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+        draw_text(20, 50 + i*13+1, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+        draw_text(20, 50 + i*13-1, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+        draw_set_color(c_white);
+        draw_text(20, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+    }
 }
 </string>
           </argument>

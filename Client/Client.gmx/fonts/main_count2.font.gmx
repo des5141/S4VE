@@ -14,19 +14,27 @@
   </texgroups>
   <ranges>
     <range0>49,51</range0>
+    <range0>47532,47532</range0>
+    <range0>48176,48176</range0>
     <range0>48512,48512</range0>
+    <range0>49849,49849</range0>
     <range0>49884,49884</range0>
     <range0>51089,51089</range0>
+    <range0>54056,54056</range0>
     <range0>54876,54876</range0>
   </ranges>
   <glyphs>
-    <glyph character="32" x="2" y="130" w="38" h="142" shift="38" offset="0"/>
-    <glyph character="49" x="42" y="130" w="31" h="116" shift="62" offset="12"/>
-    <glyph character="50" x="391" y="2" w="49" h="116" shift="62" offset="7"/>
-    <glyph character="51" x="442" y="2" w="47" h="117" shift="62" offset="8"/>
-    <glyph character="48512" x="205" y="2" w="95" h="125" shift="107" offset="6"/>
-    <glyph character="49884" x="302" y="2" w="87" h="126" shift="107" offset="5"/>
+    <glyph character="32" x="360" y="130" w="38" h="142" shift="38" offset="0"/>
+    <glyph character="49" x="400" y="130" w="31" h="116" shift="62" offset="12"/>
+    <glyph character="50" x="260" y="130" w="49" h="116" shift="62" offset="7"/>
+    <glyph character="51" x="311" y="130" w="47" h="117" shift="62" offset="8"/>
+    <glyph character="47532" x="178" y="130" w="80" h="125" shift="107" offset="12"/>
+    <glyph character="48176" x="91" y="130" w="85" h="126" shift="107" offset="10"/>
+    <glyph character="48512" x="302" y="2" w="95" h="125" shift="107" offset="6"/>
+    <glyph character="49849" x="205" y="2" w="95" h="126" shift="107" offset="6"/>
+    <glyph character="49884" x="2" y="130" w="87" h="126" shift="107" offset="5"/>
     <glyph character="51089" x="104" y="2" w="99" h="126" shift="107" offset="5"/>
+    <glyph character="54056" x="399" y="2" w="89" h="125" shift="107" offset="6"/>
     <glyph character="54876" x="2" y="2" w="100" h="125" shift="107" offset="4"/>
   </glyphs>
   <kerningPairs/>

@@ -339,6 +339,19 @@ if (status == NN.status_connected) {
         
         //Route between different functions
         switch (message_id) {
+            case NN.signal_endgame:
+                system.target = -1;
+                system.zoom = 120;
+                global.can_control = 0;
+                var ins = instance_create(0, 0, obj_end);
+                if(global.team == message_body) {
+                    ins.message = "승리"
+                }else {
+                    ins.message = "패배";
+                }
+                //room_goto(rm_search);
+            break;
+            
             case NN.signal_ping:
                 my_ping = current_time;
                 ping    = real(message_body);
@@ -408,11 +421,6 @@ if (status == NN.status_connected) {
                 ds_map_destroy(signal_register_data);
             break;
             
-            case NN.signal_endgame:
-                show_message_async(message_body);
-                room_goto(rm_search);
-            break;
-            
             case NN.signal_restart:
                 var temp_data = json_decode(message_body);
                 if not(ds_exists(ds_type_map, temp_data)) { break; }
@@ -435,13 +443,15 @@ if (status == NN.status_connected) {
                 global.sp = ds_map_find_value(temp_data, "sp");
                 global.red_gage = ds_map_find_value(temp_data, "red_gage");
                 global.blue_gage = ds_map_find_value(temp_data, "blue_gage");
-                with(par_player){if(control == 1){respawn = ds_map_find_value(temp_data, "respawn");}}
+                with(par_player){if(variable_instance_exists(id, "control")) {if(control == 1){respawn = ds_map_find_value(temp_data, "respawn");}}}
                 with(par_player){
-                    if(system.target == -2) {
-                        if(ds_map_find_value(temp_data, "respawn") == -1) {
-                            system.target = id;
-                            global.can_control = 1;
-                            instance_create(0, 0, obj_respawn);
+                    if(variable_instance_exists(id, "control")) {
+                        if(system.target == -2) {
+                            if(ds_map_find_value(temp_data, "respawn") == -1) {
+                                system.target = id;
+                                global.can_control = 1;
+                                instance_create(0, 0, obj_respawn);
+                            }
                         }
                     }
                 }

@@ -138,6 +138,7 @@
       <object>objects\obj_login</object>
       <object>objects\obj_network</object>
     </objects>
+    <object>objects\obj_end</object>
     <object>objects\obj_scene</object>
     <object>objects\obj_place</object>
     <object>objects\obj_line</object>
