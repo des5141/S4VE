@@ -54,6 +54,7 @@ const signal_hp = 7;
 const signal_restart = 8;
 const signal_register = 9;
 const signal_endgame = 10;
+const signal_kill_log = 11;
 
 function handoff(worker,uuid,x,y,type,team){
     worker.send({
@@ -275,6 +276,23 @@ if (cluster.isMaster) {
                         });
                         break;
 
+                    case 'killLog':
+                        var _id;
+                        authenticated_users.each(function (user) {
+                            if (user.uuid == message.uuid) {
+                                _id = user.id;
+                            }
+                        });
+                        var ins = authenticated_users.findUser(_id);
+                        authenticated_users.each(function (user) {
+                            if (ins.room == user.room) {
+                                for (var id in cluster.workers) {
+                                    cluster.workers[id].send({ type: 'killLog', to: 'worker', a: message.a, b: message.b, uuid: user.uuid });
+                                }
+                            }
+                        });
+                        break;
+
                     case 'hp':
                         var ins = authenticated_users.findUser(message.id);
                         ins.hp -= message.msg;
@@ -334,14 +352,14 @@ if (cluster.isMaster) {
                                 if (team == "red") {
                                     TeamBlue.AddPlayer(player);
                                     team = "blue";
-                                    user.x = 762;
-                                    user.y = 1408;
+                                    user.x = 762 + functions.getRandomInt(10, 30);
+                                    user.y = 1408 + functions.getRandomInt(10, 30);
                                 }
                                 else {
                                     TeamRed.AddPlayer(player);
                                     team = "red";
-                                    user.x = 96;
-                                    user.y = 1408;
+                                    user.x = 96 + functions.getRandomInt(10, 30);
+                                    user.y = 1408 + functions.getRandomInt(10, 30);
                                 }
 
                                 console.log(user.uuid);
@@ -393,12 +411,17 @@ if (cluster.isMaster) {
                                 hp: user.hp,
                                 sp: user.sp,
                                 team: user.team,
-                                nickname: user.nickname
+                                nickname: user.nickname,
+                                respawn: user.respawn
                             });
                         }
 
                     }
                 });
+            }
+
+            if (user.respawn > -1) {
+                user.respawn--;
             }
         });
 
@@ -482,13 +505,14 @@ if (cluster.isMaster) {
             for (i = 0; i < room_max; i++) {
                 if (user.room == room[i]) {
                     if (user.hp <= 0) {
+                        user.respawn = 120;
                         user.hp = 100;
                         if (user.team == "blue") {
-                            user.x = 762;
-                            user.y = 1408;
+                            user.x = 762 + functions.getRandomInt(10, 30);
+                            user.y = 1408 + functions.getRandomInt(10, 30);
                         } else {
-                            user.x = 96;
-                            user.y = 1408;
+                            user.x = 96 + functions.getRandomInt(10, 30);
+                            user.y = 1408 + functions.getRandomInt(10, 30);
                         }
                         if (user.uuid != -1) {
                             for (var id in cluster.workers) {
@@ -503,6 +527,7 @@ if (cluster.isMaster) {
                                 uuid: user.uuid,
                                 hp: user.hp,
                                 sp: user.sp,
+                                respawn: user.respawn,
                                 red_gage: red_gage[user.room_i],
                                 blue_gage: blue_gage[user.room_i]
                             });
@@ -622,7 +647,8 @@ if (cluster.isWorker) {
                             hp: message.hp,
                             sp: message.sp,
                             team: message.team,
-                            nickname: message.nickname
+                            nickname: message.nickname,
+                            respawn: message.respawn
                         });
 
                         send_id_message(ins.socket, signal_move, json_data);
@@ -649,6 +675,17 @@ if (cluster.isWorker) {
                     }
                     break;
 
+                case 'killLog':
+                    var ins = authenticated_users.findUser(message.uuid);
+                    if (ins != undefined) {
+                        var json_data = JSON.stringify({
+                            a: message.a,
+                            b: message.b
+                        });
+                        send_id_message(ins.socket, signal_kill_log, json_data);
+                    }
+                    break;
+
                 case 'myinfo':
                     var ins = authenticated_users.findUser(message.uuid);
                     if (ins != undefined) {
@@ -656,7 +693,8 @@ if (cluster.isWorker) {
                             hp: message.hp,
                             sp: message.sp,
                             red_gage: message.red_gage,
-                            blue_gage: message.blue_gage
+                            blue_gage: message.blue_gage,
+                            respawn: message.respawn
                         });
                         send_id_message(ins.socket, signal_myinfo, json_data);
                     }
@@ -757,6 +795,10 @@ if (cluster.isWorker) {
 
                             case signal_hp:
                                 process.send({ type: 'hp', to: 'master', msg: msg, id: json_data.who });
+                                break;
+
+                            case signal_kill_log:
+                                process.send({ type: 'killLog', to: 'master', a: json_data.a, b: json_data.b, uuid: ins.uuid });
                                 break;
 
                             default:

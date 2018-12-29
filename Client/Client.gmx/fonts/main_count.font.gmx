@@ -14,16 +14,20 @@
   </texgroups>
   <ranges>
     <range0>49,51</range0>
+    <range0>48512,48512</range0>
     <range0>49884,49884</range0>
     <range0>51089,51089</range0>
+    <range0>54876,54876</range0>
   </ranges>
   <glyphs>
-    <glyph character="32" x="328" y="2" w="42" h="159" shift="42" offset="0"/>
-    <glyph character="49" x="372" y="2" w="34" h="130" shift="70" offset="13"/>
-    <glyph character="50" x="215" y="2" w="55" h="130" shift="70" offset="8"/>
-    <glyph character="51" x="272" y="2" w="54" h="131" shift="70" offset="9"/>
-    <glyph character="49884" x="115" y="2" w="98" h="140" shift="120" offset="5"/>
-    <glyph character="51089" x="2" y="2" w="111" h="140" shift="120" offset="5"/>
+    <glyph character="32" x="58" y="145" w="42" h="159" shift="42" offset="0"/>
+    <glyph character="49" x="102" y="145" w="34" h="130" shift="70" offset="13"/>
+    <glyph character="50" x="437" y="2" w="55" h="130" shift="70" offset="8"/>
+    <glyph character="51" x="2" y="145" w="54" h="131" shift="70" offset="9"/>
+    <glyph character="48512" x="229" y="2" w="106" h="141" shift="120" offset="7"/>
+    <glyph character="49884" x="337" y="2" w="98" h="140" shift="120" offset="5"/>
+    <glyph character="51089" x="116" y="2" w="111" h="140" shift="120" offset="5"/>
+    <glyph character="54876" x="2" y="2" w="112" h="141" shift="120" offset="5"/>
   </glyphs>
   <kerningPairs/>
   <image>main_count.png</image>

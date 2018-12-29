@@ -82,9 +82,9 @@ if(range &lt;= 0) {
     range--;
 }
 
-if(collision_line(xprevious, yprevious, x, y, par_player, 1, 0)) {
+/*if(collision_line(xprevious, yprevious, x, y, par_player, 1, 0)) {
     event_perform(ev_collision, par_player);
-}
+}*/
 </string>
           </argument>
         </arguments>
@@ -117,6 +117,16 @@ if(other.team != "")and(from_team != other.team)and(from != other.user_id) {
         var body = json_encode(json_data);
         ds_map_destroy(json_data);
         nn_send_message(body);
+        
+        if(other.hp - damage &lt;= 0) {
+            var json_data = ds_map_create();
+            ds_map_add(json_data, "id", NN.signal_kill_log);
+            ds_map_add(json_data, "a", global.nickname);
+            ds_map_add(json_data, "b", other.nickname);
+            var body = json_encode(json_data);
+            ds_map_destroy(json_data);
+            nn_send_message(body);
+        }
     }
     
     switch(sprite_index){

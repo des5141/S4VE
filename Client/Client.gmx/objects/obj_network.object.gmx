@@ -344,6 +344,15 @@ if (status == NN.status_connected) {
                 ping    = real(message_body);
             break;
             
+            case NN.signal_kill_log:
+                var signal_kill_log_data = json_decode(message_body);
+                if not(ds_exists(ds_type_map, signal_kill_log_data)) { break; }
+                ds_list_add(global.kill_log_left, ds_map_find_value(signal_kill_log_data, "a"))
+                ds_list_add(global.kill_log_right, ds_map_find_value(signal_kill_log_data, "b"))
+                ds_map_destroy(signal_kill_log_data);
+                system.alarm[0] = 60*5;
+            break;
+            
             case NN.signal_login:
                 var signal_login_data = json_decode(message_body);
                 if not(ds_exists(ds_type_map, signal_login_data)) { break; }
@@ -410,6 +419,7 @@ if (status == NN.status_connected) {
                 with(par_player) {
                     if(variable_instance_exists(id, "control")) {
                         if(control == 1) {
+                            system.target = -2;
                             x = ds_map_find_value(temp_data, "x");
                             y = ds_map_find_value(temp_data, "y");
                         }
@@ -425,6 +435,19 @@ if (status == NN.status_connected) {
                 global.sp = ds_map_find_value(temp_data, "sp");
                 global.red_gage = ds_map_find_value(temp_data, "red_gage");
                 global.blue_gage = ds_map_find_value(temp_data, "blue_gage");
+                with(par_player){if(control == 1){respawn = ds_map_find_value(temp_data, "respawn");}}
+                with(par_player){
+                    if(system.target == -2) {
+                        if(ds_map_find_value(temp_data, "respawn") == -1) {
+                            system.target = id;
+                            global.can_control = 1;
+                            instance_create(0, 0, obj_respawn);
+                        }
+                    }
+                }
+                if(ds_map_find_value(temp_data, "respawn") != -1) {
+                    global.can_control = 0;
+                }
                 ds_map_destroy(temp_data);
             break;
             
@@ -546,6 +569,7 @@ if (status == NN.status_connected) {
                                 sp = ds_map_find_value(signal_move_data, "sp");
                                 team = ds_map_find_value(signal_move_data, "team");
                                 nickname = ds_map_find_value(signal_move_data, "nickname");
+                                respawn = ds_map_find_value(signal_move_data, "respawn");
                             }
                         }
                     }

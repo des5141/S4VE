@@ -71,6 +71,7 @@ team           = "";// red or blue
 damaged        = 0; // trigger. 1 is on, 0 is off
 nickname       = "";
 trigger        = 0;
+respawn        = -1;
 go[0]          = 0; // go to place (x)
 go[1]          = 1; // go to place (y)
 go[2]          = 0; // check going
@@ -454,6 +455,39 @@ if(control == 1) {
         </arguments>
       </action>
     </event>
+    <event eventtype="8" enumb="64">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if(control == 1)and(respawn != -1) {
+    draw_set_alpha(0.5);
+    draw_set_color(c_black);
+    draw_rectangle(0, 0, 800, 480, false);
+    draw_set_alpha(1);
+    draw_set_color(c_white);
+    draw_set_font(fnt_text);
+    draw_set_halign(fa_center);
+    draw_text(400, 300, "사망하셨습니다. " + string(ceil(respawn/60)) + "초 후 리스폰 됩니다.");
+    draw_set_halign(fa_left);
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="8" enumb="0">
       <action>
         <libid>1</libid>
@@ -472,8 +506,7 @@ if(control == 1) {
           <argument>
             <kind>1</kind>
             <string>/// DRAW
-
-
+if(respawn == -1) {
 img = -1;
 if (jump == 0) {
     if (move == 0) {
@@ -588,8 +621,7 @@ else {
 }
 
 //draw_text(x, y - 60, team);
-
-
+}
 </string>
           </argument>
         </arguments>

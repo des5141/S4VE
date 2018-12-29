@@ -52,7 +52,7 @@ trigger = 0;
             <string>/// Draw
 with(par_player) {
     if(control == 1) {
-        if(point_distance(x, y, other.x, other.y) &lt; 90) {
+        if(point_distance(x, y, other.x, other.y) &lt; 80) {
             other.trigger = 1;
         }else {
             other.trigger = 0;

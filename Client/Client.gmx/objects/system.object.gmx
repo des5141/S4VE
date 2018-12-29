@@ -50,6 +50,9 @@ global.skill_index    [4] = 0;
 global.skill_point        = 0;
 global.red_gage           = 0;
 global.blue_gage          = 0;
+global.kill_log_left      = ds_list_create();
+global.kill_log_right     = ds_list_create();
+global.can_control        = 0;
 </string>
           </argument>
         </arguments>
@@ -158,6 +161,30 @@ skill_delay[14] = 30;
         </arguments>
       </action>
     </event>
+    <event eventtype="2" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>ds_list_delete(global.kill_log_left, 0)
+ds_list_delete(global.kill_log_right, 0)
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="3" enumb="2">
       <action>
         <libid>1</libid>
@@ -233,7 +260,7 @@ width  += ceil((5*zoom - width )/12);
 height += ceil((3*zoom - height)/12);
 
 // setting
-if (target != -1)
+if (target != -1)and(target != -2)
 {
     view_xview[0] = target.x - width /2 + irandom_range(shake, -shake);
     view_yview[0] = target.y - height/2 - 10 + irandom_range(shake, -shake);
@@ -290,6 +317,30 @@ zoom = min(160, zoom + 10);
             <kind>1</kind>
             <string>/// zoom up
 zoom = max(50, zoom - 10);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="5">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>ds_list_destroy(global.kill_log_left);
+ds_list_destroy(global.kill_log_right);
 </string>
           </argument>
         </arguments>
@@ -408,6 +459,39 @@ if not(instance_exists(obj_scene)) {
     
     draw_set_color(c_blue);
     draw_rectangle(800 - 10, 20, 800 - 10 - 250/1800*global.blue_gage, 40, false);
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Draw kill log
+draw_set_font(fnt_text);
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);
+for(var i = 0; i &lt; ds_list_size(global.kill_log_left); i++) {
+    draw_set_color(c_black);
+    draw_text(20+1, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+    draw_text(20-1, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+    draw_text(20, 50 + i*13+1, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+    draw_text(20, 50 + i*13-1, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
+    draw_set_color(c_white);
+    draw_text(20, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
 }
 </string>
           </argument>
