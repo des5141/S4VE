@@ -73,6 +73,7 @@
       <sprite>sprites\spr_smoke</sprite>
     </sprites>
     <sprite>sprites\spr_engagement</sprite>
+    <sprite>sprites\spr_character</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -136,10 +137,13 @@
     <script>scripts\skill_play.gml</script>
     <script>scripts\skill_play2.gml</script>
     <script>scripts\col16.gml</script>
+    <script>scripts\script_similar.gml</script>
+    <script>scripts\hero_select.gml</script>
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_nickname</font>
     <font>fonts\fnt_text</font>
+    <font>fonts\fnt_char</font>
     <font>fonts\main_font0</font>
     <font>fonts\main_font1</font>
     <font>fonts\main_scene</font>
@@ -173,7 +177,7 @@
         <object>objects\object1</object>
       </objects>
       <objects name="2">
-        <object>objects\object15</object>
+        <object>objects\obj_select</object>
       </objects>
       <objects name="3">
         <object>objects\object22</object>

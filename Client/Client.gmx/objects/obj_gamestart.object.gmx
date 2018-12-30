@@ -161,12 +161,12 @@ draw_set_colour(c_white)
 draw_text(x-19, y, "일반 게임")
 draw_set_font(main_font0)
 draw_set_colour(c_black)
-draw_text(x-19-1, y+20, "전세계 사람들과 실시간으로 매칭해보세요!")
-draw_text(x-19+1, y+20, "전세계 사람들과 실시간으로 매칭해보세요!")
-draw_text(x-19, y+20-1, "전세계 사람들과 실시간으로 매칭해보세요!")
-draw_text(x-19, y+20+1, "전세계 사람들과 실시간으로 매칭해보세요!")
+draw_text(x-19-1, y+25, "전세계 사람들과 실시간으로 매칭해보세요!")
+draw_text(x-19+1, y+25, "전세계 사람들과 실시간으로 매칭해보세요!")
+draw_text(x-19, y+25-1, "전세계 사람들과 실시간으로 매칭해보세요!")
+draw_text(x-19, y+25+1, "전세계 사람들과 실시간으로 매칭해보세요!")
 draw_set_colour(c_white)
-draw_text(x-19, y+20, "전세계 사람들과 실시간으로 매칭해보세요!")
+draw_text(x-19, y+25, "전세계 사람들과 실시간으로 매칭해보세요!")
 
 draw_set_color(c_black);
 draw_set_alpha(0.7);

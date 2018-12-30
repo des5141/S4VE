@@ -50,7 +50,7 @@ y = y + room_height
           <argument>
             <kind>1</kind>
             <string>if(global.menu = 2){
-y -= (y - target_y)/10; }else{y -= (y - (target_y+room_height))/10}
+y -= (y - target_y)/10; }else{y -= (y - (target_y+room_height*2))/10}
 </string>
           </argument>
         </arguments>
