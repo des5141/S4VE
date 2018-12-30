@@ -150,7 +150,7 @@ if(other.team != "")and(from_team != other.team)and(from != other.user_id)and(ot
         _x += lengthdir_x(10, direction);
         _y += lengthdir_y(10, direction);
         
-        if (instance_place(_x, _y, par_block) == noone) {
+        if (collision_circle(_x, _y, 16, par_block, false, true) == noone) {
             other.x = _x;
             other.y = _y;
         }

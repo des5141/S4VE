@@ -136,6 +136,7 @@
     <script>scripts\joy_circle_distance.gml</script>
     <script>scripts\skill_play.gml</script>
     <script>scripts\skill_play2.gml</script>
+    <script>scripts\skill_play3.gml</script>
     <script>scripts\col16.gml</script>
     <script>scripts\script_similar.gml</script>
     <script>scripts\hero_select.gml</script>

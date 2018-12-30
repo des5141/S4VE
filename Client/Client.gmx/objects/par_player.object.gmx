@@ -78,6 +78,8 @@ go[2]          = 0; // check going
 
 // child create event
 event_user(0);
+
+alarm[1] = 10;
 </string>
           </argument>
         </arguments>

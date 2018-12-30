@@ -83,6 +83,7 @@ if(global.can_control == 1) {
             if(delay == 0)and(point_distance(x, y, pointer[0], pointer[1]) &gt; 65) {
                 skill_play2(skill_index);
             }
+            skill_play3(skill_index);
             with(par_skill) {
                 activate = 1;
             }
@@ -180,9 +181,11 @@ if(activate == 1)and(skill_index != -1)and(global.can_control == 1) {
         }
     }
 }else{
-    draw_sprite(sprite_index, skill_index, x + add_x, y + add_y);
-    if(delay != 0) {
-        draw_sprite_part_ext(spr_skill_delay, 0, 0, 0, 70, 70-70/delay_max*delay, x-35 + add_x, y+35 + add_y, 1, -1, c_white, 0.6);
+    if(activate == 1){
+        draw_sprite(sprite_index, skill_index, x + add_x, y + add_y);
+        if(delay != 0) {
+            draw_sprite_part_ext(spr_skill_delay, 0, 0, 0, 70, 70-70/delay_max*delay, x-35 + add_x, y+35 + add_y, 1, -1, c_white, 0.6);
+        }
     }
 }
 </string>

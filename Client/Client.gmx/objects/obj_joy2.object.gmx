@@ -156,8 +156,10 @@ if(activate == 1)and(global.can_control == 1) {
         draw_circle(tx,ty,16,0)//중심으로부터 터치방향쪽으로 80만큼  떨어진 원을 그린다*/
     }
 }else {
-    draw_sprite(spr_bulit_circle, 0, x + add_x, y + add_y)
-    draw_sprite(spr_small_circle, 0, x + add_x, y + add_y)
+    if(activate == 1){
+        draw_sprite(spr_bulit_circle, 0, x + add_x, y + add_y)
+        draw_sprite(spr_small_circle, 0, x + add_x, y + add_y)
+    }
 }
 </string>
           </argument>
