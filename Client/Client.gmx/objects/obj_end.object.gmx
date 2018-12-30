@@ -3,7 +3,7 @@
   <spriteName>&lt;undefined&gt;</spriteName>
   <solid>0</solid>
   <visible>-1</visible>
-  <depth>-999999999</depth>
+  <depth>-9999</depth>
   <persistent>0</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
@@ -30,7 +30,8 @@ step = 0;
 message = "";
 image_xscale = 50;
 image_yscale = 50;
-alarm[0] = 60*5;
+
+alarm[0] = 60*7.5;
 </string>
           </argument>
         </arguments>

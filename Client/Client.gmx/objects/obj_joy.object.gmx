@@ -32,6 +32,10 @@ ty=y //조이스틱 컨트롤러 ? 인가 여간 원안에 작은 원이 그려�
 
 _distance = 0;
 _direction = 0;
+
+add_x = -300;
+add_y = 0;
+add_mode = -1; // -1 is wait, 0 is go to left, 1 is go to right
 </string>
           </argument>
         </arguments>
@@ -56,6 +60,14 @@ _direction = 0;
             <kind>1</kind>
             <string>///Draw 이벤트는 Step 이벤트를 대신할수 있음.
 //draw_self() //자기자신을 일단 그린다
+if(add_mode == 0) {
+    add_x += (-300 - add_x)/4;
+}
+    
+if(add_mode == 1) {
+    add_x += (0 - add_x)/4;
+}
+
 if(global.can_control == 1) {
     var check = 0;
     mx = 0;
@@ -65,12 +77,12 @@ if(global.can_control == 1) {
     mx = 0;
     my = 0;
     
-    if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800/2//터치좌표와의 거리가 240 이하이면
+    if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800//터치좌표와의 거리가 240 이하이면
     {
     mx=device_mouse_x_to_gui(fff)
     my=device_mouse_y_to_gui(fff)
     }
-        if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800/2
+        if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800
         {
         if device_mouse_check_button_pressed(fff,mb_left) //만약 화면은 눌렀으면,
         and collision_point(mx,my,object_index,1,0)//나를 눌렀으면,
@@ -85,7 +97,7 @@ if(global.can_control == 1) {
         }
         }
     ////////////////////////////////조이스틱 그리는 부분
-    if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800/2
+    if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800
     {
         if isClick=1 //나를 한번 터치하고 손을 안떘을경우
         {
@@ -93,8 +105,8 @@ if(global.can_control == 1) {
             {   //터치 위치가 조이스틱과 충돌하는 경우 (원 안에있는경우)
                 tx=mx; ty=my
                 //draw_disk_ext(x, y, 90, 80, 20, c_white, c_white, 0.4);
-                draw_sprite(spr_circle, 0, x, y)
-                draw_sprite(spr_small_circle, 0, tx, ty)
+                draw_sprite(spr_circle, 0, x + add_x, y + add_y)
+                draw_sprite(spr_small_circle, 0, tx + add_x, ty + add_y)
                 /*draw_set_alpha(0.4)
                 draw_set_color(c_white)
                 draw_circle(tx,ty,20,0)//터치 x,y에 반지름 20으로 원을 그린다
@@ -111,8 +123,8 @@ if(global.can_control == 1) {
                 ty=y+lengthdir_y(90,dir);// 똑같음 
                 
                 //draw_disk_ext(x, y, 90, 80, 20, c_white, c_white, 0.4);
-                draw_sprite(spr_circle, 0, x, y)
-                draw_sprite(spr_small_circle, 0, tx, ty)
+                draw_sprite(spr_circle, 0, x + add_x, y + add_y)
+                draw_sprite(spr_small_circle, 0, tx + add_x, ty + add_y)
                 /*draw_set_alpha(0.4)
                 draw_set_color(c_white)
                 draw_circle(tx,ty,20,0)//터치 x,y에 반지름 20으로 원을 그린다
@@ -132,8 +144,8 @@ if(global.can_control == 1) {
     {
         // 아무것도 아닌 경우
         //draw_disk_ext(x, y, 90, 80, 20, c_white, c_white, 0.4);
-        draw_sprite(spr_circle, 0, x, y)
-        draw_sprite(spr_small_circle, 0, tx, ty)
+        draw_sprite(spr_circle, 0, x + add_x, y + add_y)
+        draw_sprite(spr_small_circle, 0, tx + + add_x, ty + add_y)
         /*draw_set_alpha(0.4)
         draw_set_color(c_white)
         draw_circle(tx,ty,20,0)//터치 x,y에 반지름 20으로 원을 그린다
@@ -142,6 +154,9 @@ if(global.can_control == 1) {
         draw_set_color(c_white)
         draw_circle(tx,ty,16,0)//중심으로부터 터치방향쪽으로 80만큼  떨어진 원을 그린다*/
     }
+}else {
+    draw_sprite(spr_circle, 0, x + add_x, y + add_y)
+    draw_sprite(spr_small_circle, 0, x + + add_x, y + add_y)
 }
 </string>
           </argument>

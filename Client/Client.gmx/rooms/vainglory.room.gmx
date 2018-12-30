@@ -60,7 +60,7 @@
     <instance objName="object10" x="440" y="316" name="inst_D1E862A1" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="object1" x="80" y="76" name="inst_05699370" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="objIconGame" x="112" y="28" name="inst_3163D1E3" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
-    <instance objName="objIconInfo" x="188" y="28" name="inst_7D22F544" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
+    <instance objName="objIconHero" x="188" y="28" name="inst_7D22F544" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="objIconNews" x="260" y="28" name="inst_3330A6B4" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="objIconShop" x="348" y="28" name="inst_4E1117B9" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="objIcon" x="40" y="132" name="inst_6EDB52B3" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>

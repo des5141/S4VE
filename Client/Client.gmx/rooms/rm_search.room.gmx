@@ -52,7 +52,7 @@
   </views>
   <instances>
     <instance objName="objIconGame" x="20" y="16" name="inst_C8A1B3CA" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
-    <instance objName="objIconInfo" x="84" y="16" name="inst_054AE8D6" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
+    <instance objName="objIconHero" x="84" y="16" name="inst_054AE8D6" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="objIconShop" x="148" y="16" name="inst_22C452AA" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="object2" x="80" y="312" name="inst_48A6F1C1" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>
     <instance objName="object1" x="80" y="64" name="inst_20D0461D" locked="0" code="" scaleX="1" scaleY="1" colour="4294967295" rotation="0"/>

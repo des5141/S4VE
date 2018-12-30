@@ -7,8 +7,14 @@
     <extension index="0">extensions\ImNotGUI</extension>
     <extension index="1">extensions\Vainglory</extension>
     <extension index="2">extensions\AndroidBetterTouchExtension</extension>
+    <extension index="3">extensions\firework</extension>
   </NewExtensions>
-  <sounds name="sound"/>
+  <sounds name="sound">
+    <sounds name="firework">
+      <sound>sound\sd_shoot</sound>
+      <sound>sound\sd_pung</sound>
+    </sounds>
+  </sounds>
   <sprites name="sprites">
     <sprite>sprites\spr_leg</sprite>
     <sprite>sprites\spr_body</sprite>
@@ -58,6 +64,15 @@
     <sprite>sprites\spr_bulit_circle</sprite>
     <sprite>sprites\spr_danger</sprite>
     <sprite>sprites\spr_bushi</sprite>
+    <sprite>sprites\spr_blood</sprite>
+    <sprites name="firework">
+      <sprite>sprites\spr_laser</sprite>
+      <sprite>sprites\spr_point_2</sprite>
+      <sprite>sprites\spr_light</sprite>
+      <sprite>sprites\spr_light_small</sprite>
+      <sprite>sprites\spr_smoke</sprite>
+    </sprites>
+    <sprite>sprites\spr_engagement</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -138,8 +153,44 @@
       <object>objects\obj_login</object>
       <object>objects\obj_network</object>
     </objects>
+    <objects name="MAIN_OBJ">
+      <objects name="par">
+        <object>objects\parStart1</object>
+        <object>objects\parStart2</object>
+        <object>objects\parStart3</object>
+        <object>objects\parStart4</object>
+      </objects>
+      <objects name="1">
+        <object>objects\obj_gamestart</object>
+        <object>objects\object6</object>
+        <object>objects\object7</object>
+        <object>objects\object4</object>
+        <object>objects\object9</object>
+        <object>objects\object11</object>
+        <object>objects\object13</object>
+        <object>objects\object10</object>
+        <object>objects\object2</object>
+        <object>objects\object1</object>
+      </objects>
+      <objects name="2">
+        <object>objects\object15</object>
+      </objects>
+      <objects name="3">
+        <object>objects\object22</object>
+      </objects>
+      <objects name="Icon">
+        <object>objects\objIconGame</object>
+        <object>objects\objIconHero</object>
+        <object>objects\objIconNews</object>
+        <object>objects\objIconShop</object>
+        <object>objects\objIcon</object>
+        <object>objects\objIcon2</object>
+        <object>objects\objIcon3</object>
+      </objects>
+    </objects>
     <object>objects\obj_end</object>
     <object>objects\obj_scene</object>
+    <object>objects\obj_count</object>
     <object>objects\obj_place</object>
     <object>objects\obj_line</object>
     <object>objects\obj_menu</object>
@@ -176,49 +227,22 @@
     <object>objects\obj_grass</object>
     <object>objects\obj_searching</object>
     <object>objects\obj_guestLogin</object>
-    <object>objects\obj_count</object>
     <object>objects\obj_respawn</object>
     <object>objects\obj_danger</object>
     <object>objects\obj_bushi</object>
-    <objects name="MAIN_OBJ">
-      <objects name="par">
-        <object>objects\parStart1</object>
-        <object>objects\parStart2</object>
-        <object>objects\parStart3</object>
-        <object>objects\parStart4</object>
-      </objects>
-      <objects name="1">
-        <object>objects\obj_gamestart</object>
-        <object>objects\object6</object>
-        <object>objects\object7</object>
-        <object>objects\object4</object>
-        <object>objects\object9</object>
-        <object>objects\object11</object>
-        <object>objects\object13</object>
-        <object>objects\object10</object>
-        <object>objects\object2</object>
-        <object>objects\object1</object>
-      </objects>
-      <objects name="2">
-        <object>objects\object15</object>
-      </objects>
-      <objects name="3">
-        <object>objects\object22</object>
-      </objects>
-      <objects name="Icon">
-        <object>objects\objIconGame</object>
-        <object>objects\objIconInfo</object>
-        <object>objects\objIconNews</object>
-        <object>objects\objIconShop</object>
-        <object>objects\objIcon</object>
-        <object>objects\objIcon2</object>
-        <object>objects\objIcon3</object>
-      </objects>
+    <objects name="firework">
+      <object>objects\obj_light</object>
+      <object>objects\obj_point</object>
+      <object>objects\obj_firework</object>
+      <object>objects\obj_fire</object>
+      <object>objects\obj_f</object>
+      <object>objects\obj_ff</object>
+      <object>objects\obj_smoke</object>
     </objects>
   </objects>
   <timelines name="timelines"/>
   <rooms name="rooms">
-    <room>rooms\room4</room>
+    <room>rooms\rm_init</room>
     <room>rooms\rm_connecting</room>
     <room>rooms\rm_login</room>
     <room>rooms\rm_search</room>

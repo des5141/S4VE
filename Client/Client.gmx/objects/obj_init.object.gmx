@@ -42,6 +42,7 @@ global.team        = "";
 global.red_gage    = 0;
 global.blue_gage   = 0;
 global.nickname    = "";
+global.engagement  = -1;
 global.can_control = 0;
 
 randomize();

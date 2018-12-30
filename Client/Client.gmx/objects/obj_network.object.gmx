@@ -112,6 +112,8 @@ delay_y = 0;
             <string>/// Handoff
 user_ins = -1;
 global.can_control = 1;
+obj_joy.add_mode = 1;
+obj_joy2.add_mode = 1;
 switch(handoff_type) {
     case 1:
         user_ins = instance_create(handoff_x, handoff_y, obj_sworder);
@@ -341,11 +343,15 @@ if (status == NN.status_connected) {
         switch (message_id) {
             case NN.signal_endgame:
                 system.target = -1;
-                system.zoom = 120;
                 global.can_control = 0;
+                obj_joy.add_mode = 0;
+                obj_joy2.add_mode = 0;
+                par_skill.add_mode = 0;
+                
                 var ins = instance_create(0, 0, obj_end);
                 if(global.team == message_body) {
                     ins.message = "승리"
+                    instance_create(400, 300, obj_firework);
                 }else {
                     ins.message = "패배";
                 }
@@ -443,6 +449,7 @@ if (status == NN.status_connected) {
                 global.sp = ds_map_find_value(temp_data, "sp");
                 global.red_gage = ds_map_find_value(temp_data, "red_gage");
                 global.blue_gage = ds_map_find_value(temp_data, "blue_gage");
+                global.engagement = ds_map_find_value(temp_data, "engagement");
                 with(par_player){if(variable_instance_exists(id, "control")) {if(control == 1){respawn = ds_map_find_value(temp_data, "respawn");}}}
                 with(par_player){
                     if(variable_instance_exists(id, "control")) {
@@ -450,13 +457,20 @@ if (status == NN.status_connected) {
                             if(ds_map_find_value(temp_data, "respawn") == -1) {
                                 system.target = id;
                                 global.can_control = 1;
+                                obj_joy.add_mode = 1;
+                                obj_joy2.add_mode = 1;
+                                par_skill.add_mode = 1;
                                 instance_create(0, 0, obj_respawn);
                             }
                         }
                     }
                 }
-                if(ds_map_find_value(temp_data, "respawn") != -1) {
+                if(ds_map_find_value(temp_data, "respawn") != -1)and(global.can_control == 1) {
                     global.can_control = 0;
+                    obj_joy.add_mode = 0;
+                    obj_joy2.add_mode = 0;
+                    par_skill.add_mode = 0;
+                    system.shake = 50;
                 }
                 ds_map_destroy(temp_data);
             break;

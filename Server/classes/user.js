@@ -37,7 +37,8 @@ function create(uuid, id) {
         jump: 0,
         weapon_dir: 0,
         weapon_xdir: 0,
-        xdir: 0
+        xdir: 0,
+        engagement: -1
     };
 }
 

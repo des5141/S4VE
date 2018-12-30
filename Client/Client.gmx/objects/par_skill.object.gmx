@@ -34,6 +34,10 @@ skill_index = -1;
 range = 0;
 delay = 0;
 delay_max = 0;
+
+add_x = 300;
+add_y = 0;
+add_mode = -1; // -1 is wait, 0 is go to right, 1 is go to left
 </string>
           </argument>
         </arguments>
@@ -154,18 +158,31 @@ if(delay != 0) {
           <argument>
             <kind>1</kind>
             <string>/// Draw
+if(add_mode == 0) {
+    add_x += (300 - add_x)/4;
+}
+    
+if(add_mode == 1) {
+    add_x += (0 - add_x)/4;
+}
+
 if(activate == 1)and(skill_index != -1)and(global.can_control == 1) {
     if(click != -1) {
-        draw_sprite(spr_bulit_circle, 0, x, y);
-        draw_sprite(sprite_index, skill_index, x + lengthdir_x(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1])), y + lengthdir_y(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1])));
+        draw_sprite(spr_bulit_circle, 0, x + add_x, y + add_y);
+        draw_sprite(sprite_index, skill_index, x + add_x + lengthdir_x(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1])), y + add_y + lengthdir_y(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1])));
         if(delay != 0) {
-            draw_sprite_part_ext(spr_skill_delay, 0, 0, 0, 70, 70-70/delay_max*delay, x + lengthdir_x(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1]))-35, y + lengthdir_y(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1]))+35, 1, -1, c_white, 0.6);
+            draw_sprite_part_ext(spr_skill_delay, 0, 0, 0, 70, 70-70/delay_max*delay, x + add_x + lengthdir_x(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1]))-35, y + add_y + lengthdir_y(min(80, point_distance(x, y, pointer[0], pointer[1])), point_direction(x, y, pointer[0], pointer[1]))+35, 1, -1, c_white, 0.6);
         }
     }else {
-        draw_sprite(sprite_index, skill_index, x, y);
+        draw_sprite(sprite_index, skill_index, x + add_x, y + add_y);
         if(delay != 0) {
-            draw_sprite_part_ext(spr_skill_delay, 0, 0, 0, 70, 70-70/delay_max*delay, x-35, y+35, 1, -1, c_white, 0.6);
+            draw_sprite_part_ext(spr_skill_delay, 0, 0, 0, 70, 70-70/delay_max*delay, x-35 + add_x, y+35 + add_y, 1, -1, c_white, 0.6);
         }
+    }
+}else{
+    draw_sprite(sprite_index, skill_index, x + add_x, y + add_y);
+    if(delay != 0) {
+        draw_sprite_part_ext(spr_skill_delay, 0, 0, 0, 70, 70-70/delay_max*delay, x-35 + add_x, y+35 + add_y, 1, -1, c_white, 0.6);
     }
 }
 </string>

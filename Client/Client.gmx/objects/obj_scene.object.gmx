@@ -60,6 +60,9 @@ mode = 0;
             <string>/// camera move
 system.target = target;
 global.can_control = 1;
+obj_joy.add_mode = 1;
+obj_joy2.add_mode = 1;
+par_skill.add_mode = 1;
 </string>
           </argument>
         </arguments>

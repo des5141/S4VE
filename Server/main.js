@@ -436,7 +436,7 @@ if (cluster.isMaster) {
             var red_check = -1;
             var blue_check = -1;
             authenticated_users.each(function (user) {
-                if ((user.room == room[i])&&(user.x > 330)&&(user.x < 630)&&(user.y > 210)&&(user.y < 510)) {
+                if ((user.room == room[i]) && (user.x > 330) && (user.x < 630) && (user.y > 210) && (user.y < 510)) {
                     if (user.team == "red") {
                         red_check = 1;
                     } else if (user.team == "blue") {
@@ -453,13 +453,24 @@ if (cluster.isMaster) {
                 if (blue_check == 1) {
                     blue_gage[i]++;
                 }
-            }
 
+                authenticated_users.each(function (user) {
+                    if (user.room == room[i]) {
+                        user.engagement = -1;
+                    }
+                });
+            } else { 
+                authenticated_users.each(function (user) {
+                    if (user.room == room[i]) {
+                        user.engagement = 1;
+                    }
+                });
+            }
 
             //게이지 확인
             if (red_gage[i] != blue_gage[i] && room[i]!="") {
                 // 게이지 찬 값이 같으면 동점이니 계속 연장
-                if (red_gage[i] > 1000) {
+                if (red_gage[i] > 1800) {
                     // user.team 이 "red" 이거나, "blue" 임
                     Games[i].RedTeam.EndGame(true);
                     Games[i].BlueTeam.EndGame(false);
@@ -533,7 +544,8 @@ if (cluster.isMaster) {
                                 sp: user.sp,
                                 respawn: user.respawn,
                                 red_gage: red_gage[user.room_i],
-                                blue_gage: blue_gage[user.room_i]
+                                blue_gage: blue_gage[user.room_i],
+                                engagement: user.engagement
                             });
                         }
                     }
@@ -698,7 +710,8 @@ if (cluster.isWorker) {
                             sp: message.sp,
                             red_gage: message.red_gage,
                             blue_gage: message.blue_gage,
-                            respawn: message.respawn
+                            respawn: message.respawn,
+                            engagement: message.engagement
                         });
                         send_id_message(ins.socket, signal_myinfo, json_data);
                     }

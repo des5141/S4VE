@@ -37,6 +37,9 @@ height                    = 480;
 shake                     = 0;
 zoom                      = 80; // 160 is default
 target                    = -1; // -1 none , else viewing
+add_y                     = -500;
+none_x                    = view_xview[0];
+none_y                    = view_yview[0];
 
 // values
 global.maxhp              = 10;
@@ -266,6 +269,16 @@ if (target != -1)and(target != -2)
     view_yview[0] = target.y - height/2 - 10 + irandom_range(shake, -shake);
     view_wview[0] = width;
     view_hview[0] = height;
+    none_x        = view_xview[0];
+    none_y        = view_yview[0];
+}
+
+if(target == -1)or(target == -2) {
+    
+    view_xview[0] = none_x + irandom_range(shake, -shake);
+    view_yview[0] = none_y + irandom_range(shake, -shake);
+    view_wview[0] = width;
+    view_hview[0] = height;
 }
 
 shake += (0 - shake)/8;
@@ -444,21 +457,44 @@ for(i = 0; i &lt; 4; i++)
         <arguments>
           <argument>
             <kind>1</kind>
+            <string>/// Blood
+draw_sprite_ext(spr_blood, 0, 0, 0, 1, 1, 0, c_white, 1-global.hp/100);
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
             <string>/// Draw gage
 if not(instance_exists(obj_scene))and not(instance_exists(obj_end)) {
+    add_y += (0 - add_y)/4;
     draw_set_color(c_black);
-    draw_rectangle(10-1, 20-1, 10 + 250+1, 40+1, false);
-    draw_rectangle(800 - 10+1, 20-1, 800 - 10 - 250-1, 40+1, false);
+    draw_rectangle(10-1, 20-1 + add_y, 10 + 250+1, 40+1 + add_y, false);
+    draw_rectangle(800 - 10+1, 20-1 + add_y, 800 - 10 - 250-1, 40+1 + add_y, false);
     
     draw_set_color(c_gray);
-    draw_rectangle(10, 20, 10 + 250, 40, false);
-    draw_rectangle(800 - 10, 20, 800 - 10 - 250, 40, false);
+    draw_rectangle(10, 20 + add_y, 10 + 250, 40 + add_y, false);
+    draw_rectangle(800 - 10, 20 + add_y, 800 - 10 - 250, 40 + add_y, false);
     
     draw_set_color(c_red);
-    draw_rectangle(10, 20, 10 + 250/1800*global.red_gage, 40, false);
+    draw_rectangle(10, 20 + add_y, 10 + 250/1800*global.red_gage, 40 + add_y, false);
     
     draw_set_color(c_blue);
-    draw_rectangle(800 - 10, 20, 800 - 10 - 250/1800*global.blue_gage, 40, false);
+    draw_rectangle(800 - 10, 20 + add_y, 800 - 10 - 250/1800*global.blue_gage, 40 + add_y, false);
 }
 </string>
           </argument>
@@ -494,6 +530,30 @@ if not(instance_exists(obj_scene))and not(instance_exists(obj_end)) {
         draw_set_color(c_white);
         draw_text(20, 50 + i*13, ds_list_find_value(global.kill_log_left, i) + "가 " + ds_list_find_value(global.kill_log_right, i) + "를 처치하였습니다");
     }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// engagement
+if(global.engagement == 1) {
+    draw_sprite(spr_engagement, 0, 400, 0);
 }
 </string>
           </argument>
