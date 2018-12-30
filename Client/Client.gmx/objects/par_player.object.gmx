@@ -156,7 +156,7 @@ if(control == 1)
     // i/o input
     if(control == 1)
     {
-        if (stun == 0) and (jump == 0) { // not stun
+        if (stun == 0) and (jump == 0)and(global.can_control == 1) { // not stun
             // KEYBOARD TO CONTROL
             if (keyboard_check(ord("A"))  ) { kL = 1; mv = 1; }
             if (keyboard_check(ord("D")) ) { kR = 1; mv = 1; }

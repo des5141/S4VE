@@ -12,7 +12,20 @@ const connection = mysql.createConnection({
 });
 
 connection.connect();
+
+process.on('uncaughtException', function (err) {
+    console.error(err.stack);
+    console.log("Node NOT Exiting...");
+});
+
+async function sql_connection_check() {
+    if (connection.state === 'disconnected') {
+        connection.connect();
+    }
+}
+
 async function login(id, password) {
+    sql_connection_check();
     const hashed_pass = hash.makeHash(password);
     const sql = `select * from Users where id='${id}' and password='${hashed_pass}'`;
     var result = false;
@@ -34,6 +47,7 @@ async function login(id, password) {
     return result;
 };
 async function register(id, password, name) {
+    sql_connection_check();
     const pass = hash.makeHash(password);
     const point = 0;
     const sql = `insert into Users values('${id}','${name}','${pass}','${point}',0)`;
@@ -53,6 +67,7 @@ async function register(id, password, name) {
 
 const raise_point = point =>
     async id => {
+        sql_connection_check();
         var result = false;
         const sql = `update Users set point=Users.point+${point} where id='${id}'`;
         await new Promise((a, b) => {
@@ -73,6 +88,7 @@ function end_connection() {
 }
 
 async function save_play(id, userid, champ, win, team_name, game_id) {
+    sql_connection_check();
     const sql = `insert into PlayHistory values('${id}','${userid}','${champ}',${win},'${team_name}','${game_id}')`;
     var result = false;
     await new Promise((a, b) => {
@@ -89,7 +105,8 @@ async function save_play(id, userid, champ, win, team_name, game_id) {
     return result;
 }
 
-async function ShowMeTheMoney(id,money){
+async function ShowMeTheMoney(id, money) {
+    sql_connection_check();
     var result = false;
     const sql = `update Users set money=Users.money+${money} where id='${id}'`;
     await new Promise((a, b) => {
@@ -106,7 +123,8 @@ async function ShowMeTheMoney(id,money){
     return result;
 };
 
-async function check_money(id,price){
+async function check_money(id, price) {
+    sql_connection_check();
     var result = false;
     const sql = `select * from Users where id='${id}'`;
     await new Promise((a, b) => {
@@ -123,7 +141,8 @@ async function check_money(id,price){
     return result;
 };
 
-async function buy_items(id,item){
+async function buy_items(id, item) {
+    sql_connection_check();
     var result = false;
     new Promise((a,b)=>{
         check_money(id,item.price).then(x=>{

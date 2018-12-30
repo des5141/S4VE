@@ -737,7 +737,13 @@ if (cluster.isWorker) {
                     }
 
                     if (buffer_string.charAt(i) == "#") {
-                        var json_data = JSON.parse(buffer_reading_string);
+                        try {
+                            var json_data = JSON.parse(buffer_reading_string);
+                        } catch (e) {
+                            temp_buffer = "";
+                            buffer_reading_string = "";
+                            break;
+                        }
                         var id = json_data.id;
                         var msg = json_data.msg;
                         var ins = authenticated_users.findUserBySocket(dsocket);
