@@ -107,8 +107,8 @@ for(i = 0; i &lt; 4; i++) {
 
 // magician
 skill_delay[0] = 120;
-skill_delay[1] = 30;
-skill_delay[2] = 60;
+skill_delay[1] = 60*10;
+skill_delay[2] = 60*5;
 
 // 
 skill_delay[3] = 30;
