@@ -124,7 +124,7 @@ switch(handoff_type) {
     break;
                                    
     case 3:
-        user_ins = instance_create(handoff_x, handoff_y, obj_hammer);
+        user_ins = instance_create(handoff_x, handoff_y, obj_gunner);
     break;
                             
     case 4:
@@ -632,7 +632,7 @@ if (status == NN.status_connected) {
                         break;
                             
                         case 3:
-                            user_ins = instance_create(_x, _y, obj_hammer);
+                            user_ins = instance_create(_x, _y, obj_gunner);
                         break;
                         
                         case 4:

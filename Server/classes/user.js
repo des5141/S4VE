@@ -28,7 +28,7 @@ function create(uuid, id) {
         y: 0,
         z: 0,
         respawn: -1,
-        _type: 0,
+        _type: -1,
         weapon_delay_i: -100,
         weapon_range: 0,
         weapon_angle: 0,

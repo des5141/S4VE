@@ -33,7 +33,7 @@ var room = new Array();
 var blue_gage = new Array();
 var red_gage = new Array();
 var room_max = 1;
-var game_max = 2;
+var game_max = 4;
 for (var i = 0; i < room_max; i++) {
     room[i] = "";
     blue_gage[i] = 0;
@@ -346,7 +346,7 @@ if (cluster.isMaster) {
                             if (user.uuid == temp_data) {
                                 user.hp = 100;
                                 user.sp = 100;
-                                
+                                user._type = -1;
                                 var player = new Player(user.id,"test",user._type);
 
                                 if (team == "red") {
@@ -395,29 +395,31 @@ if (cluster.isMaster) {
             if (user.room != "null") {
                 authenticated_users.each(function (to_user) {
                     if ((to_user.room == user.room) && (user.id != to_user.id) && (to_user.uuid != -1)) {
-                        for (var id in cluster.workers) {
-                            cluster.workers[id].send({
-                                type: 'move', to: 'worker',
-                                id: user.id,
-                                user_id: to_user.uuid,
-                                x: user.x,
-                                y: user.y,
-                                z: user.z,
-                                _type: user._type,
-                                weapon_delay_i: user.weapon_delay_i,
-                                weapon_range: user.weapon_range,
-                                weapon_angle: user.weapon_angle,
-                                move: user.move,
-                                jump: user.jump,
-                                weapon_dir: user.weapon_dir,
-                                weapon_xdir: user.weapon_xdir,
-                                xdir: user.xdir,
-                                hp: user.hp,
-                                sp: user.sp,
-                                team: user.team,
-                                nickname: user.nickname,
-                                respawn: user.respawn
-                            });
+                        if (user._type != -1) {
+                            for (var id in cluster.workers) {
+                                cluster.workers[id].send({
+                                    type: 'move', to: 'worker',
+                                    id: user.id,
+                                    user_id: to_user.uuid,
+                                    x: user.x,
+                                    y: user.y,
+                                    z: user.z,
+                                    _type: user._type,
+                                    weapon_delay_i: user.weapon_delay_i,
+                                    weapon_range: user.weapon_range,
+                                    weapon_angle: user.weapon_angle,
+                                    move: user.move,
+                                    jump: user.jump,
+                                    weapon_dir: user.weapon_dir,
+                                    weapon_xdir: user.weapon_xdir,
+                                    xdir: user.xdir,
+                                    hp: user.hp,
+                                    sp: user.sp,
+                                    team: user.team,
+                                    nickname: user.nickname,
+                                    respawn: user.respawn
+                                });
+                            }
                         }
 
                     }
