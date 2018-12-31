@@ -111,6 +111,8 @@ if(global.can_control == 1) {
         }
         click = -1;
     }
+}else{
+    click = -1;
 }
 </string>
           </argument>

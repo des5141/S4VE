@@ -39,7 +39,7 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>x = room_width/2
+            <string>x = room_width/2 - 340*(global.select_char)
 temp = x
 temp2 = 0
 _x = x

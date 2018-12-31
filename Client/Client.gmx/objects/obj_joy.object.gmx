@@ -77,12 +77,12 @@ if(global.can_control == 1) {
     mx = 0;
     my = 0;
     
-    if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800//터치좌표와의 거리가 240 이하이면
+    if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;400//터치좌표와의 거리가 240 이하이면
     {
     mx=device_mouse_x_to_gui(fff)
     my=device_mouse_y_to_gui(fff)
     }
-        if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800
+        if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;400
         {
         if device_mouse_check_button_pressed(fff,mb_left) //만약 화면은 눌렀으면,
         and collision_point(mx,my,object_index,1,0)//나를 눌렀으면,
@@ -97,7 +97,7 @@ if(global.can_control == 1) {
         }
         }
     ////////////////////////////////조이스틱 그리는 부분
-    if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;800
+    if point_distance(x,y,device_mouse_x_to_gui(fff),device_mouse_y_to_gui(fff))&lt;400
     {
         if isClick=1 //나를 한번 터치하고 손을 안떘을경우
         {

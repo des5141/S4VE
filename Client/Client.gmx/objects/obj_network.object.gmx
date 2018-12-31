@@ -484,6 +484,12 @@ if (status == NN.status_connected) {
                     obj_joy2.add_mode = 0;
                     par_skill.add_mode = 0;
                     system.shake = 50;
+                    obj_joy.isClick=0
+                    obj_joy.tx=x //작은 원 위치 초기화
+                    obj_joy.ty=y
+                    obj_joy2.isClick=0
+                    obj_joy2.tx=x //작은 원 위치 초기화
+                    obj_joy2.ty=y
                 }
                 ds_map_destroy(temp_data);
             break;
