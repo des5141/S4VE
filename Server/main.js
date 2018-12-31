@@ -395,7 +395,7 @@ if (cluster.isMaster) {
             if (user.room != "null") {
                 authenticated_users.each(function (to_user) {
                     if ((to_user.room == user.room) && (user.id != to_user.id) && (to_user.uuid != -1)) {
-                        if (user._type != -1) {
+                        if ((user._type != -1) && (Math.sqrt(Math.pow((user.x - to_user.x), 2) + Math.pow((user.y - to_user.y), 2)) < 250) /* 데이터 주고받기 최소화 */) {
                             for (var id in cluster.workers) {
                                 cluster.workers[id].send({
                                     type: 'move', to: 'worker',

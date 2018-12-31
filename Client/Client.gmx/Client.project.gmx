@@ -4,40 +4,60 @@
     <Config>Configs\Default</Config>
   </Configs>
   <NewExtensions>
-    <extension index="0">extensions\ImNotGUI</extension>
-    <extension index="1">extensions\Vainglory</extension>
     <extension index="2">extensions\AndroidBetterTouchExtension</extension>
-    <extension index="3">extensions\firework</extension>
   </NewExtensions>
   <sounds name="sound">
-    <sounds name="firework">
+    <sounds name="Ingame">
       <sound>sound\sd_shoot</sound>
       <sound>sound\sd_pung</sound>
     </sounds>
   </sounds>
   <sprites name="sprites">
-    <sprite>sprites\spr_leg</sprite>
-    <sprite>sprites\spr_body</sprite>
-    <sprite>sprites\spr_weapon</sprite>
-    <sprite>sprites\spr_block</sprite>
-    <sprite>sprites\spr_effect</sprite>
-    <sprite>sprites\spr_skill</sprite>
-    <sprite>sprites\spr_skill_delay</sprite>
-    <sprite>sprites\spr_bullet</sprite>
-    <sprite>sprites\spr_fire</sprite>
-    <sprite>sprites\spr_firehead</sprite>
-    <sprite>sprites\spr_boom</sprite>
-    <sprite>sprites\spr_fireball</sprite>
-    <sprite>sprites\spr_house01</sprite>
-    <sprite>sprites\spr_house02</sprite>
-    <sprite>sprites\spr_tree01</sprite>
-    <sprite>sprites\spr_tree02</sprite>
-    <sprite>sprites\spr_tree03</sprite>
-    <sprite>sprites\spr_grass</sprite>
-    <sprite>sprites\spr_searching</sprite>
-    <sprite>sprites\spr_uiwhitepixel</sprite>
-    <sprite>sprites\spr_uiwhitepixel1</sprite>
-    <sprites name="MAIN_SPR">
+    <sprites name="Ingame">
+      <sprites name="Character">
+        <sprite>sprites\spr_leg</sprite>
+        <sprite>sprites\spr_body</sprite>
+        <sprite>sprites\spr_weapon</sprite>
+      </sprites>
+      <sprites name="Effect">
+        <sprite>sprites\spr_effect</sprite>
+        <sprite>sprites\spr_bullet</sprite>
+        <sprite>sprites\spr_fire</sprite>
+        <sprite>sprites\spr_firehead</sprite>
+        <sprite>sprites\spr_fireball</sprite>
+        <sprite>sprites\spr_boom</sprite>
+        <sprites name="firework">
+          <sprite>sprites\spr_uiwhitepixel1</sprite>
+          <sprite>sprites\spr_uiwhitepixel</sprite>
+          <sprite>sprites\spr_laser</sprite>
+          <sprite>sprites\spr_point_2</sprite>
+          <sprite>sprites\spr_light</sprite>
+          <sprite>sprites\spr_light_small</sprite>
+          <sprite>sprites\spr_smoke</sprite>
+        </sprites>
+      </sprites>
+      <sprites name="Block">
+        <sprite>sprites\spr_block</sprite>
+        <sprite>sprites\spr_house01</sprite>
+        <sprite>sprites\spr_house02</sprite>
+        <sprite>sprites\spr_tree01</sprite>
+        <sprite>sprites\spr_tree02</sprite>
+        <sprite>sprites\spr_tree03</sprite>
+        <sprite>sprites\spr_grass</sprite>
+        <sprite>sprites\spr_bushi</sprite>
+        <sprite>sprites\spr_danger</sprite>
+      </sprites>
+      <sprites name="Ui">
+        <sprite>sprites\spr_skill</sprite>
+        <sprite>sprites\spr_skill_delay</sprite>
+        <sprite>sprites\spr_engagement</sprite>
+        <sprite>sprites\spr_circle</sprite>
+        <sprite>sprites\spr_small_circle</sprite>
+        <sprite>sprites\spr_bulit_circle</sprite>
+        <sprite>sprites\spr_blood</sprite>
+      </sprites>
+    </sprites>
+    <sprites name="Menu">
       <sprites name="game">
         <sprite>sprites\sprSmall1</sprite>
         <sprite>sprites\sprSmall2</sprite>
@@ -46,8 +66,8 @@
       <sprites name="News">
         <sprite>sprites\sprBig2</sprite>
       </sprites>
-      <sprites name="Rank">
-        <sprite>sprites\sprRank_</sprite>
+      <sprites name="character_select">
+        <sprite>sprites\spr_character</sprite>
       </sprites>
       <sprites name="Icons">
         <sprite>sprites\sprIcon1</sprite>
@@ -56,24 +76,10 @@
         <sprite>sprites\sprIcon4</sprite>
         <sprite>sprites\sprIcon5</sprite>
       </sprites>
+      <sprite>sprites\spr_guest</sprite>
+      <sprite>sprites\spr_searching</sprite>
     </sprites>
     <sprite>sprites\spr_temp</sprite>
-    <sprite>sprites\spr_guest</sprite>
-    <sprite>sprites\spr_circle</sprite>
-    <sprite>sprites\spr_small_circle</sprite>
-    <sprite>sprites\spr_bulit_circle</sprite>
-    <sprite>sprites\spr_danger</sprite>
-    <sprite>sprites\spr_bushi</sprite>
-    <sprite>sprites\spr_blood</sprite>
-    <sprites name="firework">
-      <sprite>sprites\spr_laser</sprite>
-      <sprite>sprites\spr_point_2</sprite>
-      <sprite>sprites\spr_light</sprite>
-      <sprite>sprites\spr_light_small</sprite>
-      <sprite>sprites\spr_smoke</sprite>
-    </sprites>
-    <sprite>sprites\spr_engagement</sprite>
-    <sprite>sprites\spr_character</sprite>
   </sprites>
   <backgrounds name="background">
     <background>background\back_temp</background>
@@ -130,16 +136,18 @@
       <script>scripts\ease_out_bounce.gml</script>
       <script>scripts\ease_in_out_bounce.gml</script>
     </scripts>
-    <script>scripts\string_padding.gml</script>
-    <script>scripts\joy_get_direction.gml</script>
-    <script>scripts\joy_get_distance.gml</script>
-    <script>scripts\joy_circle_distance.gml</script>
-    <script>scripts\skill_play.gml</script>
-    <script>scripts\skill_play2.gml</script>
-    <script>scripts\skill_play3.gml</script>
-    <script>scripts\col16.gml</script>
-    <script>scripts\script_similar.gml</script>
-    <script>scripts\hero_select.gml</script>
+    <scripts name="e.t.c">
+      <script>scripts\string_padding.gml</script>
+      <script>scripts\joy_get_direction.gml</script>
+      <script>scripts\joy_get_distance.gml</script>
+      <script>scripts\joy_circle_distance.gml</script>
+      <script>scripts\skill_play.gml</script>
+      <script>scripts\skill_play2.gml</script>
+      <script>scripts\skill_play3.gml</script>
+      <script>scripts\col16.gml</script>
+      <script>scripts\script_similar.gml</script>
+      <script>scripts\hero_select.gml</script>
+    </scripts>
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_nickname</font>
@@ -153,12 +161,71 @@
     <font>fonts\main_count2</font>
   </fonts>
   <objects name="objects">
-    <objects name="Networking with Node">
+    <objects name="Init">
       <object>objects\sys_nn</object>
-      <object>objects\obj_login</object>
-      <object>objects\obj_network</object>
+      <object>objects\obj_init</object>
     </objects>
-    <objects name="MAIN_OBJ">
+    <objects name="Ingame">
+      <object>objects\all_unit</object>
+      <object>objects\system</object>
+      <object>objects\obj_network</object>
+      <object>objects\obj_login</object>
+      <objects name="Character">
+        <object>objects\par_player</object>
+        <object>objects\obj_sworder</object>
+        <object>objects\obj_hammer</object>
+        <object>objects\obj_gunner</object>
+        <object>objects\obj_magician</object>
+        <object>objects\obj_healer</object>
+      </objects>
+      <objects name="Ui">
+        <object>objects\obj_scene</object>
+        <object>objects\obj_count</object>
+        <object>objects\obj_end</object>
+        <object>objects\obj_respawn</object>
+        <object>objects\obj_joy</object>
+        <object>objects\obj_joy2</object>
+        <object>objects\par_skill</object>
+        <object>objects\obj_skill1</object>
+        <object>objects\obj_skill2</object>
+        <object>objects\obj_skill3</object>
+      </objects>
+      <objects name="Block">
+        <object>objects\par_block</object>
+        <object>objects\obj_line</object>
+        <object>objects\obj_danger</object>
+        <object>objects\obj_place</object>
+        <object>objects\obj_block1</object>
+        <object>objects\obj_house01</object>
+        <object>objects\obj_house02</object>
+        <object>objects\obj_tree01</object>
+        <object>objects\obj_tree02</object>
+        <object>objects\obj_tree03</object>
+        <object>objects\obj_grass</object>
+        <object>objects\obj_bushi</object>
+      </objects>
+      <objects name="Effect">
+        <object>objects\obj_effect</object>
+        <object>objects\obj_effect1</object>
+        <object>objects\obj_effect2</object>
+        <object>objects\obj_effect3</object>
+        <object>objects\obj_effect4</object>
+        <object>objects\obj_effect5</object>
+        <object>objects\obj_bullet</object>
+        <object>objects\obj_boomeffect</object>
+        <objects name="firework">
+          <object>objects\obj_light</object>
+          <object>objects\obj_point</object>
+          <object>objects\obj_firework</object>
+          <object>objects\obj_fire</object>
+          <object>objects\obj_f</object>
+          <object>objects\obj_ff</object>
+          <object>objects\obj_smoke</object>
+        </objects>
+      </objects>
+    </objects>
+    <objects name="Menu">
+      <object>objects\obj_menu</object>
       <objects name="par">
         <object>objects\parStart1</object>
         <object>objects\parStart2</object>
@@ -192,57 +259,8 @@
         <object>objects\objIcon2</object>
         <object>objects\objIcon3</object>
       </objects>
-    </objects>
-    <object>objects\obj_end</object>
-    <object>objects\obj_scene</object>
-    <object>objects\obj_count</object>
-    <object>objects\obj_place</object>
-    <object>objects\obj_line</object>
-    <object>objects\obj_menu</object>
-    <object>objects\obj_init</object>
-    <object>objects\system</object>
-    <object>objects\all_unit</object>
-    <object>objects\par_block</object>
-    <object>objects\obj_joy</object>
-    <object>objects\obj_joy2</object>
-    <object>objects\par_skill</object>
-    <object>objects\obj_skill1</object>
-    <object>objects\obj_skill2</object>
-    <object>objects\obj_skill3</object>
-    <object>objects\par_player</object>
-    <object>objects\obj_sworder</object>
-    <object>objects\obj_hammer</object>
-    <object>objects\obj_gunner</object>
-    <object>objects\obj_magician</object>
-    <object>objects\obj_healer</object>
-    <object>objects\obj_block1</object>
-    <object>objects\obj_house01</object>
-    <object>objects\obj_house02</object>
-    <object>objects\obj_effect</object>
-    <object>objects\obj_effect1</object>
-    <object>objects\obj_effect2</object>
-    <object>objects\obj_effect3</object>
-    <object>objects\obj_effect4</object>
-    <object>objects\obj_effect5</object>
-    <object>objects\obj_bullet</object>
-    <object>objects\obj_boomeffect</object>
-    <object>objects\obj_tree01</object>
-    <object>objects\obj_tree02</object>
-    <object>objects\obj_tree03</object>
-    <object>objects\obj_grass</object>
-    <object>objects\obj_searching</object>
-    <object>objects\obj_guestLogin</object>
-    <object>objects\obj_respawn</object>
-    <object>objects\obj_danger</object>
-    <object>objects\obj_bushi</object>
-    <objects name="firework">
-      <object>objects\obj_light</object>
-      <object>objects\obj_point</object>
-      <object>objects\obj_firework</object>
-      <object>objects\obj_fire</object>
-      <object>objects\obj_f</object>
-      <object>objects\obj_ff</object>
-      <object>objects\obj_smoke</object>
+      <object>objects\obj_searching</object>
+      <object>objects\obj_guestLogin</object>
     </objects>
   </objects>
   <rooms name="rooms">
@@ -251,7 +269,6 @@
     <room>rooms\rm_login</room>
     <room>rooms\rm_search</room>
     <room>rooms\rm_main</room>
-    <room>rooms\vainglory</room>
   </rooms>
   <help>
     <rtf>help.rtf</rtf>
