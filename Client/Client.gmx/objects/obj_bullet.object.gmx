@@ -146,6 +146,7 @@ if(other.team != "")and(from_team != other.team)and(from != other.user_id)and(ot
     }
     
     if(other.control == 1) {
+        system.shake = 2;
         var _x = other.x, _y = other.y;
         _x += lengthdir_x(10, direction);
         _y += lengthdir_y(10, direction);

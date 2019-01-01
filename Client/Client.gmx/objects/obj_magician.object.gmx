@@ -74,7 +74,7 @@ if (attack_delay &lt;= 0)and(control == 1)and(obj_joy2._distance &gt; 65)and(obj
     a.sprite = spr_fire;
     a.from = global.login_id;
     a.from_team = global.team;
-    a.damage = 5;
+    a.damage = 25;
     a.range = 60;
     
     system.shake = 1;
@@ -266,7 +266,7 @@ if (global.skill_delay[3] &lt;= 0)
     
     var a = instance_create(x + lengthdir_x(min(point_distance(x, y, mouse_x, mouse_y), 120), point_direction(x, y, mouse_x, mouse_y)), y + lengthdir_y(min(point_distance(x, y, mouse_x, mouse_y), 120), point_direction(x, y, mouse_x, mouse_y)), obj_effect4);
     a.from = global.login_id;
-    a.damage = 20;
+    a.damage = 60;
     a.from_team = global.team;
     
     system.shake = 1;
@@ -395,7 +395,7 @@ if (global.skill_delay[0] &lt;= 0)
     a.sprite = spr_fire;
     a.from = global.login_id;
     a.from_team = global.team;
-    a.damage = 15;
+    a.damage = 40;
     
     system.shake = 1;
     weapon_delay = 40;

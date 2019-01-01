@@ -106,9 +106,9 @@ for(i = 0; i &lt; 4; i++) {
             <string>/// SKILL DELAY
 
 // magician
-skill_delay[0] = 120;
-skill_delay[1] = 60*10;
-skill_delay[2] = 60*5;
+skill_delay[0] = 60*3;
+skill_delay[1] = 60*15;
+skill_delay[2] = 60*10;
 
 // 
 skill_delay[3] = 30;
@@ -282,6 +282,7 @@ if(target == -1)or(target == -2) {
 }
 
 shake += (0 - shake)/8;
+shake = floor(shake);
 </string>
           </argument>
         </arguments>

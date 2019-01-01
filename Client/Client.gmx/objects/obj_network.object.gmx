@@ -3,7 +3,7 @@
   <spriteName>&lt;undefined&gt;</spriteName>
   <solid>0</solid>
   <visible>-1</visible>
-  <depth>-999999999</depth>
+  <depth>1410065407</depth>
   <persistent>-1</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
@@ -468,11 +468,17 @@ if (status == NN.status_connected) {
                     if(variable_instance_exists(id, "control")) {
                         if(system.target == -2) {
                             if(ds_map_find_value(temp_data, "respawn") == -1) {
-                                system.target = id;
-                                global.can_control = 1;
                                 obj_joy.add_mode = 1;
                                 obj_joy2.add_mode = 1;
                                 par_skill.add_mode = 1;
+                                obj_joy.isClick=0
+                                obj_joy.tx=obj_joy.x //작은 원 위치 초기화
+                                obj_joy.ty=obj_joy.y
+                                obj_joy2.isClick=0
+                                obj_joy2.tx=obj_joy2.x //작은 원 위치 초기화
+                                obj_joy2.ty=obj_joy2.y
+                                
+                                global.can_control = 1;
                                 instance_create(0, 0, obj_respawn);
                             }
                         }
@@ -485,11 +491,11 @@ if (status == NN.status_connected) {
                     par_skill.add_mode = 0;
                     system.shake = 50;
                     obj_joy.isClick=0
-                    obj_joy.tx=x //작은 원 위치 초기화
-                    obj_joy.ty=y
+                    obj_joy.tx=obj_joy.x //작은 원 위치 초기화
+                    obj_joy.ty=obj_joy.y
                     obj_joy2.isClick=0
-                    obj_joy2.tx=x //작은 원 위치 초기화
-                    obj_joy2.ty=y
+                    obj_joy2.tx=obj_joy2.x //작은 원 위치 초기화
+                    obj_joy2.ty=obj_joy2.y
                 }
                 ds_map_destroy(temp_data);
             break;
