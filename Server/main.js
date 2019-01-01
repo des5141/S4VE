@@ -15,6 +15,7 @@ var async = require('async');
 var functions = require('./classes/functions.js').create();
 var server = require('./classes/server.js').createServer();
 var uuid_v4 = require('uuid-v4');
+var os = require('os');
 var database = require('./classes/database');
 const Player = require('./classes/game').Player;
 const Game = require('./classes/game').Game;
@@ -27,7 +28,6 @@ if (debug_mode == 1)
     var ip = '127.0.0.1'; //IP address
 else
     var ip = '172.16.113.102';
-var worker_max = 10;
 var worker_id  = 1;
 var room = new Array();
 var blue_gage = new Array();
@@ -39,8 +39,10 @@ for (var i = 0; i < room_max; i++) {
     blue_gage[i] = 0;
     red_gage[i] = 0;
 }
-
 var Games = new Array(room_max);
+
+//워커 스케쥴을 Round Robin 방식으로 한다.
+cluster.schedulingPolicy = cluster.SCHED_RR;
 
 // 시그널 설정
 const signal_ping = 0;
@@ -111,9 +113,9 @@ if (cluster.isMaster) {
         function (callback) {
             console.log("- - - - - - - - - - - - - ".inverse);
             console.log("- 워커들을 생성합니다.".white);
-            for (i = 0; i < worker_max; i++) {
-                cluster.fork();
-            }
+            os.cpus().forEach(function (cpu) {
+                cluster.fork(); // 스레드만큼 생성
+            });
             callback(null, "Worker forked!");
         }
     ]; async.series(tasks, function (err, results) { });
