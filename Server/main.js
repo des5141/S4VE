@@ -522,7 +522,7 @@ if (cluster.isMaster) {
             for (i = 0; i < room_max; i++) {
                 if (user.room == room[i]) {
                     if (user.hp <= 0) {
-                        user.respawn = 120;
+                        user.respawn = 60*20;
                         user.hp = 100;
                         if (user.team == "blue") {
                             user.x = 762 + functions.getRandomInt(10, 30);
