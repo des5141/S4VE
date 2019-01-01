@@ -558,7 +558,7 @@ if (cluster.isMaster) {
 
         setTimeout(function () {
             step();
-        }, 30);
+        }, 20);
     }()
 }
 

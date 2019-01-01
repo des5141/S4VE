@@ -226,14 +226,14 @@ if(control == 1)
                         y += lengthdir_y(obj_joy._distance/40, obj_joy._direction)
                     }
                 }else {
-                    if(!place_meeting(x+lengthdir_x(obj_joy._distance/60, obj_joy._direction), y, par_block))
+                    if(!place_meeting(x+lengthdir_x(obj_joy._distance/80, obj_joy._direction), y, par_block))
                     {
-                        x += lengthdir_x(obj_joy._distance/60, obj_joy._direction)
+                        x += lengthdir_x(obj_joy._distance/80, obj_joy._direction)
                     }
                     
-                    if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/60, obj_joy._direction), par_block))
+                    if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/80, obj_joy._direction), par_block))
                     {
-                        y += lengthdir_y(obj_joy._distance/60, obj_joy._direction)
+                        y += lengthdir_y(obj_joy._distance/80, obj_joy._direction)
                     }
                 }
                 mv = 1
