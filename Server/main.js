@@ -26,7 +26,7 @@ var room = new Array();
 var blue_gage = new Array();
 var red_gage = new Array();
 var room_max = 1;
-var game_max = 4;
+var game_max = 2;
 for (var i = 0; i < room_max; i++) {
     room[i] = "";
     blue_gage[i] = 0;
@@ -760,28 +760,27 @@ if (cluster.isWorker) {
                 case 'move':
                     var ins = authenticated_users.findUser(message.user_id);
                     if (ins != undefined) {
-                        var json_data = JSON.stringify({
-                            id: message.id,
-                            type: message._type,
-                            x: parseInt(message.x),
-                            y: parseInt(message.y),
-                            z: parseInt(message.z),
-                            weapon_delay_i: parseInt(message.weapon_delay_i),
-                            weapon_range: parseInt(message.weapon_range),
-                            weapon_angle: parseInt(message.weapon_angle),
-                            move: message.move,
-                            jump: message.jump,
-                            weapon_dir: parseInt(message.weapon_dir),
-                            weapon_xdir: message.weapon_xdir,
-                            xdir: message.xdir,
-                            hp: message.hp,
-                            sp: message.sp,
-                            team: message.team,
-                            nickname: message.nickname,
-                            respawn: message.respawn
-                        });
-
-                        send_id_message(ins.socket, signal_move, json_data);
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_move);
+                        buffer_write(write, buffer_string, message.id);
+                        buffer_write(write, buffer_u8, message._type);
+                        buffer_write(write, buffer_u16, message.x);
+                        buffer_write(write, buffer_u16, message.y);
+                        buffer_write(write, buffer_u16, message.z);
+                        buffer_write(write, buffer_s16, message.weapon_delay_i);
+                        buffer_write(write, buffer_s16, message.weapon_range);
+                        buffer_write(write, buffer_s16, message.weapon_angle);
+                        buffer_write(write, buffer_s16, message.weapon_dir);
+                        buffer_write(write, buffer_s16, message.weapon_xdir);
+                        buffer_write(write, buffer_s8, message.move);
+                        buffer_write(write, buffer_s8, message.jump);
+                        buffer_write(write, buffer_s8, message.xdir);
+                        buffer_write(write, buffer_s16, message.hp);
+                        buffer_write(write, buffer_s16, message.sp);
+                        buffer_write(write, buffer_string, message.team);
+                        buffer_write(write, buffer_string, message.nickname);
+                        buffer_write(write, buffer_s16, message.respawn);
+                        send_raw(ins.socket, write);
                     }
                     break;
 
@@ -819,15 +818,15 @@ if (cluster.isWorker) {
                 case 'myinfo':
                     var ins = authenticated_users.findUser(message.uuid);
                     if (ins != undefined) {
-                        var json_data = JSON.stringify({
-                            hp: message.hp,
-                            sp: message.sp,
-                            red_gage: message.red_gage,
-                            blue_gage: message.blue_gage,
-                            respawn: message.respawn,
-                            engagement: message.engagement
-                        });
-                        send_id_message(ins.socket, signal_myinfo, json_data);
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_myinfo);
+                        buffer_write(write, buffer_s16, message.hp);
+                        buffer_write(write, buffer_s16, message.sp);
+                        buffer_write(write, buffer_u32, message.red_gage);
+                        buffer_write(write, buffer_u32, message.blue_gage);
+                        buffer_write(write, buffer_s16, message.respawn);
+                        buffer_write(write, buffer_s8, message.engagement);
+                        send_raw(ins.socket, write);
                     }
                     break;
 
@@ -926,19 +925,19 @@ if (cluster.isWorker) {
                     case signal_move:
                         process.send({
                             type: 'move', to: 'master',
-                            uuid: json_data.uuid,
-                            x: json_data.x,
-                            y: json_data.y,
-                            z: json_data.z,
-                            _type: json_data.type,
-                            weapon_delay_i: json_data.weapon_delay_i,
-                            weapon_range: json_data.weapon_range,
-                            weapon_angle: json_data.weapon_angle,
-                            move: json_data.move,
-                            jump: json_data.jump,
-                            weapon_dir: json_data.weapon_dir,
-                            weapon_xdir: json_data.weapon_xdir,
-                            xdir: json_data.xdir
+                            uuid: ins.uuid,
+                            _type: buffer_read(data, buffer_u8, read),
+                            x: buffer_read(data, buffer_u16, read),
+                            y: buffer_read(data, buffer_u16, read),
+                            z: buffer_read(data, buffer_u16, read),
+                            weapon_delay_i: buffer_read(data, buffer_s16, read),
+                            weapon_range: buffer_read(data, buffer_s16, read),
+                            weapon_angle: buffer_read(data, buffer_s16, read),
+                            weapon_dir: buffer_read(data, buffer_s16, read),
+                            weapon_xdir: buffer_read(data, buffer_s16, read),
+                            move: buffer_read(data, buffer_s8, read),
+                            jump: buffer_read(data, buffer_s8, read),
+                            xdir: buffer_read(data, buffer_s8, read)
                         });
                         break;
 

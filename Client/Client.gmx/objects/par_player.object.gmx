@@ -391,8 +391,8 @@ if(control == 1)
             <string>/// NETWORKING
 if(control == 1) {
     var buffer = buffer_create(1, buffer_grow, 1);
-    buffer_write(buffer, buffer_u16, NN.signal_move);
-    buffer_write(buffer, buffer_u16, type);
+    buffer_write(buffer, buffer_u8, NN.signal_move);
+    buffer_write(buffer, buffer_u8, type);
     buffer_write(buffer, buffer_u16, x);
     buffer_write(buffer, buffer_u16, y);
     buffer_write(buffer, buffer_u16, z);
@@ -401,9 +401,9 @@ if(control == 1) {
     buffer_write(buffer, buffer_s16, weapon_angle);
     buffer_write(buffer, buffer_s16, weapon_dir);
     buffer_write(buffer, buffer_s16, weapon_xdir);
-    buffer_write(buffer, buffer_s16, move);
-    buffer_write(buffer, buffer_s16, jump);
-    buffer_write(buffer, buffer_s16, xdir);
+    buffer_write(buffer, buffer_s8, move);
+    buffer_write(buffer, buffer_s8, jump);
+    buffer_write(buffer, buffer_s8, xdir);
     nn_send_message(buffer);
     buffer_delete(buffer);
 }
