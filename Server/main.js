@@ -514,9 +514,134 @@ if (cluster.isMaster) {
         }, 1000);
     }()
 
+    !function my_info() {
+        for (var i = 0; i < room_max; i++) {
+            authenticated_users.each(function (user) {
+                for (i = 0; i < room_max; i++) {
+                    if (user.room == room[i]) {
+                        if (user.uuid != -1) {
+                            for (var id in cluster.workers) {
+                                cluster.workers[id].send({
+                                    type: 'myinfo', to: 'worker',
+                                    uuid: user.uuid,
+                                    hp: user.hp,
+                                    sp: user.sp,
+                                    respawn: user.respawn,
+                                    red_gage: red_gage[user.room_i],
+                                    blue_gage: blue_gage[user.room_i],
+                                    engagement: user.engagement
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        setTimeout(function () {
+            my_info();
+        }, 60);
+    }()
+
     // 무한 반복 시킬 내용
     !function step() {
+        var i;
+        // 게임 진행
+        for (i = 0; i < room_max; i++) {
+            //게이지 올리기
+            var red_check = -1;
+            var blue_check = -1;
+            authenticated_users.each(function (user) {
+                if ((user.room == room[i]) && (user.x > 330) && (user.x < 630) && (user.y > 210) && (user.y < 510)) {
+                    if (user.team == "red") {
+                        red_check = 1;
+                    } else if (user.team == "blue") {
+                        blue_check = 1;
+                    }
+                }
+            });
+            if (!((red_check == 1) && (blue_check == 1))) {
+                if (red_check == 1) {
+                    red_gage[i]++;
+                }
+                if (blue_check == 1) {
+                    blue_gage[i]++;
+                }
+                authenticated_users.each(function (user) {
+                    if (user.room == room[i]) {
+                        user.engagement = -1;
+                    }
+                });
+            } else {
+                authenticated_users.each(function (user) {
+                    if (user.room == room[i]) {
+                        user.engagement = 1;
+                    }
+                });
+            }
+            //게이지 확인
+            if (red_gage[i] != blue_gage[i] && room[i] != "") {
+                // 게이지 찬 값이 같으면 동점이니 계속 연장
+                if (red_gage[i] > 1800) {
+                    // user.team 이 "red" 이거나, "blue" 임
+                    Games[i].RedTeam.EndGame(true);
+                    Games[i].BlueTeam.EndGame(false);
+                    // 빨강 승리
+                    authenticated_users.each(function (user) {
+                        if (user.room == room[i]) {
+                            user.room = "null";
+                            user.room_i = -1;
+                            for (var id in cluster.workers) {
+                                cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "red" });
+                            }
+                        }
+                    });
+                    room[i] = "";
+                    red_gage[i] = 0;
+                    blue_gage[i] = 0;
+                }
+
+                if (blue_gage[i] > 1800) {
+                    Games[i].RedTeam.EndGame(false);
+                    Games[i].BlueTeam.EndGame(true);
+                    // 파랑 승리
+                    authenticated_users.each(function (user) {
+                        if (user.room == room[i]) {
+                            user.room = "null";
+                            user.room_i = -1;
+                        }
+
+                        for (var id in cluster.workers) {
+                            cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "blue" });
+                        }
+                    });
+
+                    room[i] = "";
+                    red_gage[i] = 0;
+                    blue_gage[i] = 0;
+                }
+            }
+        }
         authenticated_users.each(function (user) {
+            for (i = 0; i < room_max; i++) {
+                if (user.room == room[i]) {
+                    if (user.hp <= 0) {
+                        user.respawn = 60 * 20;
+                        user.hp = 100;
+                        if (user.team == "blue") {
+                            user.x = 762 + functions.getRandomInt(10, 30);
+                            user.y = 1408 + functions.getRandomInt(10, 30);
+                        } else {
+                            user.x = 96 + functions.getRandomInt(10, 30);
+                            user.y = 1408 + functions.getRandomInt(10, 30);
+                        }
+                        if (user.uuid != -1) {
+                            for (var id in cluster.workers) {
+                                cluster.workers[id].send({ type: 'restart', to: 'worker', uuid: user.uuid, x: user.x, y: user.y });
+                            }
+                        }
+                    }
+                }
+            }
             if (user.room != "null") {
                 authenticated_users.each(function (to_user) {
                     if ((to_user.room == user.room) && (user.id != to_user.id) && (to_user.uuid != -1)) {
@@ -550,140 +675,14 @@ if (cluster.isMaster) {
                     }
                 });
             }
-
             if (user.respawn > -1) {
                 user.respawn--;
             }
         });
 
-        var i;
-        // 게임 진행
-        for (i = 0; i < room_max; i++) {
-            //게이지 올리기
-            var red_check = -1;
-            var blue_check = -1;
-            authenticated_users.each(function (user) {
-                if ((user.room == room[i]) && (user.x > 330) && (user.x < 630) && (user.y > 210) && (user.y < 510)) {
-                    if (user.team == "red") {
-                        red_check = 1;
-                    } else if (user.team == "blue") {
-                        blue_check = 1;
-                    }
-                }
-            });
-
-            if (!((red_check == 1) && (blue_check == 1))) {
-                if (red_check == 1) {
-                    red_gage[i]++;
-                }
-
-                if (blue_check == 1) {
-                    blue_gage[i]++;
-                }
-
-                authenticated_users.each(function (user) {
-                    if (user.room == room[i]) {
-                        user.engagement = -1;
-                    }
-                });
-            } else {
-                authenticated_users.each(function (user) {
-                    if (user.room == room[i]) {
-                        user.engagement = 1;
-                    }
-                });
-            }
-
-            //게이지 확인
-            if (red_gage[i] != blue_gage[i] && room[i] != "") {
-                // 게이지 찬 값이 같으면 동점이니 계속 연장
-                if (red_gage[i] > 1800) {
-                    // user.team 이 "red" 이거나, "blue" 임
-                    Games[i].RedTeam.EndGame(true);
-                    Games[i].BlueTeam.EndGame(false);
-                    // 빨강 승리
-                    authenticated_users.each(function (user) {
-                        if (user.room == room[i]) {
-                            user.room = "null";
-                            user.room_i = -1;
-
-                            for (var id in cluster.workers) {
-                                cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "red" });
-                            }
-                        }
-                    });
-
-                    room[i] = "";
-
-                    red_gage[i] = 0;
-                    blue_gage[i] = 0;
-
-                }
-
-                if (blue_gage[i] > 1800) {
-                    Games[i].RedTeam.EndGame(false);
-                    Games[i].BlueTeam.EndGame(true);
-                    // 파랑 승리
-                    authenticated_users.each(function (user) {
-                        if (user.room == room[i]) {
-                            user.room = "null";
-                            user.room_i = -1;
-                        }
-
-                        for (var id in cluster.workers) {
-                            cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "blue" });
-                        }
-                    });
-
-                    room[i] = "";
-                    red_gage[i] = 0;
-                    blue_gage[i] = 0;
-                }
-            }
-        }
-
-
-        authenticated_users.each(function (user) {
-            for (i = 0; i < room_max; i++) {
-                if (user.room == room[i]) {
-                    if (user.hp <= 0) {
-                        user.respawn = 60 * 20;
-                        user.hp = 100;
-                        if (user.team == "blue") {
-                            user.x = 762 + functions.getRandomInt(10, 30);
-                            user.y = 1408 + functions.getRandomInt(10, 30);
-                        } else {
-                            user.x = 96 + functions.getRandomInt(10, 30);
-                            user.y = 1408 + functions.getRandomInt(10, 30);
-                        }
-                        if (user.uuid != -1) {
-                            for (var id in cluster.workers) {
-                                cluster.workers[id].send({ type: 'restart', to: 'worker', uuid: user.uuid, x: user.x, y: user.y });
-                            }
-                        }
-                    }
-                    if (user.uuid != -1) {
-                        for (var id in cluster.workers) {
-                            cluster.workers[id].send({
-                                type: 'myinfo', to: 'worker',
-                                uuid: user.uuid,
-                                hp: user.hp,
-                                sp: user.sp,
-                                respawn: user.respawn,
-                                red_gage: red_gage[user.room_i],
-                                blue_gage: blue_gage[user.room_i],
-                                engagement: user.engagement
-                            });
-                        }
-                    }
-                }
-            }
-
-        });
-
         setTimeout(function () {
             step();
-        }, 20);
+        }, 30);
     }()
 }
 
