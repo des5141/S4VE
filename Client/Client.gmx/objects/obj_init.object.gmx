@@ -45,6 +45,8 @@ global.nickname    = "";
 global.engagement  = -1;
 global.can_control = 0;
 global.select_char = -1;
+global.check_bytes = 0;
+global.check_bytes_send = 0;
 
 randomize();
 display_set_gui_size(800, 480);

@@ -92,72 +92,292 @@ ds_list_destroy(global.list);
 if (os_browser == browser_not_a_browser) {
     if (ds_map_find_value(async_load, 'id') == client) {
         if (ds_map_find_value(async_load, 'type') == network_type_data) {
-        
             var buffer = ds_map_find_value(async_load, 'buffer');
-            var temp = temp_buffer;
-            temp += buffer_read(buffer, buffer_string);
+            global.check_bytes += buffer_get_size(buffer);
+            var signal = buffer_read(buffer, buffer_s16);
             
-            var c, check = false;
-            
-            if(string_pos("®", temp) != 0)
-                check = true;
-                
-            if(check)
-            {
-                if(global.list &lt; 0)
-                    ds_list_clear(global.list)
-                else
-                    global.list = ds_list_create()
+            with(obj_network) {
+                switch(signal) {
+                    case NN.signal_ping:
+                        if(buffer_read(buffer, buffer_s16) == 1) {
+                            ping    = current_time - my_ping;
+                            my_ping = current_time;
+                        }
+                    break;
                     
-                var index = 0;
-                
-                while(1)
-                {
-                    // --------------------------------------------------------
-                    if(string_char_at(temp, index+1) == "㏆")
-                    {
-                        temp_buffer = "";
-                        temp = string_delete(temp, 1, index+1);
-                        index = -1;
-                        read = true;
-                    }else if(string_char_at(temp, index+1) == "®")
-                    {
-                        temp = string_delete(temp, 1, index+1);
-                        index = -1;
-                        read = false;
-                        reading_length = real(reading_length_string);
-                        reading_length_string = "";
-                    }else{
-                        if(read)
-                            reading_length_string += string_char_at(temp, index+1);
-                        else{
-                            if(reading_length != 0)
-                            {
-                                ds_list_add(global.list, string_copy(temp, 1, reading_length));
-                                temp = string_delete(temp, 1, reading_length);
-                                reading_length = 0;
-                                reading_length_string = "";
-                                index = -1;
-                                read = false;
+                    case NN.signal_login:
+                        var type = buffer_read(buffer, buffer_s16);
+                        if ((type == 1)or(type == 2)) {
+                            global.login = 1;
+                            global.uuid  = buffer_read_string(buffer);
+                            global.nickname = buffer_read_string(buffer);
+                            
+                            ini_open("auto_login.ini");
+                            ini_write_string("user", "id", global.login_id);
+                            ini_write_string("user", "password", global.login_pass);
+                            ini_close();
+                            room_goto(rm_search);
+                        }else {
+                            show_message_async("로그인에 실패하였습니다 ;ㅅ;");
+                            file_delete("auto_login.ini");
+                        }
+                    break;
+                    
+                    case NN.signal_register:
+                        var type = buffer_read(buffer, buffer_s16);
+                        var uuid = buffer_read_string(buffer);
+                        if(type == 1) {
+                            with(obj_guestLogin) {
+                                if(guestLogin == 1) {
+                                    var buffer = buffer_create(1, buffer_grow, 1);
+                                    buffer_write(buffer, buffer_s16, NN.signal_login);
+                                    buffer_write_string(buffer, global.login_id);
+                                    buffer_write_string(buffer, global.login_pass);
+                                    nn_send_message(buffer);
+                                    buffer_delete(buffer);
+                                }
                             }
                         }
-                        if(index == string_length(temp))or(string_length(temp) == 0){
-                            temp_buffer = temp;
+                    break;
+                    
+                    case NN.signal_endgame:
+                        system.target = -1;
+                        global.can_control = 0;
+                        obj_joy.add_mode = 0;
+                        obj_joy2.add_mode = 0;
+                        par_skill.add_mode = 0;
+                        
+                        var ins = instance_create(0, 0, obj_end);
+                        if(global.team == buffer_read_string(buffer)) {
+                            ins.message = "승리"
+                            instance_create(400, 300, obj_firework);
+                        }else {
+                            ins.message = "패배";
+                        }
+                    break;
+                    
+                    case NN.signal_search:
+                            global.team = buffer_read_string(buffer);
+                            delay_x = buffer_read(buffer, buffer_s16);
+                            delay_y = buffer_read(buffer, buffer_s16);
+                            global.select_char = script_similar(1, obj_select.x, sprite_get_number(obj_select.sprite_index));
+                            room_goto(rm_main);
+                            alarm[9] = 1;
+                    break;
+                    
+                    case NN.signal_kill_log:
+                        ds_list_add(global.kill_log_left, buffer_read_string(buffer));
+                        ds_list_add(global.kill_log_right, buffer_read_string(buffer));
+                        system.alarm[0] = 60*5;
+                    break;
+                    
+                    case NN.signal_restart:
+                        with(par_player) {
+                            if(variable_instance_exists(id, "control")) {
+                                if(control == 1) {
+                                    system.target = -2;
+                                    x = buffer_read(buffer, buffer_s16);
+                                    y = buffer_read(buffer, buffer_s16);
+                                }
+                            }
+                        }
+                    break;
+                    
+                    case NN.signal_myinfo:
+                        global.hp = buffer_read(buffer, buffer_s16);
+                        global.sp = buffer_read(buffer, buffer_s16);
+                        global.red_gage = buffer_read(buffer, buffer_s16);
+                        global.blue_gage = buffer_read(buffer, buffer_s16);
+                        global.engagement = buffer_read(buffer, buffer_s16);
+                        var respawns = buffer_read(buffer, buffer_s16);
+                        with(par_player){if(variable_instance_exists(id, "control")) {
+                        if(control == 1){respawn = respawns}}}
+                        with(par_player){
+                            if(variable_instance_exists(id, "control")) {
+                                if(system.target == -2) {
+                                    if(respawns == -1) {
+                                        obj_joy.add_mode = 1;
+                                        obj_joy2.add_mode = 1;
+                                        par_skill.add_mode = 1;
+                                        obj_joy.isClick=0
+                                        obj_joy.tx=obj_joy.x //작은 원 위치 초기화
+                                        obj_joy.ty=obj_joy.y
+                                        obj_joy2.isClick=0
+                                        obj_joy2.tx=obj_joy2.x //작은 원 위치 초기화
+                                        obj_joy2.ty=obj_joy2.y
+                                        
+                                        global.can_control = 1;
+                                        instance_create(0, 0, obj_respawn);
+                                    }
+                                }
+                            }
+                        }
+                        if(respawns != -1)and(global.can_control == 1) {
+                            global.can_control = 0;
+                            obj_joy.add_mode = 0;
+                            obj_joy2.add_mode = 0;
+                            par_skill.add_mode = 0;
+                            system.shake = 50;
+                            obj_joy.isClick=0
+                            obj_joy.tx=obj_joy.x //작은 원 위치 초기화
+                            obj_joy.ty=obj_joy.y
+                            obj_joy2.isClick=0
+                            obj_joy2.tx=obj_joy2.x //작은 원 위치 초기화
+                            obj_joy2.ty=obj_joy2.y
+                        }
+                    break;
+                    
+                    case NN.signal_handoff:
+                        room_goto(rm_main);
+                        handoff_x = buffer_read(buffer, buffer_s16);
+                        handoff_y = buffer_read(buffer, buffer_s16);
+                        handoff_type = buffer_read(buffer, buffer_s16);
+                        global.team = buffer_read_string(buffer);
+                        user_ins = -1;
+                        alarm[10] = 1;
+                    break;
+                    
+                    case NN.signal_move:
+                        var check = true;
+                        var temp_id = buffer_read_string(buffer);
+                        //var temp_id = "test";
+                        var temp_type = buffer_read(buffer, buffer_s16);
+                        show_debug_message(temp_type)
+                        with(par_player) {
+                            if(variable_instance_exists(id, "control")) {
+                                if(control == 0) {
+                                    if(user_id == temp_id) {
+                                        check = false;
+                                        other_x = buffer_read(buffer, buffer_s16);
+                                        other_y = buffer_read(buffer, buffer_s16);
+                                        other_z = buffer_read(buffer, buffer_s16);
+                                        weapon_delay_i = buffer_read(buffer, buffer_s16);
+                                        weapon_range = buffer_read(buffer, buffer_s16);
+                                        weapon_angle = buffer_read(buffer, buffer_s16);
+                                        weapon_dir = buffer_read(buffer, buffer_s16);
+                                        weapon_xdir = buffer_read(buffer, buffer_s16);
+                                        move = buffer_read(buffer, buffer_s16);
+                                        jump = buffer_read(buffer, buffer_s16);
+                                        xdir = buffer_read(buffer, buffer_s16);
+                                        hp = buffer_read(buffer, buffer_s16);
+                                        sp = buffer_read(buffer, buffer_s16);
+                                        team = buffer_read_string(buffer);
+                                        nickname = buffer_read_string(buffer);
+                                        respawn = buffer_read(buffer, buffer_s16);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if(check)and(temp_id != global.login_id) {
+                            var _x = buffer_read(buffer, buffer_s16);
+                            var _y = buffer_read(buffer, buffer_s16);
+                            var user_ins = -1;
+                            switch(temp_type) {
+                                case 1:
+                                    user_ins = instance_create(_x, _y, obj_sworder);
+                                break;
+                                
+                                case 2:
+                                    user_ins = instance_create(_x, _y, obj_hammer);
+                                break;
+                                    
+                                case 3:
+                                    user_ins = instance_create(_x, _y, obj_gunner);
+                                break;
+                                
+                                case 4:
+                                    user_ins = instance_create(_x, _y, obj_magician);
+                                break;
+                                
+                                case 5:
+                                    user_ins = instance_create(_x, _y, obj_healer);
+                                break;
+                            }
+                            
+                            if(user_ins != -1) {
+                                user_ins.type    = temp_type
+                                user_ins.user_id = temp_id
+                            }
+                        }
+                    break;
+                    
+                    // 수정해야함
+                    case NN.signal_instance:
+                        switch(ds_map_find_value(signal_instance_data, "type"))
+                        {
+                            case 0:
+                                // effect
+                                var a = instance_create(ds_map_find_value(signal_instance_data, "x"), ds_map_find_value(signal_instance_data, "y") - 16, obj_effect);
+                                a.image_angle = ds_map_find_value(signal_instance_data, "weapon_dir") - 47;
+                                a.sprite_index = spr_effect;
+                                a.image_single = 1;
+                            break;
+                            
+                            case 1:
+                                // fire
+                                var a = instance_create(ds_map_find_value(signal_instance_data, "x") + lengthdir_x(20, ds_map_find_value(signal_instance_data, "weapon_dir")), ds_map_find_value(signal_instance_data, "y") + lengthdir_y(20, ds_map_find_value(signal_instance_data, "weapon_dir")) - 12, obj_bullet);
+                                a.speed = ds_map_find_value(signal_instance_data, "speed");
+                                a.direction = ds_map_find_value(signal_instance_data, "direction");
+                                a.image_angle = ds_map_find_value(signal_instance_data, "weapon_dir");
+                                a.image_speed = ds_map_find_value(signal_instance_data, "image_speed");
+                                a.sprite_index = ds_map_find_value(signal_instance_data, "sprite_index");
+                                a.move = ds_map_find_value(signal_instance_data, "move");
+                                a.sprite = ds_map_find_value(signal_instance_data, "sprite");
+                                a.damage = ds_map_find_value(signal_instance_data, "damage");
+                                a.from = ds_map_find_value(signal_instance_data, "from");
+                                a.from_team = ds_map_find_value(signal_instance_data, "team");
+                                a.range = ds_map_find_value(signal_instance_data, "range");
+                            break;
+                            
+                            case 2:
+                                // fire
+                                var a = instance_create(ds_map_find_value(signal_instance_data, "x") + lengthdir_x(50, ds_map_find_value(signal_instance_data, "i")*20), ds_map_find_value(signal_instance_data, "y") + lengthdir_y(50, ds_map_find_value(signal_instance_data, "i")*20) - 12, obj_bullet);
+                                a.speed = ds_map_find_value(signal_instance_data, "speed");
+                                a.direction = ds_map_find_value(signal_instance_data, "direction");
+                                a.image_angle = ds_map_find_value(signal_instance_data, "weapon_dir");
+                                a.image_speed = ds_map_find_value(signal_instance_data, "image_speed");
+                                a.sprite_index = ds_map_find_value(signal_instance_data, "sprite_index");
+                                a.move = ds_map_find_value(signal_instance_data, "move");
+                                a.sprite = ds_map_find_value(signal_instance_data, "sprite");
+                                a.damage = ds_map_find_value(signal_instance_data, "damage");
+                                a.from = ds_map_find_value(signal_instance_data, "from");
+                                a.from_team = ds_map_find_value(signal_instance_data, "team");
+                                a.range = ds_map_find_value(signal_instance_data, "range");
+                            break;
+                            
+                            case 3:
+                                var a = instance_create(ds_map_find_value(signal_instance_data, "x") + lengthdir_x(20, ds_map_find_value(signal_instance_data, "weapon_dir")), ds_map_find_value(signal_instance_data, "y") + lengthdir_y(20, ds_map_find_value(signal_instance_data, "weapon_dir")) - 12, obj_bullet);
+                                a.speed = ds_map_find_value(signal_instance_data, "speed")
+                                a.direction = ds_map_find_value(signal_instance_data, "direction");
+                                a.image_angle = ds_map_find_value(signal_instance_data, "weapon_dir");
+                                a.image_speed = ds_map_find_value(signal_instance_data, "image_speed");
+                                a.sprite_index = ds_map_find_value(signal_instance_data, "sprite_index");
+                                a.turn = 1;
+                                a.move = ds_map_find_value(signal_instance_data, "move");
+                                a.sprite = ds_map_find_value(signal_instance_data, "sprite");
+                                a.damage = ds_map_find_value(signal_instance_data, "damage");
+                                a.from = ds_map_find_value(signal_instance_data, "from");
+                                a.from_team = ds_map_find_value(signal_instance_data, "team");
+                                a.range = ds_map_find_value(signal_instance_data, "range");
+                            break;
+                            
+                            case 4:
+                                var a = instance_create(ds_map_find_value(signal_instance_data, "x"), ds_map_find_value(signal_instance_data, "y"), obj_effect4);
+                                a.damage = ds_map_find_value(signal_instance_data, "damage");
+                                a.from = ds_map_find_value(signal_instance_data, "from");
+                                a.from_team = ds_map_find_value(signal_instance_data, "team");
+                                a.range = ds_map_find_value(signal_instance_data, "range");
+                            break;
+                            
+                            default:
+                            
                             break;
                         }
-                    }
-                    index++;
+                    break;
                 }
-                
-                var i;
-                for(i = 0; i &lt; ds_list_size(global.list); i++)
-                {
-                    ds_queue_enqueue(inbox, ds_list_find_value(global.list, i));
-                }
-            }else{
-                temp_buffer = temp;
             }
-            
+            buffer_delete(buffer);
         }
     }
 }
@@ -199,7 +419,7 @@ enum NN{
     signal_endgame = 10,
     signal_kill_log = 11,
     
-    debug_modes = 0, // 1 is on, 0 is off
+    debug_modes = 1, // 1 is on, 0 is off
     
     status_disconnected = -1,
     status_connecting   = 0,

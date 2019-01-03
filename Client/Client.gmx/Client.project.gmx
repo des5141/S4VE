@@ -4,7 +4,7 @@
     <Config>Configs\Default</Config>
   </Configs>
   <NewExtensions>
-    <extension index="2">extensions\AndroidBetterTouchExtension</extension>
+    <extension index="0">extensions\AndroidBetterTouchExtension</extension>
   </NewExtensions>
   <sounds name="sound">
     <sounds name="Ingame">
@@ -148,6 +148,8 @@
       <script>scripts\script_similar.gml</script>
       <script>scripts\hero_select.gml</script>
     </scripts>
+    <script>scripts\buffer_read_string.gml</script>
+    <script>scripts\buffer_write_string.gml</script>
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_nickname</font>

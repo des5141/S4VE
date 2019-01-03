@@ -110,22 +110,17 @@ _y = -120;
             <string>matching *= -1;
 time = 0;
 if(matching == 1) {
-    var json_data = ds_map_create();
-    ds_map_add(json_data, "id", NN.signal_search);
-    ds_map_add(json_data, "msg", 1);
-    ds_map_add(json_data, "uuid", global.uuid);
-    var body = json_encode(json_data);
-    ds_map_destroy(json_data);
-    nn_send_message(body);
+    var buffer = buffer_create(1, buffer_grow, 1);
+    buffer_write(buffer, buffer_u16, NN.signal_search);
+    buffer_write(buffer, buffer_u16, 1);
+    nn_send_message(buffer);
+    buffer_delete(buffer);
 }else {
-    var json_data = ds_map_create();
-    ds_map_add(json_data, "id", NN.signal_search);
-    ds_map_add(json_data, "msg", 2);
-    ds_map_add(json_data, "msg", 1);
-    ds_map_add(json_data, "uuid", global.uuid);
-    var body = json_encode(json_data);
-    ds_map_destroy(json_data);
-    nn_send_message(body);
+    var buffer = buffer_create(1, buffer_grow, 1);
+    buffer_write(buffer, buffer_u16, NN.signal_search);
+    buffer_write(buffer, buffer_u16, 2);
+    nn_send_message(buffer);
+    buffer_delete(buffer);
 }
 </string>
           </argument>

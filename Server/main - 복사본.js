@@ -1,3 +1,5 @@
+"use strict";
+
 // Requires
 var cluster = require('cluster');
 var Colors = require('colors');
@@ -20,18 +22,21 @@ if (debug_mode == 1)
     var ip = '127.0.0.1'; //IP address
 else
     var ip = '172.16.113.102';
-var worker_id = 1;
+var worker_id  = 1;
 var room = new Array();
 var blue_gage = new Array();
 var red_gage = new Array();
 var room_max = 1;
-var game_max = 2;
+var game_max = 4;
 for (var i = 0; i < room_max; i++) {
     room[i] = "";
     blue_gage[i] = 0;
     red_gage[i] = 0;
 }
 var Games = new Array(room_max);
+
+//워커 스케쥴을 Round Robin 방식으로 한다.
+cluster.schedulingPolicy = cluster.SCHED_RR;
 
 // 시그널 설정
 const signal_ping = 0;
@@ -47,7 +52,7 @@ const signal_register = 9;
 const signal_endgame = 10;
 const signal_kill_log = 11;
 
-function handoff(worker, uuid, x, y, type, team) {
+function handoff(worker,uuid,x,y,type,team){
     worker.send({
         to: 'worker', type: 'handoff',
         uuid: uuid,
@@ -55,9 +60,9 @@ function handoff(worker, uuid, x, y, type, team) {
         y: y,
         _type: type,
         team: team
-    });
+    });  
 };
-function find_room(target_room, f) {
+function find_room(target_room,f) {
     for (i = 0; i < room_max; i++) {
         if (room[i] == target_room) {
             f();
@@ -95,7 +100,7 @@ if (cluster.isMaster) {
         }
     }
     const match_wait = new Queue();
-
+    
 
     // 워커 생성
     var tasks = [
@@ -157,27 +162,27 @@ if (cluster.isMaster) {
                                 check = -1;
                                 if (user.uuid == -1) {
                                     // 받은 id에 매칭되는 pass인지 확인합니다.
-                                    await database.login(message.id, message.pass)
-                                        .then(result => {
-                                            if (result.exist) {
-                                                worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid, nickname: result.name });
-                                                user.uuid = message.uuid;
-                                                user.nickname = result.name;
-                                                var check_ = true;
-                                                find_room(user.room, () => {
-                                                    check_ = false;
-                                                    console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
-                                                    handoff(worker, message.uuid, user.x, user.y, user._type, user.team);
-                                                });
-                                                if (check_) {
-                                                    user.room = "null";
-                                                    user.room_i = -1;
-                                                }
+                                    await database.login(message.id,message.pass)
+                                    .then(result=>{
+                                        if(result.exist){
+                                            worker.send({ to: 'worker', type: 'login', msg: 2, uuid: message.uuid, nickname: result.name });
+                                            user.uuid = message.uuid;
+                                            user.nickname = result.name;
+                                            var check_ = true;
+                                            find_room(user.room,()=>{
+                                                check_ = false;
+                                                console.log("   " + user.id + " 가 ".gray + user.room + " 으로 핸드오프".gray);
+                                                handoff(worker,message.uuid,user.x,user.y,user._type,user.team);
+                                            });
+                                            if (check_) {
+                                                user.room = "null";
+                                                user.room_i = -1;
                                             }
-                                            else {
-                                                worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
-                                            }
-                                        });
+                                        }
+                                        else {
+                                            worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
+                                        }
+                                    });
                                 } else {
                                     worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                 }
@@ -186,14 +191,14 @@ if (cluster.isMaster) {
 
                         if (check == 1) {
                             // 새로 들어온 유저!
-                            await database.login(message.id, message.pass)
-                                .then(result => {
-                                    if (result.exist) {
+                            await database.login(message.id,message.pass)
+                                .then(result=>{
+                                    if(result.exist){
                                         worker.send({ to: 'worker', type: 'login', msg: 1, uuid: message.uuid, nickname: result.name });
                                         var new_user = User.create(message.uuid, message.id);
                                         authenticated_users.addUser(new_user);
                                         new_user.nickname = result.name;
-                                    } else {
+                                    }else{
                                         worker.send({ to: 'worker', type: 'login', msg: 0, uuid: message.uuid });
                                     }
                                 });
@@ -230,6 +235,7 @@ if (cluster.isMaster) {
                         });
                         var ins = authenticated_users.findUser(_id);
                         if (ins != undefined) {
+
                             ins.x = message.x;
                             ins.y = message.y;
                             ins.z = message.z;
@@ -302,7 +308,7 @@ if (cluster.isMaster) {
             console.log(e);
         }
     });
-
+    
     // 큐 내용을 확인하고 1초에 한번씩 매칭, 아무도 없는 방이면 삭제
     !function input_match() {
         var i, temp_data, temp_room, check = -1, j;
@@ -328,8 +334,8 @@ if (cluster.isMaster) {
                     blue_gage[i] = 0;
                     console.log(room[i]);
                     var team = "red";
-                    var TeamRed = new Team(game_max / 2, "red");
-                    var TeamBlue = new Team(game_max / 2, "blue");
+                    var TeamRed = new Team(game_max/2,"red");
+                    var TeamBlue = new Team(game_max/2,"blue");
                     for (j = 0; j < game_max; j++) {
                         temp_data = match_wait.dequeue();
                         authenticated_users.each(function (user) {
@@ -337,7 +343,7 @@ if (cluster.isMaster) {
                                 user.hp = 100;
                                 user.sp = 100;
                                 user._type = -1;
-                                var player = new Player(user.id, "test", user._type);
+                                var player = new Player(user.id,"test",user._type);
 
                                 if (team == "red") {
                                     TeamBlue.AddPlayer(player);
@@ -367,13 +373,13 @@ if (cluster.isMaster) {
                             }
                         });
                     }
-                    var game = new Game(TeamRed, TeamBlue);
-                    Games[i] = game;
+                    var game = new Game(TeamRed,TeamBlue);
+                    Games[i]=game;
                     break;
                 }
             }
         }
-
+       
         setTimeout(function () {
             input_match();
         }, 1000);
@@ -451,7 +457,7 @@ if (cluster.isMaster) {
                         user.engagement = -1;
                     }
                 });
-            } else {
+            } else { 
                 authenticated_users.each(function (user) {
                     if (user.room == room[i]) {
                         user.engagement = 1;
@@ -460,7 +466,7 @@ if (cluster.isMaster) {
             }
 
             //게이지 확인
-            if (red_gage[i] != blue_gage[i] && room[i] != "") {
+            if (red_gage[i] != blue_gage[i] && room[i]!="") {
                 // 게이지 찬 값이 같으면 동점이니 계속 연장
                 if (red_gage[i] > 1800) {
                     // user.team 이 "red" 이거나, "blue" 임
@@ -473,13 +479,13 @@ if (cluster.isMaster) {
                             user.room_i = -1;
 
                             for (var id in cluster.workers) {
-                                cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "red" });
+                                cluster.workers[id].send({ type: 'endgame', to: 'worker', uuid: user.uuid, team: "red"});
                             }
                         }
                     });
 
                     room[i] = "";
-
+                    
                     red_gage[i] = 0;
                     blue_gage[i] = 0;
 
@@ -512,7 +518,7 @@ if (cluster.isMaster) {
             for (i = 0; i < room_max; i++) {
                 if (user.room == room[i]) {
                     if (user.hp <= 0) {
-                        user.respawn = 60 * 20;
+                        user.respawn = 60*20;
                         user.hp = 100;
                         if (user.team == "blue") {
                             user.x = 762 + functions.getRandomInt(10, 30);
@@ -548,7 +554,7 @@ if (cluster.isMaster) {
 
         setTimeout(function () {
             step();
-        }, 100);
+        }, 20);
     }()
 }
 
@@ -559,108 +565,28 @@ if (cluster.isWorker) {
     var UserBox_worker = require('./classes/user_box_worker.js');
 
     // 변수 설정
-    var i = 0;
+    var temp_buffer = "", buffer_string = "", buffer_reading_string = "", i = 0;
     authenticated_users = UserBox_worker.create();
     read_offset = 0;
     write_offset = 0;
-    write_buffer = Buffer.alloc(1).fill(0);
+    write_buffer = Buffer.allocUnsafe(1).fill(0);
 
     // 메세지 보내는 방법
-    function send_raw(sock) {
+    function send_id_message(sock, id, msg) {
         if (sock != -1) {
-            sock.send(write_buffer);
-            write_buffer = Buffer.allocUnsafe(1).fill(0);
-            write_offset = 0;
+            var json_string = JSON.stringify({
+                id: id,
+                msg: msg
+            });
+            sock.send("㏆" + json_string.length + "®" + json_string);
         }
     }
 
-    // #region 버퍼 관리 함수들
-    function read_8(buffer) {
-        read_offset += 1;
-        return buffer.readInt8(read_offset - 1);
-    }
-
-    function read_16(buffer) {
-        read_offset += 2;
-        return buffer.readInt16LE(read_offset - 2);
-    }
-
-    function read_32(buffer) {
-        read_offset += 4;
-        return buffer.readInt32LE(read_offset - 4);
-    }
-
-    function read_string(buffer) {
-        var length = read_16(buffer) + 1;
-        read_offset += length;
-        return buffer.toString('utf-8', read_offset - length, read_offset);
-    }
-
-    function write_8(value) {
-        if (write_offset + 1 >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + 1).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += 1;
-        write_buffer.writeInt8(value, write_offset - 1);
-    }
-
-    function write_16(value) {
-        if (write_offset + 2 >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + 2).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += 2;
-        var len = write_buffer.writeInt16LE(value, write_offset - 2);
-        write_offset = len;
-        //console.log("2 | " + len);
-    }
-
-    function write_32(value) {
-        if (write_offset + 4 >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + 4).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += 4;
-        var len = write_buffer.writeInt32LE(value, write_offset - 4);
-        //console.log("4 | " + len);
-    }
-
-    function write_string(value) {
-        var length = Buffer.byteLength(value, 'utf8');
-
-        if (write_offset + 2 >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + 2).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += 2;
-        var len = write_buffer.writeInt16LE(length, write_offset - 2);
-        console.log(" erwq : " + len + " | " + write_offset);
-
-        if (write_offset + length >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + length).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += length;
-        var len = write_buffer.write(value, write_offset - length, write_offset);
-        console.log(" qwe " + length + " | " + len + " | " + write_offset);
-    }
-    // #endregion
-
-    // #region 파이프 통신
+    // 파이프 통신
     process.on('message', function (message) {
         if (message.to == 'worker') {
             switch (message.type) {
+
                 case 'start':
                     server.listen(message.port, ip);
                     worker_id = message.id;
@@ -672,11 +598,12 @@ if (cluster.isWorker) {
                         temp_nickname = message.nickname;
                     authenticated_users.each(function (user) {
                         if (user.uuid == message.uuid) {
-                            write_16(signal_login);
-                            write_16(message.msg);
-                            write_string(user.uuid);
-                            write_string(temp_nickname);
-                            send_raw(user.socket);
+                            var json_data = JSON.stringify({
+                                msg: message.msg,
+                                uuid: user.uuid,
+                                nickname: temp_nickname
+                            });
+                            send_id_message(user.socket, signal_login, json_data);
                         }
                     });
                     break;
@@ -684,19 +611,20 @@ if (cluster.isWorker) {
                 case 'register':
                     authenticated_users.each(function (user) {
                         if (user.uuid == message.uuid) {
-                            write_16(signal_register);
-                            write_16(message.msg);
-                            write_string(user.uuid);
-                            send_raw(user.socket);
+                            var json_data = JSON.stringify({
+                                msg: message.msg,
+                                uuid: user.uuid
+                            });
+                            send_id_message(user.socket, signal_register, json_data);
                         }
                     });
                     break;
 
                 case 'endgame':
                     authenticated_users.each(function (user) {
-                        write_16(signal_endgame);
-                        write_string(message.team);
-                        send_raw(user.socket);
+                        if (user.uuid == message.uuid) {
+                            send_id_message(user.socket, signal_endgame, message.team);
+                        }
                     });
                     break;
 
@@ -704,11 +632,13 @@ if (cluster.isWorker) {
                     if (message.id == 1) {
                         authenticated_users.each(function (user) {
                             if (user.uuid == message.uuid) {
-                                write_16(signal_search);
-                                write_string(message.team);
-                                write_16(message.x);
-                                write_16(message.y);
-                                send_raw(user.socket);
+                                var json_data = JSON.stringify({
+                                    id: 1,
+                                    team: message.team,
+                                    x: message.x,
+                                    y: message.y
+                                });
+                                send_id_message(user.socket, signal_search, json_data);
                             }
                         });
                     }
@@ -717,33 +647,28 @@ if (cluster.isWorker) {
                 case 'move':
                     var ins = authenticated_users.findUser(message.user_id);
                     if (ins != undefined) {
-                        write_offset = 0;
-                        write_buffer = Buffer.alloc(1).fill(0);
+                        var json_data = JSON.stringify({
+                            id: message.id,
+                            type: message._type,
+                            x: parseInt(message.x),
+                            y: parseInt(message.y),
+                            z: parseInt(message.z),
+                            weapon_delay_i: parseInt(message.weapon_delay_i),
+                            weapon_range: parseInt(message.weapon_range),
+                            weapon_angle: parseInt(message.weapon_angle),
+                            move: message.move,
+                            jump: message.jump,
+                            weapon_dir: parseInt(message.weapon_dir),
+                            weapon_xdir: message.weapon_xdir,
+                            xdir: message.xdir,
+                            hp: message.hp,
+                            sp: message.sp,
+                            team: message.team,
+                            nickname: message.nickname,
+                            respawn: message.respawn
+                        });
 
-                        console.log(" s ! : " + write_offset);
-                        write_16(signal_move);
-                        console.log(" a ! : " + write_offset);
-                        write_string(message.id);
-                        console.log(" a ! : " + write_offset);
-                        write_16(message._type);
-                        console.log(" a ! : " + write_offset);
-                        write_16(message.x);
-                        write_16(message.y);
-                        write_16(message.z);
-                        write_16(message.weapon_delay_i);
-                        write_16(message.weapon_range);
-                        write_16(message.weapon_angle);
-                        write_16(message.weapon_dir);
-                        write_16(message.weapon_xdir);
-                        write_16(message.move);
-                        write_16(message.jump);
-                        write_16(message.xdir);
-                        write_16(message.hp);
-                        write_16(message.sp);
-                        write_string(message.team);
-                        write_string(message.nickname);
-                        write_16(message.respawn);
-                        send_raw(ins.socket);
+                        send_id_message(ins.socket, signal_move, json_data);
                     }
                     break;
 
@@ -781,13 +706,15 @@ if (cluster.isWorker) {
                 case 'myinfo':
                     var ins = authenticated_users.findUser(message.uuid);
                     if (ins != undefined) {
-                        write_16(signal_myinfo);
-                        write_16(message.hp);
-                        write_16(message.sp);
-                        write_16(message.red_gage);
-                        write_16(message.blue_gage);
-                        write_16(message.engagement);
-                        write_16(message.respawn);
+                        var json_data = JSON.stringify({
+                            hp: message.hp,
+                            sp: message.sp,
+                            red_gage: message.red_gage,
+                            blue_gage: message.blue_gage,
+                            respawn: message.respawn,
+                            engagement: message.engagement
+                        });
+                        send_id_message(ins.socket, signal_myinfo, json_data);
                     }
                     break;
 
@@ -807,109 +734,110 @@ if (cluster.isWorker) {
             }
         }
     });
-    // #endregion
 
     server.onConnection(function (dsocket) {
         dsocket.onMessage(function (data) {
             try {
-                read_offset = 0;
-                var signal = read_16(data);
-                var ins = authenticated_users.findUserBySocket(dsocket);
+                buffer_string = data.toString();
+                buffer_reading_string = temp_buffer + buffer_reading_string;
+                temp_buffer = "";
 
-                // 클라이언트 세부 메세지 처리
-                switch (signal) {
-                    case signal_ping:
-                        var ping = read_16(data);
-                        write_16(signal_ping);
-                        write_16(ping);
-                        send_raw(dsocket);
-                        break;
-
-                    case signal_login:
-                        var get_id = read_string(data);
-                        var get_pass = read_string(data);
-                        if (authenticated_users.findUserBySocket(dsocket) == null) {
-                            var new_user = User_worker.create(0, dsocket);
-                            authenticated_users.addUser(new_user);
-                            process.send({ type: 'login', to: 'master', uuid: new_user.uuid, id: get_id, pass: get_pass });
-                            console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
-                        } else {
-                            process.send({ type: 'login', to: 'master', uuid: authenticated_users.findUserBySocket(dsocket).uuid, id: get_id, pass: get_pass });
-                            console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
+                for (i = 0; i < buffer_string.length; i++) {
+                    if (buffer_string.charAt(i) != "#") {
+                        buffer_reading_string += buffer_string.charAt(i);
+                        if (buffer_string.length - 1 == i) {
+                            temp_buffer += buffer_reading_string;
                         }
-                        break;
+                    }
 
-                    case signal_register:
-                        var get_id = read_string(data);
-                        var get_pass = read_string(data);
-                        var get_nickname = read_string(data);
-                        if (authenticated_users.findUserBySocket(dsocket) == null) {
-                            var new_user = User_worker.create(0, dsocket);
-                            authenticated_users.addUser(new_user);
-                            process.send({ type: 'register', to: 'master', uuid: new_user.uuid, id: get_id, pass: get_pass, nickname: get_nickname });
-                        } else {
-                            process.send({ type: 'register', to: 'master', uuid: authenticated_users.findUserBySocket(dsocket).uuid, id: get_id, pass: get_pass, nickname: get_nickname });
+                    if (buffer_string.charAt(i) == "#") {
+                        try {
+                            var json_data = JSON.parse(buffer_reading_string);
+                        } catch (e) {
+                            temp_buffer = "";
+                            buffer_reading_string = "";
+                            break;
                         }
-                        break;
+                        var id = json_data.id;
+                        var msg = json_data.msg;
+                        var ins = authenticated_users.findUserBySocket(dsocket);
 
-                    case signal_search:
-                        var get_type = read_16(data);
-                        process.send({ type: 'search', to: 'master', uuid: ins.uuid, id: get_type });
-                        break;
+                        // 클라이언트 세부 메세지 처리
+                        switch (id) {
+                            case signal_ping:
+                                send_id_message(dsocket, signal_ping, msg);
+                                break;
 
-                    case signal_move:
-                        process.send({
-                            type: 'move', to: 'master',
-                            uuid: ins.uuid,
-                            _type: read_16(data),
-                            x: read_16(data),
-                            y: read_16(data),
-                            z: read_16(data),
-                            weapon_delay_i: read_16(data),
-                            weapon_range: read_16(data),
-                            weapon_angle: read_16(data),
-                            weapon_dir: read_16(data),
-                            weapon_xdir: read_16(data),
-                            move: read_16(data),
-                            jump: read_16(data),
-                            xdir: read_16(data)
-                        });
-                        /*console.log({
-                            type: 'move', to: 'master',
-                            uuid: ins.uuid,
-                            _type: read_16(data),
-                            x: read_16(data),
-                            y: read_16(data),
-                            z: read_16(data),
-                            weapon_delay_i: read_16(data),
-                            weapon_range: read_16(data),
-                            weapon_angle: read_16(data),
-                            weapon_dir: read_16(data),
-                            weapon_xdir: read_16(data),
-                            move: read_16(data),
-                            jump: read_16(data),
-                            xdir: read_16(data)
-                        });*/
-                        break;
+                            case signal_login:
+                                if (authenticated_users.findUserBySocket(dsocket) == null) {
+                                    var new_user = User_worker.create(0, dsocket);
+                                    authenticated_users.addUser(new_user);
+                                    process.send({ type: 'login', to: 'master', uuid: new_user.uuid, id: msg, pass: json_data.pass });
+                                    console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
+                                } else {
+                                    process.send({ type: 'login', to: 'master', uuid: authenticated_users.findUserBySocket(dsocket).uuid, id: msg, pass: json_data.pass });
+                                    console.log("   pid ".gray + process.pid + " 에서 ".gray + msg + "로 로그인 시도".gray);
+                                }
+                                break;
 
-                    case signal_instance:
-                        process.send({ type: 'instance', to: 'master', msg: buffer_reading_string, uuid: ins.uuid });
-                        break;
+                            case signal_register:
+                                if (authenticated_users.findUserBySocket(dsocket) == null) {
+                                    var new_user = User_worker.create(0, dsocket);
+                                    authenticated_users.addUser(new_user);
+                                    process.send({ type: 'register', to: 'master', uuid: new_user.uuid, id: msg, pass: json_data.pass, nickname: json_data.nickname });
+                                } else {
+                                    process.send({ type: 'register', to: 'master', uuid: authenticated_users.findUserBySocket(dsocket).uuid, id: msg, pass: json_data.pass, nickname: json_data.nickname });
+                                }
+                                break;
 
-                    case signal_hp:
-                        process.send({ type: 'hp', to: 'master', msg: msg, id: json_data.who });
-                        break;
+                            case signal_search:
+                                process.send({ type: 'search', to: 'master', uuid: ins.uuid, id: msg });
+                                break;
 
-                    case signal_kill_log:
-                        process.send({ type: 'killLog', to: 'master', a: json_data.a, b: json_data.b, uuid: ins.uuid });
-                        break;
+                            case signal_move:
+                                process.send({
+                                    type: 'move', to: 'master',
+                                    uuid: json_data.uuid,
+                                    x: json_data.x,
+                                    y: json_data.y,
+                                    z: json_data.z,
+                                    _type: json_data.type,
+                                    weapon_delay_i: json_data.weapon_delay_i,
+                                    weapon_range: json_data.weapon_range,
+                                    weapon_angle: json_data.weapon_angle,
+                                    move: json_data.move,
+                                    jump: json_data.jump,
+                                    weapon_dir: json_data.weapon_dir,
+                                    weapon_xdir: json_data.weapon_xdir,
+                                    xdir: json_data.xdir
+                                });
+                                break;
 
-                    default:
-                        console.log(id);
-                        break;
+                            case signal_instance:
+                                process.send({ type: 'instance', to: 'master', msg: buffer_reading_string, uuid: ins.uuid });
+                                break;
+
+                            case signal_hp:
+                                process.send({ type: 'hp', to: 'master', msg: msg, id: json_data.who });
+                                break;
+
+                            case signal_kill_log:
+                                process.send({ type: 'killLog', to: 'master', a: json_data.a, b: json_data.b, uuid: ins.uuid });
+                                break;
+
+                            default:
+                                console.log(id);
+                                break;
+                        }
+
+                        buffer_reading_string = "";
+                    }
+
                 }
             } catch (e) {
-                console.log("- pid ".red + process.pid + "에서 에러 발생 | ".red + e + " | ".red + data);
+                temp_buffer = "";
+                buffer_reading_string = "";
+                console.log("- pid ".red + process.pid + "에서 에러 발생 | ".red + e);
             }
         });
         // 클라이언트와의 연결이 끊겼을때

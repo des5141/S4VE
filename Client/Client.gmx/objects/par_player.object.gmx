@@ -390,25 +390,22 @@ if(control == 1)
             <kind>1</kind>
             <string>/// NETWORKING
 if(control == 1) {
-    var json_data = ds_map_create();
-    ds_map_add(json_data, "id",      NN.signal_move);
-    ds_map_add(json_data, "uuid",    global.uuid);
-    ds_map_add(json_data, "x",       x);
-    ds_map_add(json_data, "y",       y);
-    ds_map_add(json_data, "z",       z);
-    ds_map_add(json_data, "type",    type);
-    ds_map_add(json_data, "weapon_range", weapon_range);
-    ds_map_add(json_data, "weapon_angle", weapon_angle);
-    ds_map_add(json_data, "weapon_delay_i", weapon_delay_i);
-    ds_map_add(json_data, "weapon_dir", weapon_dir);
-    ds_map_add(json_data, "weapon_xdir", weapon_xdir);
-    ds_map_add(json_data, "move", move);
-    ds_map_add(json_data, "jump", jump);
-    ds_map_add(json_data, "xdir", xdir);
-    var body = json_encode(json_data);
-    ds_map_destroy(json_data);
-    
-    nn_send_message(body);
+    var buffer = buffer_create(1, buffer_grow, 1);
+    buffer_write(buffer, buffer_u16, NN.signal_move);
+    buffer_write(buffer, buffer_u16, type);
+    buffer_write(buffer, buffer_u16, x);
+    buffer_write(buffer, buffer_u16, y);
+    buffer_write(buffer, buffer_u16, z);
+    buffer_write(buffer, buffer_s16, weapon_delay_i);
+    buffer_write(buffer, buffer_s16, weapon_range);
+    buffer_write(buffer, buffer_s16, weapon_angle);
+    buffer_write(buffer, buffer_s16, weapon_dir);
+    buffer_write(buffer, buffer_s16, weapon_xdir);
+    buffer_write(buffer, buffer_s16, move);
+    buffer_write(buffer, buffer_s16, jump);
+    buffer_write(buffer, buffer_s16, xdir);
+    nn_send_message(buffer);
+    buffer_delete(buffer);
 }
 </string>
           </argument>
@@ -433,7 +430,7 @@ if(control == 1) {
           <argument>
             <kind>1</kind>
             <string>/// HP
-if(control == 1) {
+/*if(control == 1) {
     if(other.team != global.team){
         var json_data = ds_map_create();
         ds_map_add(json_data, "id", NN.signal_hp);
@@ -451,7 +448,7 @@ if(control == 1) {
         ds_map_destroy(json_data);
         nn_send_message(body);
     }
-}
+}*/
 </string>
           </argument>
         </arguments>

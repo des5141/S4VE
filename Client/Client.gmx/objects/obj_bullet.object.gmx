@@ -90,6 +90,58 @@ if(range &lt;= 0) {
         </arguments>
       </action>
     </event>
+    <event eventtype="4" ename="par_block">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// EFFECT
+switch(sprite_index){
+    case spr_fireball:
+        repeat(50) {
+            var a = instance_create(x, y, obj_boomeffect);
+            a.image_xscale = irandom(30);
+            a.image_yscale = image_xscale;
+        }
+    break;
+    
+    case spr_firehead:
+        repeat(50) {
+            var a = instance_create(x, y, obj_boomeffect);
+        }
+    break;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>203</id>
+        <kind>0</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>1</exetype>
+        <functionname>action_kill_object</functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+      </action>
+    </event>
     <event eventtype="4" ename="par_player">
       <action>
         <libid>1</libid>
@@ -166,58 +218,6 @@ if(other.team != "")and(from_team != other.team)and(from != other.user_id)and(ot
 </string>
           </argument>
         </arguments>
-      </action>
-    </event>
-    <event eventtype="4" ename="par_block">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>/// EFFECT
-switch(sprite_index){
-    case spr_fireball:
-        repeat(50) {
-            var a = instance_create(x, y, obj_boomeffect);
-            a.image_xscale = irandom(30);
-            a.image_yscale = image_xscale;
-        }
-    break;
-    
-    case spr_firehead:
-        repeat(50) {
-            var a = instance_create(x, y, obj_boomeffect);
-        }
-    break;
-}
-</string>
-          </argument>
-        </arguments>
-      </action>
-      <action>
-        <libid>1</libid>
-        <id>203</id>
-        <kind>0</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>1</exetype>
-        <functionname>action_kill_object</functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
       </action>
     </event>
   </events>
