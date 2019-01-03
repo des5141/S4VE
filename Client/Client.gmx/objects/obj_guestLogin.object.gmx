@@ -58,7 +58,7 @@ if(guestLogin == 0) {
     login_nickname = "g" + string(irandom_range(1000, 9999));
     
     var buffer = buffer_create(1, buffer_grow, 1);
-    buffer_write(buffer, buffer_u16, NN.signal_register);
+    buffer_write(buffer, buffer_u8, NN.signal_register);
     buffer_write_string(buffer, global.login_id);
     buffer_write_string(buffer, global.login_pass);
     buffer_write_string(buffer, login_nickname);

@@ -241,8 +241,7 @@ var status = nn_status();
 my_ping = current_time;
 if (status == NN.status_connected){
     var buffer = buffer_create(1, buffer_grow, 1);
-    buffer_write(buffer, buffer_u16, NN.signal_ping);
-    buffer_write(buffer, buffer_u16, 1);
+    buffer_write(buffer, buffer_u8, NN.signal_ping);
     nn_send_message(buffer);
     buffer_delete(buffer);
 }

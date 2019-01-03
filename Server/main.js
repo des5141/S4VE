@@ -1,4 +1,4 @@
-// Requires
+// #region Requires
 var cluster = require('cluster');
 var Colors = require('colors');
 var split = require('string-split');
@@ -12,8 +12,9 @@ var database = require('./classes/database');
 const Player = require('./classes/game').Player;
 const Game = require('./classes/game').Game;
 const Team = require('./classes/game').Team;
+// #endregion
 
-// 서버 세부 설정
+// #region 서버 세부 설정
 var debug_mode = 1; // 1 is on, 0 is off
 var tcp_port = 20000; //TCP port
 if (debug_mode == 1)
@@ -25,15 +26,17 @@ var room = new Array();
 var blue_gage = new Array();
 var red_gage = new Array();
 var room_max = 1;
-var game_max = 2;
+var game_max = 4;
 for (var i = 0; i < room_max; i++) {
     room[i] = "";
     blue_gage[i] = 0;
     red_gage[i] = 0;
 }
 var Games = new Array(room_max);
+cluster.schedulingPolicy = cluster.SCHED_RR; //워커 스케쥴을 Round Robin 방식으로 한다.
+// #endregion
 
-// 시그널 설정
+// #region 시그널 설정
 const signal_ping = 0;
 const signal_login = 1;
 const signal_search = 2;
@@ -46,7 +49,9 @@ const signal_restart = 8;
 const signal_register = 9;
 const signal_endgame = 10;
 const signal_kill_log = 11;
+// #endregion
 
+// #region Functions
 function handoff(worker, uuid, x, y, type, team) {
     worker.send({
         to: 'worker', type: 'handoff',
@@ -56,7 +61,7 @@ function handoff(worker, uuid, x, y, type, team) {
         _type: type,
         team: team
     });
-};
+}
 function find_room(target_room, f) {
     for (i = 0; i < room_max; i++) {
         if (room[i] == target_room) {
@@ -64,17 +69,146 @@ function find_room(target_room, f) {
         }
     }
 }
+function send_raw(sock, write) {
+    if (sock != -1) {
+        sock.send(write.buffer);
+    }
+}
+// #region Buffer Setting
+const buffer_u8 = 0;
+const buffer_s8 = 1;
+const buffer_u16 = 2;
+const buffer_s16 = 3;
+const buffer_u32 = 4;
+const buffer_s32 = 5;
+const buffer_string = 6;
+// #endregion
+// #region Buffer Function
+function buffer_read(buffer, type, read) {
+    switch (type) {
+        case buffer_u8:
+            read.offset++;
+            return buffer.readUInt8(read.offset - 1);
 
-// 서버의 모든 관리는 이 프로세서를 거쳐야합니다 !
+        case buffer_s8:
+            read.offset++;
+            return buffer.readInt8(read.offset - 1);
+
+        case buffer_u16:
+            read.offset += 2;
+            return buffer.readUInt16LE(read.offset - 2);
+
+        case buffer_s16:
+            read.offset += 2;
+            return buffer.readInt16LE(read.offset - 2);
+
+        case buffer_u32:
+            read.offset += 4;
+            return buffer.readUInt32LE(read.offset - 4);
+
+        case buffer_s32:
+            read.offset += 4;
+            return buffer.readInt132LE(read.offset - 4);
+
+        case buffer_string:
+            var length = buffer_read(buffer, buffer_u16, read);
+            read.offset += length + 1;
+            return buffer.toString('utf-8', read.offset - length - 1, read.offset - 1);
+    }
+}
+function buffer_write(write, type, value) {
+    switch (type) {
+        case buffer_u8:
+            if (write.offset + 1 > (write.buffer).length) {
+                var temp = Buffer.allocUnsafe((write.buffer).length).fill(0);
+                (write.buffer).copy(temp, 0, 0, (write.buffer).length);
+                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + 1).fill(0);
+                temp.copy((write.buffer), 0, 0, temp.length);
+            }
+            write.offset++;
+            (write.buffer).writeUInt8(value, write.offset - 1);
+            break;
+
+        case buffer_s8:
+            if (write.offset + 1 > (write.buffer).length) {
+                var temp = Buffer.allocUnsafe((write.buffer).length).fill(0);
+                (write.buffer).copy(temp, 0, 0, (write.buffer).length);
+                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + 1).fill(0);
+                temp.copy((write.buffer), 0, 0, temp.length);
+            }
+            write.offset++;
+            (write.buffer).writeInt8(value, write.offset - 1);
+            break;
+
+        case buffer_u16:
+            if (write.offset + 2 > (write.buffer).length) {
+                var temp = Buffer.allocUnsafe((write.buffer).length).fill(0);
+                (write.buffer).copy(temp, 0, 0, (write.buffer).length);
+                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + 2).fill(0);
+                temp.copy((write.buffer), 0, 0, temp.length);
+            }
+            write.offset += 2;
+            (write.buffer).writeUInt16LE(value, write.offset - 2);
+            break;
+
+        case buffer_s16:
+            if (write.offset + 2 > (write.buffer).length) {
+                var temp = Buffer.allocUnsafe((write.buffer).length).fill(0);
+                (write.buffer).copy(temp, 0, 0, (write.buffer).length);
+                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + 2).fill(0);
+                temp.copy((write.buffer), 0, 0, temp.length);
+            }
+            write.offset += 2;
+            (write.buffer).writeInt16LE(value, write.offset - 2);
+            break;
+
+        case buffer_u32:
+            if (write.offset + 4 > (write.buffer).length) {
+                var temp = Buffer.allocUnsafe((write.buffer).length).fill(0);
+                (write.buffer).copy(temp, 0, 0, (write.buffer).length);
+                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + 4).fill(0);
+                temp.copy((write.buffer), 0, 0, temp.length);
+            }
+            write.offset += 4;
+            (write.buffer).writeUInt32LE(value, write.offset - 4);
+            break;
+
+        case buffer_s32:
+            if (write.offset + 4 > (write.buffer).length) {
+                var temp = Buffer.allocUnsafe((write.buffer).length).fill(0);
+                (write.buffer).copy(temp, 0, 0, (write.buffer).length);
+                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + 4).fill(0);
+                temp.copy((write.buffer), 0, 0, temp.length);
+            }
+            write.offset += 4;
+            (write.buffer).writeInt32LE(value, write.offset - 4);
+            break;
+
+        case buffer_string:
+            var length = Buffer.byteLength(value) + 1; // 개행문자를 제외한 길이
+            //buffer_write(write, buffer_u16, length);
+            if (write.offset + length + 1 > (write.buffer).length) {
+                var temp = Buffer.allocUnsafe((write.buffer).length).fill(0);
+                (write.buffer).copy(temp, 0, 0, (write.buffer).length);
+                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + length + 1).fill(0);
+                temp.copy((write.buffer), 0, 0, temp.length);
+            }
+            write.offset += length;
+            (write.buffer).write(value, write.offset - length, write.offset);
+            break;
+    }
+}
+// #endregion
+// #endregion
+
+// 마스터 프로세서
 if (cluster.isMaster) {
     // Requires
     var User = require('./classes/user.js');
     var UserBox = require('./classes/user_box.js');
 
-    // 변수 설정
+    // 유저 설정
     var authenticated_users = UserBox.create();
-
-    // 큐
     class Queue {
         constructor() {
             this._arr = [];
@@ -95,7 +229,6 @@ if (cluster.isMaster) {
         }
     }
     const match_wait = new Queue();
-
 
     // 워커 생성
     var tasks = [
@@ -126,6 +259,7 @@ if (cluster.isMaster) {
     // 워커들과의 파이프 통신
     cluster.on('message', async function (worker, message) {
         try {
+            // 워커들에게 처리 후 전달
             if ((message.to == 'master') || (message.to == 'all')) {
                 switch (message.type) {
                     case 'register':
@@ -230,6 +364,7 @@ if (cluster.isMaster) {
                         });
                         var ins = authenticated_users.findUser(_id);
                         if (ins != undefined) {
+
                             ins.x = message.x;
                             ins.y = message.y;
                             ins.z = message.z;
@@ -548,116 +683,20 @@ if (cluster.isMaster) {
 
         setTimeout(function () {
             step();
-        }, 100);
+        }, 20);
     }()
 }
 
-// 노동자 내용
+// 워커 프로세서
 if (cluster.isWorker) {
     // Requires
     var User_worker = require('./classes/user_worker.js');
     var UserBox_worker = require('./classes/user_box_worker.js');
 
-    // 변수 설정
-    var i = 0;
+    // Variables init
     authenticated_users = UserBox_worker.create();
-    read_offset = 0;
-    write_offset = 0;
-    write_buffer = Buffer.alloc(1).fill(0);
 
-    // 메세지 보내는 방법
-    function send_raw(sock) {
-        if (sock != -1) {
-            sock.send(write_buffer);
-            write_buffer = Buffer.allocUnsafe(1).fill(0);
-            write_offset = 0;
-        }
-    }
-
-    // #region 버퍼 관리 함수들
-    function read_8(buffer) {
-        read_offset += 1;
-        return buffer.readInt8(read_offset - 1);
-    }
-
-    function read_16(buffer) {
-        read_offset += 2;
-        return buffer.readInt16LE(read_offset - 2);
-    }
-
-    function read_32(buffer) {
-        read_offset += 4;
-        return buffer.readInt32LE(read_offset - 4);
-    }
-
-    function read_string(buffer) {
-        var length = read_16(buffer) + 1;
-        read_offset += length;
-        return buffer.toString('utf-8', read_offset - length, read_offset);
-    }
-
-    function write_8(value) {
-        if (write_offset + 1 >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + 1).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += 1;
-        write_buffer.writeInt8(value, write_offset - 1);
-    }
-
-    function write_16(value) {
-        if (write_offset + 2 >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + 2).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += 2;
-        var len = write_buffer.writeInt16LE(value, write_offset - 2);
-        write_offset = len;
-        //console.log("2 | " + len);
-    }
-
-    function write_32(value) {
-        if (write_offset + 4 >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + 4).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += 4;
-        var len = write_buffer.writeInt32LE(value, write_offset - 4);
-        //console.log("4 | " + len);
-    }
-
-    function write_string(value) {
-        var length = Buffer.byteLength(value, 'utf8');
-
-        if (write_offset + 2 >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + 2).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += 2;
-        var len = write_buffer.writeInt16LE(length, write_offset - 2);
-        console.log(" erwq : " + len + " | " + write_offset);
-
-        if (write_offset + length >= write_buffer.length) {
-            var temp = Buffer.alloc(write_buffer.length).fill(0);
-            write_buffer.copy(temp, 0, 0, write_buffer.length);
-            write_buffer = Buffer.alloc(write_buffer.length + length).fill(0);
-            temp.copy(write_buffer, 0, 0, temp.length);
-        }
-        write_offset += length;
-        var len = write_buffer.write(value, write_offset - length, write_offset);
-        console.log(" qwe " + length + " | " + len + " | " + write_offset);
-    }
-    // #endregion
-
-    // #region 파이프 통신
+    // 파이프 통신
     process.on('message', function (message) {
         if (message.to == 'worker') {
             switch (message.type) {
@@ -672,11 +711,14 @@ if (cluster.isWorker) {
                         temp_nickname = message.nickname;
                     authenticated_users.each(function (user) {
                         if (user.uuid == message.uuid) {
-                            write_16(signal_login);
-                            write_16(message.msg);
-                            write_string(user.uuid);
-                            write_string(temp_nickname);
-                            send_raw(user.socket);
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_login);
+                            buffer_write(write, buffer_u8, message.msg);
+                            if ((message.msg == 1)||(message.msg == 2)) {
+                                buffer_write(write, buffer_string, message.uuid);
+                                buffer_write(write, buffer_string, message.nickname);
+                            }
+                            send_raw(user.socket, write);
                         }
                     });
                     break;
@@ -684,19 +726,19 @@ if (cluster.isWorker) {
                 case 'register':
                     authenticated_users.each(function (user) {
                         if (user.uuid == message.uuid) {
-                            write_16(signal_register);
-                            write_16(message.msg);
-                            write_string(user.uuid);
-                            send_raw(user.socket);
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_register);
+                            buffer_write(write, buffer_u8, message.msg);
+                            send_raw(user.socket, write);
                         }
                     });
                     break;
 
                 case 'endgame':
                     authenticated_users.each(function (user) {
-                        write_16(signal_endgame);
-                        write_string(message.team);
-                        send_raw(user.socket);
+                        if (user.uuid == message.uuid) {
+                            send_id_message(user.socket, signal_endgame, message.team);
+                        }
                     });
                     break;
 
@@ -704,11 +746,12 @@ if (cluster.isWorker) {
                     if (message.id == 1) {
                         authenticated_users.each(function (user) {
                             if (user.uuid == message.uuid) {
-                                write_16(signal_search);
-                                write_string(message.team);
-                                write_16(message.x);
-                                write_16(message.y);
-                                send_raw(user.socket);
+                                var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                                buffer_write(write, buffer_u8, signal_search);
+                                buffer_write(write, buffer_string, message.team);
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                send_raw(user.socket, write);
                             }
                         });
                     }
@@ -717,33 +760,28 @@ if (cluster.isWorker) {
                 case 'move':
                     var ins = authenticated_users.findUser(message.user_id);
                     if (ins != undefined) {
-                        write_offset = 0;
-                        write_buffer = Buffer.alloc(1).fill(0);
+                        var json_data = JSON.stringify({
+                            id: message.id,
+                            type: message._type,
+                            x: parseInt(message.x),
+                            y: parseInt(message.y),
+                            z: parseInt(message.z),
+                            weapon_delay_i: parseInt(message.weapon_delay_i),
+                            weapon_range: parseInt(message.weapon_range),
+                            weapon_angle: parseInt(message.weapon_angle),
+                            move: message.move,
+                            jump: message.jump,
+                            weapon_dir: parseInt(message.weapon_dir),
+                            weapon_xdir: message.weapon_xdir,
+                            xdir: message.xdir,
+                            hp: message.hp,
+                            sp: message.sp,
+                            team: message.team,
+                            nickname: message.nickname,
+                            respawn: message.respawn
+                        });
 
-                        console.log(" s ! : " + write_offset);
-                        write_16(signal_move);
-                        console.log(" a ! : " + write_offset);
-                        write_string(message.id);
-                        console.log(" a ! : " + write_offset);
-                        write_16(message._type);
-                        console.log(" a ! : " + write_offset);
-                        write_16(message.x);
-                        write_16(message.y);
-                        write_16(message.z);
-                        write_16(message.weapon_delay_i);
-                        write_16(message.weapon_range);
-                        write_16(message.weapon_angle);
-                        write_16(message.weapon_dir);
-                        write_16(message.weapon_xdir);
-                        write_16(message.move);
-                        write_16(message.jump);
-                        write_16(message.xdir);
-                        write_16(message.hp);
-                        write_16(message.sp);
-                        write_string(message.team);
-                        write_string(message.nickname);
-                        write_16(message.respawn);
-                        send_raw(ins.socket);
+                        send_id_message(ins.socket, signal_move, json_data);
                     }
                     break;
 
@@ -781,13 +819,15 @@ if (cluster.isWorker) {
                 case 'myinfo':
                     var ins = authenticated_users.findUser(message.uuid);
                     if (ins != undefined) {
-                        write_16(signal_myinfo);
-                        write_16(message.hp);
-                        write_16(message.sp);
-                        write_16(message.red_gage);
-                        write_16(message.blue_gage);
-                        write_16(message.engagement);
-                        write_16(message.respawn);
+                        var json_data = JSON.stringify({
+                            hp: message.hp,
+                            sp: message.sp,
+                            red_gage: message.red_gage,
+                            blue_gage: message.blue_gage,
+                            respawn: message.respawn,
+                            engagement: message.engagement
+                        });
+                        send_id_message(ins.socket, signal_myinfo, json_data);
                     }
                     break;
 
@@ -807,89 +847,99 @@ if (cluster.isWorker) {
             }
         }
     });
-    // #endregion
 
+    // 클라이언트 통신
     server.onConnection(function (dsocket) {
+        // #region 클라이언트 세부 메세지 처리
         dsocket.onMessage(function (data) {
             try {
-                read_offset = 0;
-                var signal = read_16(data);
                 var ins = authenticated_users.findUserBySocket(dsocket);
-
-                // 클라이언트 세부 메세지 처리
+                var read = { offset: 0 };
+                var signal = buffer_read(data, buffer_u8, read);
                 switch (signal) {
                     case signal_ping:
-                        var ping = read_16(data);
-                        write_16(signal_ping);
-                        write_16(ping);
-                        send_raw(dsocket);
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_ping);
+                        send_raw(dsocket, write);
                         break;
 
                     case signal_login:
-                        var get_id = read_string(data);
-                        var get_pass = read_string(data);
+                        var get_id = buffer_read(data, buffer_string, read);
+                        var get_pass = buffer_read(data, buffer_string, read);
+                        console.log(get_id + " | " + get_pass);
                         if (authenticated_users.findUserBySocket(dsocket) == null) {
                             var new_user = User_worker.create(0, dsocket);
                             authenticated_users.addUser(new_user);
-                            process.send({ type: 'login', to: 'master', uuid: new_user.uuid, id: get_id, pass: get_pass });
+                            process.send({
+                                type: 'login',
+                                to: 'master',
+                                uuid: new_user.uuid,
+                                id: get_id,
+                                pass: get_pass
+                            });
                             console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
                         } else {
-                            process.send({ type: 'login', to: 'master', uuid: authenticated_users.findUserBySocket(dsocket).uuid, id: get_id, pass: get_pass });
+                            process.send({
+                                type: 'login',
+                                to: 'master',
+                                uuid: authenticated_users.findUserBySocket(dsocket).uuid,
+                                id: get_id,
+                                pass: get_pass
+                            });
                             console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
                         }
                         break;
 
                     case signal_register:
-                        var get_id = read_string(data);
-                        var get_pass = read_string(data);
-                        var get_nickname = read_string(data);
+                        var get_id = buffer_read(data, buffer_string, read);
+                        var get_pass = buffer_read(data, buffer_string, read);
+                        var get_nickname = buffer_read(data, buffer_string, read);
+                        console.log(get_id + " | " + get_pass + " | " + get_nickname);
                         if (authenticated_users.findUserBySocket(dsocket) == null) {
                             var new_user = User_worker.create(0, dsocket);
                             authenticated_users.addUser(new_user);
-                            process.send({ type: 'register', to: 'master', uuid: new_user.uuid, id: get_id, pass: get_pass, nickname: get_nickname });
+                            process.send({
+                                type: 'register',
+                                to: 'master',
+                                uuid: new_user.uuid,
+                                id: get_id,
+                                pass: get_pass,
+                                nickname: get_nickname
+                            });
                         } else {
-                            process.send({ type: 'register', to: 'master', uuid: authenticated_users.findUserBySocket(dsocket).uuid, id: get_id, pass: get_pass, nickname: get_nickname });
+                            process.send({
+                                type: 'register',
+                                to: 'master',
+                                uuid: authenticated_users.findUserBySocket(dsocket).uuid,
+                                id: get_id,
+                                pass: get_pass,
+                                nickname: get_nickname
+                            });
                         }
                         break;
 
                     case signal_search:
-                        var get_type = read_16(data);
+                        var get_type = buffer_read(data, buffer_u8, read);
                         process.send({ type: 'search', to: 'master', uuid: ins.uuid, id: get_type });
                         break;
 
                     case signal_move:
                         process.send({
                             type: 'move', to: 'master',
-                            uuid: ins.uuid,
-                            _type: read_16(data),
-                            x: read_16(data),
-                            y: read_16(data),
-                            z: read_16(data),
-                            weapon_delay_i: read_16(data),
-                            weapon_range: read_16(data),
-                            weapon_angle: read_16(data),
-                            weapon_dir: read_16(data),
-                            weapon_xdir: read_16(data),
-                            move: read_16(data),
-                            jump: read_16(data),
-                            xdir: read_16(data)
+                            uuid: json_data.uuid,
+                            x: json_data.x,
+                            y: json_data.y,
+                            z: json_data.z,
+                            _type: json_data.type,
+                            weapon_delay_i: json_data.weapon_delay_i,
+                            weapon_range: json_data.weapon_range,
+                            weapon_angle: json_data.weapon_angle,
+                            move: json_data.move,
+                            jump: json_data.jump,
+                            weapon_dir: json_data.weapon_dir,
+                            weapon_xdir: json_data.weapon_xdir,
+                            xdir: json_data.xdir
                         });
-                        /*console.log({
-                            type: 'move', to: 'master',
-                            uuid: ins.uuid,
-                            _type: read_16(data),
-                            x: read_16(data),
-                            y: read_16(data),
-                            z: read_16(data),
-                            weapon_delay_i: read_16(data),
-                            weapon_range: read_16(data),
-                            weapon_angle: read_16(data),
-                            weapon_dir: read_16(data),
-                            weapon_xdir: read_16(data),
-                            move: read_16(data),
-                            jump: read_16(data),
-                            xdir: read_16(data)
-                        });*/
                         break;
 
                     case signal_instance:
@@ -909,10 +959,12 @@ if (cluster.isWorker) {
                         break;
                 }
             } catch (e) {
-                console.log("- pid ".red + process.pid + "에서 에러 발생 | ".red + e + " | ".red + data);
+                console.log("- pid ".red + process.pid + "에서 에러 발생 | ".red + e);
             }
         });
-        // 클라이언트와의 연결이 끊겼을때
+        // #endregion
+
+        // #region 클라이언트와의 연결이 끊겼을때
         dsocket.onClose(function () {
             var quitter;
             if ((quitter = authenticated_users.findUserBySocket(dsocket)) != null) {
@@ -921,5 +973,6 @@ if (cluster.isWorker) {
                 authenticated_users.removeUserData(quitter.uuid);
             }
         });
+        // #endregion
     });
 }
