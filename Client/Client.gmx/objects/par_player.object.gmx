@@ -430,25 +430,23 @@ if(control == 1) {
           <argument>
             <kind>1</kind>
             <string>/// HP
-/*if(control == 1) {
+if(control == 1) {
     if(other.team != global.team){
-        var json_data = ds_map_create();
-        ds_map_add(json_data, "id", NN.signal_hp);
-        ds_map_add(json_data, "msg", 5);
-        ds_map_add(json_data, "who", global.login_id);
-        var body = json_encode(json_data);
-        ds_map_destroy(json_data);
-        nn_send_message(body);
+        var buffer = buffer_create(1, buffer_grow, 1);
+        buffer_write(buffer, buffer_u8, NN.signal_hp);
+        buffer_write(buffer, buffer_s8, 5);
+        buffer_write_string(buffer, global.login_id);
+        nn_send_message(buffer);
+        buffer_delete(buffer);
     }else{
-        var json_data = ds_map_create();
-        ds_map_add(json_data, "id", NN.signal_hp);
-        ds_map_add(json_data, "msg", -0.25);
-        ds_map_add(json_data, "who", global.login_id);
-        var body = json_encode(json_data);
-        ds_map_destroy(json_data);
-        nn_send_message(body);
+        var buffer = buffer_create(1, buffer_grow, 1);
+        buffer_write(buffer, buffer_u8, NN.signal_hp);
+        buffer_write(buffer, buffer_s8, -1);
+        buffer_write_string(buffer, global.login_id);
+        nn_send_message(buffer);
+        buffer_delete(buffer);
     }
-}*/
+}
 </string>
           </argument>
         </arguments>

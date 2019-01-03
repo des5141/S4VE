@@ -22,7 +22,7 @@ function create() {
 			if (users[uuid].socket == socket) {
 				return users[uuid];
 			}
-		}
+        }
 	}
 	
 	//Utility function for iterating through users

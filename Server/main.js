@@ -514,6 +514,7 @@ if (cluster.isMaster) {
         }, 1000);
     }()
 
+    // 내 정보
     !function my_info() {
         for (var i = 0; i < room_max; i++) {
             authenticated_users.each(function (user) {
@@ -679,7 +680,6 @@ if (cluster.isMaster) {
                 user.respawn--;
             }
         });
-
         setTimeout(function () {
             step();
         }, 30);
@@ -694,6 +694,29 @@ if (cluster.isWorker) {
 
     // Variables init
     authenticated_users = UserBox_worker.create();
+    var buffer_temp = -1;
+    var buffer_size = 0;
+    class Queue {
+        constructor() {
+            this._arr = [];
+        }
+        enqueue(item) {
+            this._arr.push(item);
+        }
+        dequeue() {
+            return this._arr.shift();
+        }
+        length() {
+            return this._arr.length;
+        }
+        destroy(message) {
+            if (this._arr.indexOf(message) != -1) {
+                this._arr.splice(this._arr.indexOf(message), 1);
+            }
+        }
+    }
+    var message_processing = new Queue();
+    var message_socket = new Queue();
 
     // 파이프 통신
     process.on('message', function (message) {
@@ -713,7 +736,7 @@ if (cluster.isWorker) {
                             var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
                             buffer_write(write, buffer_u8, signal_login);
                             buffer_write(write, buffer_u8, message.msg);
-                            if ((message.msg == 1)||(message.msg == 2)) {
+                            if ((message.msg == 1) || (message.msg == 2)) {
                                 buffer_write(write, buffer_string, message.uuid);
                                 buffer_write(write, buffer_string, message.nickname);
                             }
@@ -848,120 +871,36 @@ if (cluster.isWorker) {
 
     // 클라이언트 통신
     server.onConnection(function (dsocket) {
-        // #region 클라이언트 세부 메세지 처리
+        // #region 클라이언트 메세지 분석 후 큐에 삽입
         dsocket.onMessage(function (data) {
             try {
-                var ins = authenticated_users.findUserBySocket(dsocket);
-                var read = { offset: 0 };
-                var signal = buffer_read(data, buffer_u8, read);
-                switch (signal) {
-                    case signal_ping:
-                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
-                        buffer_write(write, buffer_u8, signal_ping);
-                        send_raw(dsocket, write);
+                // 데이터를 잇는다
+                if (buffer_temp == -1) {
+                    buffer_temp = Buffer.allocUnsafe(data.length).fill(0);
+                    data.copy(buffer_temp, 0, 0, data.length);
+                } else {
+                    buffer_temp = Buffer.concat([buffer_temp, data], data.length + buffer_temp.length);
+                }
+                var index = 0;
+                while (true) {
+                    if (buffer_temp.toString('utf-8', index - 4, index - 2) == "§") {
+                        var length = buffer_temp.readUInt16LE(index - 2) - 2;
+                        message_processing.enqueue(buffer_temp.slice(index - 4 - length, index - 4));
+                        message_socket.enqueue(dsocket);
+                        buffer_temp = buffer_temp.slice(index, buffer_temp.length);
+                        index = 0;
+                        continue;
+                    }
+                    if (index >= data.length) {
                         break;
-
-                    case signal_login:
-                        var get_id = buffer_read(data, buffer_string, read);
-                        var get_pass = buffer_read(data, buffer_string, read);
-                        console.log(get_id + " | " + get_pass);
-                        if (authenticated_users.findUserBySocket(dsocket) == null) {
-                            var new_user = User_worker.create(0, dsocket);
-                            authenticated_users.addUser(new_user);
-                            process.send({
-                                type: 'login',
-                                to: 'master',
-                                uuid: new_user.uuid,
-                                id: get_id,
-                                pass: get_pass
-                            });
-                            console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
-                        } else {
-                            process.send({
-                                type: 'login',
-                                to: 'master',
-                                uuid: authenticated_users.findUserBySocket(dsocket).uuid,
-                                id: get_id,
-                                pass: get_pass
-                            });
-                            console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
-                        }
-                        break;
-
-                    case signal_register:
-                        var get_id = buffer_read(data, buffer_string, read);
-                        var get_pass = buffer_read(data, buffer_string, read);
-                        var get_nickname = buffer_read(data, buffer_string, read);
-                        console.log(get_id + " | " + get_pass + " | " + get_nickname);
-                        if (authenticated_users.findUserBySocket(dsocket) == null) {
-                            var new_user = User_worker.create(0, dsocket);
-                            authenticated_users.addUser(new_user);
-                            process.send({
-                                type: 'register',
-                                to: 'master',
-                                uuid: new_user.uuid,
-                                id: get_id,
-                                pass: get_pass,
-                                nickname: get_nickname
-                            });
-                        } else {
-                            process.send({
-                                type: 'register',
-                                to: 'master',
-                                uuid: authenticated_users.findUserBySocket(dsocket).uuid,
-                                id: get_id,
-                                pass: get_pass,
-                                nickname: get_nickname
-                            });
-                        }
-                        break;
-
-                    case signal_search:
-                        var get_type = buffer_read(data, buffer_u8, read);
-                        process.send({ type: 'search', to: 'master', uuid: ins.uuid, id: get_type });
-                        break;
-
-                    case signal_move:
-                        process.send({
-                            type: 'move', to: 'master',
-                            uuid: ins.uuid,
-                            _type: buffer_read(data, buffer_u8, read),
-                            x: buffer_read(data, buffer_u16, read),
-                            y: buffer_read(data, buffer_u16, read),
-                            z: buffer_read(data, buffer_u16, read),
-                            weapon_delay_i: buffer_read(data, buffer_s16, read),
-                            weapon_range: buffer_read(data, buffer_s16, read),
-                            weapon_angle: buffer_read(data, buffer_s16, read),
-                            weapon_dir: buffer_read(data, buffer_s16, read),
-                            weapon_xdir: buffer_read(data, buffer_s16, read),
-                            move: buffer_read(data, buffer_s8, read),
-                            jump: buffer_read(data, buffer_s8, read),
-                            xdir: buffer_read(data, buffer_s8, read)
-                        });
-                        break;
-
-                    case signal_instance:
-                        process.send({ type: 'instance', to: 'master', msg: buffer_reading_string, uuid: ins.uuid });
-                        break;
-
-                    case signal_hp:
-                        process.send({ type: 'hp', to: 'master', msg: msg, id: json_data.who });
-                        break;
-
-                    case signal_kill_log:
-                        process.send({ type: 'killLog', to: 'master', a: json_data.a, b: json_data.b, uuid: ins.uuid });
-                        break;
-
-                    default:
-                        console.log(id);
-                        break;
+                    }
+                    index++;
                 }
             } catch (e) {
                 console.log("- pid ".red + process.pid + "에서 에러 발생 | ".red + e);
             }
         });
         // #endregion
-
         // #region 클라이언트와의 연결이 끊겼을때
         dsocket.onClose(function () {
             var quitter;
@@ -973,4 +912,155 @@ if (cluster.isWorker) {
         });
         // #endregion
     });
+
+    // 메세지 처리
+    !function processing() {
+        if (message_processing.length() != 0) {
+            try {
+                var dsocket = message_socket.dequeue();
+                var data = message_processing.dequeue();
+                var signal = -1;
+                var read = { offset: 0 };
+                var ins = authenticated_users.findUserBySocket(dsocket);
+                signal = buffer_read(data, buffer_u8, read);
+
+                if (ins == null) {
+                    // #region 아직 로그인 안한 유저
+                    switch (signal) {
+                        case signal_ping:
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_ping);
+                            send_raw(dsocket, write);
+                            break;
+
+                        case signal_login:
+                            var get_id = buffer_read(data, buffer_string, read);
+                            var get_pass = buffer_read(data, buffer_string, read);
+                            console.log(get_id + " | " + get_pass);
+                            var new_user = User_worker.create(0, dsocket);
+                            authenticated_users.addUser(new_user);
+                            process.send({
+                                type: 'login',
+                                to: 'master',
+                                uuid: new_user.uuid,
+                                id: get_id,
+                                pass: get_pass
+                            });
+                            console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
+
+                            break;
+
+                        case signal_register:
+                            var get_id = buffer_read(data, buffer_string, read);
+                            var get_pass = buffer_read(data, buffer_string, read);
+                            var get_nickname = buffer_read(data, buffer_string, read);
+                            console.log(get_id + " | " + get_pass + " | " + get_nickname);
+                            var new_user = User_worker.create(0, dsocket);
+                            authenticated_users.addUser(new_user);
+                            process.send({
+                                type: 'register',
+                                to: 'master',
+                                uuid: new_user.uuid,
+                                id: get_id,
+                                pass: get_pass,
+                                nickname: get_nickname
+                            });
+                            break;
+                    }
+                    // #endregion
+                } else {
+                    // #region 로그인 한 유저
+                    switch (signal) {
+                        case signal_ping:
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_ping);
+                            send_raw(dsocket, write);
+                            break;
+
+                        case signal_login:
+                            var get_id = buffer_read(data, buffer_string, read);
+                            var get_pass = buffer_read(data, buffer_string, read);
+                            console.log(get_id + " | " + get_pass);
+
+                            process.send({
+                                type: 'login',
+                                to: 'master',
+                                uuid: authenticated_users.findUserBySocket(dsocket).uuid,
+                                id: get_id,
+                                pass: get_pass
+                            });
+                            console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
+
+                            break;
+
+                        case signal_register:
+                            var get_id = buffer_read(data, buffer_string, read);
+                            var get_pass = buffer_read(data, buffer_string, read);
+                            var get_nickname = buffer_read(data, buffer_string, read);
+                            console.log(get_id + " | " + get_pass + " | " + get_nickname);
+
+                            process.send({
+                                type: 'register',
+                                to: 'master',
+                                uuid: authenticated_users.findUserBySocket(dsocket).uuid,
+                                id: get_id,
+                                pass: get_pass,
+                                nickname: get_nickname
+                            });
+
+                            break;
+
+                        case signal_search:
+                            var get_type = buffer_read(data, buffer_u8, read);
+                            process.send({ type: 'search', to: 'master', uuid: ins.uuid, id: get_type });
+                            break;
+
+                        case signal_move:
+                            process.send({
+                                type: 'move', to: 'master',
+                                uuid: ins.uuid,
+                                _type: buffer_read(data, buffer_u8, read),
+                                x: buffer_read(data, buffer_u16, read),
+                                y: buffer_read(data, buffer_u16, read),
+                                z: buffer_read(data, buffer_u16, read),
+                                weapon_delay_i: buffer_read(data, buffer_s16, read),
+                                weapon_range: buffer_read(data, buffer_s16, read),
+                                weapon_angle: buffer_read(data, buffer_s16, read),
+                                weapon_dir: buffer_read(data, buffer_s16, read),
+                                weapon_xdir: buffer_read(data, buffer_s16, read),
+                                move: buffer_read(data, buffer_s8, read),
+                                jump: buffer_read(data, buffer_s8, read),
+                                xdir: buffer_read(data, buffer_s8, read)
+                            });
+                            break;
+
+                        case signal_instance:
+                            process.send({ type: 'instance', to: 'master', msg: buffer_reading_string, uuid: ins.uuid });
+                            break;
+
+                        case signal_hp:
+                            var get_i = buffer_read(data, buffer_s8, read);
+                            var get_id = buffer_read(data, buffer_string, read);
+                            process.send({ type: 'hp', to: 'master', msg: get_i, id: get_id });
+                            break;
+
+                        case signal_kill_log:
+                            process.send({ type: 'killLog', to: 'master', a: json_data.a, b: json_data.b, uuid: ins.uuid });
+                            break;
+
+                        default:
+                            console.log(id);
+                            break;
+                    }
+                    // #endregion
+                }
+            } catch (e) {
+                console.log("- pid ".red + process.pid + "에서 에러 발생 | ".red + signal + " | ".red + e);
+            }
+        }
+        // 다시 돌리기
+        setTimeout(function () {
+            processing();
+        }, 1);
+    }()
 }
