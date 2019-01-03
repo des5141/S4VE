@@ -914,7 +914,7 @@ if (cluster.isWorker) {
 
     // 메세지 처리
     !function processing() {
-        if (message_processing.length() != 0) {
+        while (message_processing.length() != 0) {
             try {
                 var dsocket = message_socket.dequeue();
                 var data = message_processing.dequeue();
@@ -1060,6 +1060,6 @@ if (cluster.isWorker) {
         // 다시 돌리기
         setTimeout(function () {
             processing();
-        }, 1);
+        }, 60);
     }()
 }
