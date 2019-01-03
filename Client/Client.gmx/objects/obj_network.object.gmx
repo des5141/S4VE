@@ -691,7 +691,7 @@ if(ping &gt; 0)
     draw_set_halign(fa_left)
     draw_set_valign(fa_top)
     draw_set_alpha(1)
-    draw_text(5, 5, "ping " + string(ping) + "#####recv byte " + string(global.check_bytes) + " ( " + string(global.check_bytes/1000000) + " MB )"+ "#send byte " + string(global.check_bytes_send))
+    draw_text(5, 5, "ping " + string(ping) + "#####recv byte " + string(global.check_bytes) + " ( " + string(global.check_bytes/1000000) + " MB )"+ "#send byte " + string(global.check_bytes_send)+ " ( " + string(global.check_bytes_send/1000000) + " MB )")
     draw_set_alpha(1)
 }
 </string>

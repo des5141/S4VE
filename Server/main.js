@@ -695,7 +695,6 @@ if (cluster.isWorker) {
     // Variables init
     authenticated_users = UserBox_worker.create();
     var buffer_temp = -1;
-    var buffer_size = 0;
     class Queue {
         constructor() {
             this._arr = [];
