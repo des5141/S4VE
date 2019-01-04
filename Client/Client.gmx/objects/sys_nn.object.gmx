@@ -32,7 +32,8 @@ status = NN.status_disconnected;
 //Message queue
 inbox = ds_queue_create();
 global.list = ds_list_create();
-
+message_processing = ds_queue_create();
+message_buffer = -1;
 
 temp_buffer = "";
 reading_length = 0;
@@ -65,12 +66,13 @@ reading_length_string = "";
 //Message queue
 ds_queue_destroy(inbox);
 ds_list_destroy(global.list);
+ds_queue_destroy(message_processing);
 </string>
           </argument>
         </arguments>
       </action>
     </event>
-    <event eventtype="7" enumb="68">
+    <event eventtype="3" enumb="0">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -87,17 +89,18 @@ ds_list_destroy(global.list);
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>///Receive incoming messages 
-
-if (os_browser == browser_not_a_browser) {
-    if (ds_map_find_value(async_load, 'id') == client) {
-        if (ds_map_find_value(async_load, 'type') == network_type_data) {
-            var buffer = ds_map_find_value(async_load, 'buffer');
-            global.check_bytes += buffer_get_size(buffer);
-            var signal = buffer_read(buffer, buffer_u8);
+            <string>/// message recv
+while(ds_queue_size(message_processing) != 0)
+{
+var buffer = ds_queue_dequeue(message_processing);
+var signal = buffer_read(buffer, buffer_u8);
             
             with(obj_network) {
                 switch(signal) {
+                    case NN.signal_test:
+                        show_debug_message(buffer_read(buffer, buffer_string));
+                    break;
+                    
                     case NN.signal_ping:
                         ping    = current_time - my_ping;
                         my_ping = current_time;
@@ -256,6 +259,68 @@ if (os_browser == browser_not_a_browser) {
                 }
             }
             buffer_delete(buffer);
+            }
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="68">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Receive incoming messages 
+
+if (os_browser == browser_not_a_browser) {
+    if (ds_map_find_value(async_load, 'id') == client) {
+        if (ds_map_find_value(async_load, 'type') == network_type_data) {
+            var buffer = ds_map_find_value(async_load, 'buffer');
+            
+            global.check_bytes += buffer_get_size(buffer);
+            if(message_buffer == -1) {
+                message_buffer = buffer_create(1, buffer_grow, 1);
+                buffer_copy(buffer, 0, buffer_get_size(buffer), message_buffer, 0);
+            }
+            else {
+                buffer_copy(buffer, 0, buffer_get_size(buffer), message_buffer, buffer_get_size(message_buffer));
+            }
+            
+            var index = 0;
+            while(true) {
+                if(index + 4 &gt; buffer_get_size(message_buffer))
+                    break;
+                
+                buffer_seek(message_buffer, buffer_seek_start, index);
+                
+                if (buffer_read(message_buffer, buffer_string) == "§") {
+                    var length = buffer_read(message_buffer, buffer_u16) - 3;
+                    var temp = buffer_create(1, buffer_grow, 1);
+                    buffer_copy(message_buffer, index - length, index, temp, 0);
+                    ds_queue_enqueue(message_processing, temp);
+                    var temp_buffer = buffer_create(1, buffer_grow, 1);
+                    buffer_copy(message_buffer, 0, buffer_get_size(message_buffer), temp_buffer, 0);
+                    buffer_resize(message_buffer, 1);
+                    buffer_copy(temp_buffer, index + 4, buffer_get_size(temp_buffer), message_buffer, 0);
+                    buffer_delete(temp_buffer);
+                    index = 0;
+                    continue;
+                }
+                index++;
+            }
+            buffer_delete(buffer);
         }
     }
 }
@@ -296,6 +361,7 @@ enum NN{
     signal_register = 9,
     signal_endgame = 10,
     signal_kill_log = 11,
+    signal_test = 12,
     
     debug_modes = 1, // 1 is on, 0 is off
     

@@ -49,6 +49,7 @@ const signal_restart = 8;
 const signal_register = 9;
 const signal_endgame = 10;
 const signal_kill_log = 11;
+const signal_test = 12;
 // #endregion
 
 // #region Functions
@@ -71,6 +72,8 @@ function find_room(target_room, f) {
 }
 function send_raw(sock, write) {
     if (sock != -1) {
+        buffer_write(write, buffer_string, "§");
+        buffer_write(write, buffer_u16, write.offset);
         sock.send(write.buffer);
     }
 }
@@ -185,12 +188,13 @@ function buffer_write(write, type, value) {
             break;
 
         case buffer_string:
-            var length = Buffer.byteLength(value) + 1; // 개행문자를 제외한 길이
+            value = value + '\0';
+            var length = Buffer.byteLength(value); // 개행문자를 추가한 길이
             //buffer_write(write, buffer_u16, length);
-            if (write.offset + length + 1 > (write.buffer).length) {
+            if (write.offset + length > (write.buffer).length) {
                 var temp = Buffer.allocUnsafe((write.buffer).length).fill(0);
                 (write.buffer).copy(temp, 0, 0, (write.buffer).length);
-                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + length + 1).fill(0);
+                (write.buffer) = Buffer.allocUnsafe((write.buffer).length + length).fill(0);
                 temp.copy((write.buffer), 0, 0, temp.length);
             }
             write.offset += length;
@@ -890,7 +894,7 @@ if (cluster.isWorker) {
                         index = 0;
                         continue;
                     }
-                    if (index >= data.length) {
+                    if (index >= buffer_temp.length) {
                         break;
                     }
                     index++;
@@ -926,6 +930,17 @@ if (cluster.isWorker) {
                 if (ins == null) {
                     // #region 아직 로그인 안한 유저
                     switch (signal) {
+                        case signal_test:
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_test);
+                            buffer_write(write, buffer_string, "hello");
+                            send_raw(dsocket, write);
+
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_test);
+                            buffer_write(write, buffer_string, "sucked");
+                            send_raw(dsocket, write);
+                            break;
                         case signal_ping:
                             var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
                             buffer_write(write, buffer_u8, signal_ping);
@@ -1060,6 +1075,6 @@ if (cluster.isWorker) {
         // 다시 돌리기
         setTimeout(function () {
             processing();
-        }, 60);
+        }, 1);
     }()
 }
