@@ -128,9 +128,8 @@ while (ds_queue_size(message_processing) != 0) {
                 var get_a = buffer_read(buffer, buffer_string);
                 var get_b = buffer_read(buffer, buffer_string);
                 
-                ds_list_add(global.kill_log_left, get_a)
-                ds_list_add(global.kill_log_right, get_b)
-                ds_map_destroy(signal_kill_log_data);
+                ds_list_add(global.kill_log_left, get_a);
+                ds_list_add(global.kill_log_right, get_b);
                 system.alarm[0] = 60*5;
                 break;
                 
@@ -493,7 +492,7 @@ enum NN{
     signal_endgame = 10,
     signal_kill_log = 11,
     
-    debug_modes = 1, // 1 is on, 0 is off
+    debug_modes = 0, // 1 is on, 0 is off
     
     status_disconnected = -1,
     status_connecting   = 0,

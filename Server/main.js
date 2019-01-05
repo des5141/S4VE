@@ -910,7 +910,7 @@ if (cluster.isWorker) {
                             var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
                             buffer_write(write, buffer_u8, signal_endgame);
                             buffer_write(write, buffer_string, message.team);
-                            send_raw(ins.socket, write);
+                            send_raw(user.socket, write);
                         }
                     });
                     // #endregion
