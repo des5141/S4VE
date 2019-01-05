@@ -666,6 +666,40 @@ if (status == NN.status_connected) {
         </arguments>
       </action>
     </event>
+    <event eventtype="6" enumb="53">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>repeat(15) {
+    var ins = instance_create(mouse_x,mouse_y, obj_effect6_0);
+                                    with(ins) {
+                                        b = 0;
+                                        c = 100;
+                                    }
+                                    var ins = instance_create(mouse_x,mouse_y, obj_effect6_1);
+                                    with(ins) {
+                                        b = 0;
+                                        c = 100;
+                                    }
+                                }
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="8" enumb="64">
       <action>
         <libid>1</libid>

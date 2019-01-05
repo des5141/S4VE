@@ -21,6 +21,7 @@
       </sprites>
       <sprites name="Effect">
         <sprite>sprites\spr_effect</sprite>
+        <sprite>sprites\spr_effect2</sprite>
         <sprite>sprites\spr_bullet</sprite>
         <sprite>sprites\spr_fire</sprite>
         <sprite>sprites\spr_firehead</sprite>
@@ -212,6 +213,8 @@
         <object>objects\obj_effect2</object>
         <object>objects\obj_effect3</object>
         <object>objects\obj_effect4</object>
+        <object>objects\obj_effect6_0</object>
+        <object>objects\obj_effect6_1</object>
         <object>objects\obj_effect5</object>
         <object>objects\obj_bullet</object>
         <object>objects\obj_boomeffect</object>

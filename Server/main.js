@@ -447,6 +447,19 @@ if (cluster.isMaster) {
                                         }
                                         break;
 
+                                    case 2:
+                                        for (var id in cluster.workers) {
+                                            cluster.workers[id].send({
+                                                type: 'instance',
+                                                to: 'worker',
+                                                index: message.index,
+                                                x: message.x,
+                                                y: message.y,
+                                                uuid: user.uuid
+                                            });
+                                        }
+                                        break;
+
                                     case 3:
                                         for (var id in cluster.workers) {
                                             cluster.workers[id].send({
@@ -1011,7 +1024,13 @@ if (cluster.isWorker) {
                                 // #endregion
                                 break;
 
-                            // case 2는 순간이동 기술
+                            // 사망시 이펙트
+                            case 2:
+                                // #region 내용
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                // #endregion
+                                break;
 
                             case 3:
                                 // #region 내용
@@ -1267,6 +1286,18 @@ if (cluster.isWorker) {
                                         from: buffer_read(data, buffer_string, read),
                                         team: buffer_read(data, buffer_string, read),
                                         damage: buffer_read(data, buffer_s16, read),
+                                        uuid: ins.uuid
+                                    });
+                                    break;
+
+                                case 2:
+                                    // 사망시 이펙트
+                                    process.send({
+                                        type: 'instance',
+                                        to: 'master',
+                                        index: instance_type,
+                                        x: buffer_read(data, buffer_u16, read),
+                                        y: buffer_read(data, buffer_u16, read),
                                         uuid: ins.uuid
                                     });
                                     break;

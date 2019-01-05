@@ -116,6 +116,8 @@ while (ds_queue_size(message_processing) != 0) {
                 with(par_player) {
                     if(variable_instance_exists(id, "control")) {
                         if(control == 1) {
+                            end_x = x;
+                            end_y = y;
                             system.target = -2;
                             x = buffer_read(buffer, buffer_u16);
                             y = buffer_read(buffer, buffer_u16);
@@ -185,6 +187,21 @@ while (ds_queue_size(message_processing) != 0) {
                         a.from = get_from;
                         a.from_team = get_team;
                         a.range = get_range;
+                        break;
+                        
+                    case 2:
+                        var get_x = buffer_read(buffer, buffer_u16);
+                        var get_y = buffer_read(buffer, buffer_u16);
+                        repeat(15) {
+                                    var ins = instance_create(get_x,get_y, obj_effect6_0);
+                                    ins.b = 0;
+                                    ins.c = 100;
+                                }
+                                repeat(15) {
+                                    var ins = instance_create(get_x,get_y, obj_effect6_1);
+                                    ins.b = 0;
+                                    ins.c = 100;
+                                }
                         break;
                         
                     case 3:
@@ -387,6 +404,31 @@ while (ds_queue_size(message_processing) != 0) {
                     obj_joy2.isClick = 0
                     obj_joy2.tx = obj_joy2.x //작은 원 위치 초기화
                     obj_joy2.ty = obj_joy2.y
+                    
+                    // 죽은 순간이므로 이펙트 생성
+                    with (par_player) {
+                            if(control == 1) {
+                                repeat(15) {
+                                    var ins = instance_create(end_x,end_y, obj_effect6_0);
+                                    ins.b = 0;
+                                    ins.c = 100;
+                                }
+                                repeat(15) {
+                                    var ins = instance_create(end_x,end_y, obj_effect6_1);
+                                    ins.b = 0;
+                                    ins.c = 100;
+                                }
+                                
+                                var buffer = buffer_create(1, buffer_grow, 1);
+                                buffer_write(buffer, buffer_u8, NN.signal_instance);
+                                buffer_write(buffer, buffer_u8, 2); // type
+                                buffer_write(buffer, buffer_u16, end_x);
+                                buffer_write(buffer, buffer_u16, end_y);
+                                nn_send_message(buffer);
+                                buffer_delete(buffer);
+                            }
+                        
+                    }
                 }
                 break;
         }
@@ -495,7 +537,7 @@ enum NN{
     signal_endgame = 10,
     signal_kill_log = 11,
     
-    debug_modes = 0, // 1 is on, 0 is off
+    debug_modes = 1, // 1 is on, 0 is off
     
     status_disconnected = -1,
     status_connecting   = 0,
