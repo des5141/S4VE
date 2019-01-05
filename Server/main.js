@@ -907,7 +907,10 @@ if (cluster.isWorker) {
                     // #region 내용
                     authenticated_users.each(function (user) {
                         if (user.uuid == message.uuid) {
-                            send_id_message(user.socket, signal_endgame, message.team);
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_endgame);
+                            buffer_write(write, buffer_string, message.team);
+                            send_raw(ins.socket, write);
                         }
                     });
                     // #endregion
@@ -1047,11 +1050,11 @@ if (cluster.isWorker) {
                     // #region 내용
                     var ins = authenticated_users.findUser(message.uuid);
                     if (ins != undefined) {
-                        var json_data = JSON.stringify({
-                            a: message.a,
-                            b: message.b
-                        });
-                        send_id_message(ins.socket, signal_kill_log, json_data);
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_kill_log);
+                        buffer_write(write, buffer_string, message.a);
+                        buffer_write(write, buffer_string, message.b);
+                        send_raw(ins.socket, write);
                     }
                     // #endregion
                     break;
@@ -1077,11 +1080,11 @@ if (cluster.isWorker) {
                     // #region 내용
                     var ins = authenticated_users.findUser(message.uuid);
                     if (ins != undefined) {
-                        var json_data = JSON.stringify({
-                            x: message.x,
-                            y: message.y
-                        });
-                        send_id_message(ins.socket, signal_restart, json_data);
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_restart);
+                        buffer_write(write, buffer_u16, message.x);
+                        buffer_write(write, buffer_u16, message.y);
+                        send_raw(ins.socket, write);
                     }
                     // #endregion
                     break;
@@ -1311,7 +1314,7 @@ if (cluster.isWorker) {
 
                         case signal_hp:
                             // #region 내용
-                            var get_i = buffer_read(data, buffer_s8, read);
+                            var get_i = buffer_read(data, buffer_s16, read);
                             var get_id = buffer_read(data, buffer_string, read);
                             process.send({ type: 'hp', to: 'master', msg: get_i, id: get_id });
                             // #endregion
@@ -1319,7 +1322,9 @@ if (cluster.isWorker) {
 
                         case signal_kill_log:
                             // #region 내용
-                            process.send({ type: 'killLog', to: 'master', a: json_data.a, b: json_data.b, uuid: ins.uuid });
+                            var get_a = buffer_read(data, buffer_string, read);
+                            var get_b = buffer_read(data, buffer_string, read);
+                            process.send({ type: 'killLog', to: 'master', a: get_a, b: get_b, uuid: ins.uuid });
                             // #endregion
                             break;
 

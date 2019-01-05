@@ -96,6 +96,55 @@ while (ds_queue_size(message_processing) != 0) {
 
     with (obj_network) {
         switch (signal) {
+            case NN.signal_endgame:
+                system.target = -1;
+                global.can_control = 0;
+                obj_joy.add_mode = 0;
+                obj_joy2.add_mode = 0;
+                par_skill.add_mode = 0;
+                
+                var ins = instance_create(0, 0, obj_end);
+                if(global.team == buffer_read(buffer, buffer_string)) {
+                    ins.message = "승리"
+                    instance_create(400, 300, obj_firework);
+                }else {
+                    ins.message = "패배";
+                }
+            break;
+            
+            case NN.signal_restart:
+                with(par_player) {
+                    if(variable_instance_exists(id, "control")) {
+                        if(control == 1) {
+                            system.target = -2;
+                            x = buffer_read(buffer, buffer_u16);
+                            y = buffer_read(buffer, buffer_u16);
+                        }
+                    }
+                }
+            break;
+            
+            case NN.signal_kill_log:
+                var get_a = buffer_read(buffer, buffer_string);
+                var get_b = buffer_read(buffer, buffer_string);
+                
+                ds_list_add(global.kill_log_left, get_a)
+                ds_list_add(global.kill_log_right, get_b)
+                ds_map_destroy(signal_kill_log_data);
+                system.alarm[0] = 60*5;
+                break;
+                
+            case NN.signal_handoff:
+                var signal_handoff_data = json_decode(message_body);;
+                handoff_type = buffer_read(buffer, buffer_u8);
+                handoff_x = buffer_read(buffer, buffer_u16);
+                handoff_y = buffer_read(buffer, buffer_u16);
+                global.team = buffer_read(buffer, buffer_string);
+                user_ins = -1;
+                alarm[10] = 1;
+                room_goto(rm_main);
+                break;
+                
             case NN.signal_instance:
                 var type = buffer_read(buffer, buffer_u8);
                 switch(type) {
