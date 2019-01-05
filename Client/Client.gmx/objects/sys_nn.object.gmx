@@ -148,7 +148,10 @@ while (ds_queue_size(message_processing) != 0) {
                 var type = buffer_read(buffer, buffer_u8);
                 switch(type) {
                     case 0:
-                        var a = instance_create(buffer_read(buffer, buffer_u16), buffer_read(buffer, buffer_u16) - 16, obj_effect);
+                        var get_x = buffer_read(buffer, buffer_u16);
+                        var get_y = buffer_read(buffer, buffer_u16);
+                        show_debug_message(string(get_x) + " | " + string(get_y));
+                        var a = instance_create(get_x, get_y - 16, obj_effect);
                         a.image_angle = buffer_read(buffer, buffer_s16) - 47;
                         a.sprite_index = spr_effect;
                         a.image_single = 1;
