@@ -18,7 +18,7 @@ with(par_player) {
                 a.mask_index = spr_fireball;
                 a.turn = 1;
                 a.move = irandom_range(2, 7);
-                a.sprite = spr_fire;
+                a.effector = 1;
                 a.from = global.login_id;
                 a.from_team = global.team;
                 a.damage = 15;
@@ -52,7 +52,7 @@ with(par_player) {
                 buffer_write(buffer, buffer_s16, a.image_speed);
                 buffer_write(buffer, buffer_s16, a.sprite_index);
                 buffer_write(buffer, buffer_s8, a.move);
-                buffer_write(buffer, buffer_s16, a.sprite);
+                buffer_write(buffer, buffer_s16, a.effector);
                 buffer_write(buffer, buffer_s16, a.range);
                 buffer_write_string(buffer, global.login_id);
                 buffer_write_string(buffer, global.team);

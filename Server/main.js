@@ -266,6 +266,7 @@ if (cluster.isMaster) {
             if ((message.to == 'master') || (message.to == 'all')) {
                 switch (message.type) {
                     case 'register':
+                        // #region 내용
                         var check = 1;
                         authenticated_users.each(function (user) {
                             if (user.id == message.id) {
@@ -284,9 +285,11 @@ if (cluster.isMaster) {
                                     }
                                 });
                         }
+                        // #endregion
                         break;
 
                     case 'login':
+                        // #region 내용
                         var check = 1;
                         authenticated_users.each(async function (user) {
                             // 기존에 데이터가 있는 유저!
@@ -335,18 +338,22 @@ if (cluster.isMaster) {
                                     }
                                 });
                         }
+                        // #endregion
                         break;
 
                     case 'logout':
+                        // #region 내용
                         authenticated_users.each(function (user) {
                             if ((user.uuid == message.uuid) && (user.uuid != -1)) {
                                 match_wait.destroy(user.uuid);
                                 user.uuid = -1;
                             }
                         });
+                        // #endregion
                         break;
 
                     case 'search':
+                        // #region 내용
                         if (message.id == 1) {
                             // 대기열 삽입
                             match_wait.enqueue(message.uuid);
@@ -356,9 +363,11 @@ if (cluster.isMaster) {
                             match_wait.destroy(message.uuid);
                             console.log(match_wait._arr);
                         }
+                        // #endregion
                         break;
 
                     case 'move':
+                        // #region 내용
                         var _id;
                         authenticated_users.each(function (user) {
                             if (user.uuid == message.uuid) {
@@ -385,9 +394,11 @@ if (cluster.isMaster) {
                             console.log(authenticated_users.findUser(message.id));
                             console.log(message.id);
                         }
+                        // #endregion
                         break;
 
                     case 'instance':
+                        // #region 내용
                         var _id;
                         authenticated_users.each(function (user) {
                             if (user.uuid == message.uuid) {
@@ -397,14 +408,95 @@ if (cluster.isMaster) {
                         var ins = authenticated_users.findUser(_id);
                         authenticated_users.each(function (user) {
                             if ((ins.room == user.room) && (ins.id != user.id)) {
-                                for (var id in cluster.workers) {
-                                    cluster.workers[id].send({ type: 'instance', to: 'worker', msg: message.msg, uuid: user.uuid });
+                                switch (message.index) {
+                                    case 0:
+                                        for (var id in cluster.workers) {
+                                            cluster.workers[id].send({
+                                                type: 'instance',
+                                                to: 'worker',
+                                                index: message.index,
+                                                x: message.x,
+                                                y: message.y,
+                                                weapon_dir: message.weapon_dir,
+                                                uuid: user.uuid
+                                            });
+                                        }
+                                        break;
+
+                                    case 1:
+                                        for (var id in cluster.workers) {
+                                            cluster.workers[id].send({
+                                                type: 'instance',
+                                                to: 'worker',
+                                                index: message.index,
+                                                x: message.x,
+                                                y: message.y,
+                                                speed: message.speed,
+                                                weapon_dir: message.weapon_dir,
+                                                direction: message.direction,
+                                                image_speed: message.image_speed,
+                                                sprite_index: message.sprite_index,
+                                                move: message.move,
+                                                effector: message.effector,
+                                                range: message.range,
+                                                from: message.from,
+                                                team: message.team,
+                                                damage: message.damage,
+                                                uuid: user.uuid
+                                            });
+                                        }
+                                        break;
+
+                                    case 3:
+                                        for (var id in cluster.workers) {
+                                            cluster.workers[id].send({
+                                                type: 'instance',
+                                                to: 'worker',
+                                                index: message.index,
+                                                x: message.x,
+                                                y: message.y,
+                                                speed: message.speed,
+                                                weapon_dir: message.weapon_dir,
+                                                direction: message.direction,
+                                                image_speed: message.image_speed,
+                                                sprite_index: message.sprite_index,
+                                                move: message.move,
+                                                effector: message.effector,
+                                                range: message.range,
+                                                from: message.from,
+                                                team: message.team,
+                                                damage: message.damage,
+                                                uuid: user.uuid
+                                            });
+                                        }
+                                        break;
+
+                                    case 4:
+                                        for (var id in cluster.workers) {
+                                            cluster.workers[id].send({
+                                                type: 'instance',
+                                                to: 'worker',
+                                                index: message.index,
+                                                x: message.x,
+                                                y: message.y,
+                                                from: message.from,
+                                                team: message.team,
+                                                damage: message.damage,
+                                                uuid: user.uuid
+                                            });
+                                        }
+                                        break;
+
+                                    default:
+                                        break;
                                 }
                             }
                         });
+                        // #endregion
                         break;
 
                     case 'killLog':
+                        // #region 내용
                         var _id;
                         authenticated_users.each(function (user) {
                             if (user.uuid == message.uuid) {
@@ -419,13 +511,16 @@ if (cluster.isMaster) {
                                 }
                             }
                         });
+                        // #endregion
                         break;
 
                     case 'hp':
+                        // #region 내용
                         var ins = authenticated_users.findUser(message.id);
                         ins.hp -= message.msg;
                         if (ins.hp > 100)
                             ins.hp = 100;
+                        // #endregion
                         break;
                 }
             }
@@ -720,157 +815,6 @@ if (cluster.isWorker) {
     var message_processing = new Queue();
     var message_socket = new Queue();
 
-    // 파이프 통신
-    process.on('message', function (message) {
-        if (message.to == 'worker') {
-            switch (message.type) {
-                case 'start':
-                    server.listen(message.port, ip);
-                    worker_id = message.id;
-                    break;
-
-                case 'login':
-                    var temp_nickname = "null";
-                    if (message.nickname != undefined)
-                        temp_nickname = message.nickname;
-                    authenticated_users.each(function (user) {
-                        if (user.uuid == message.uuid) {
-                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
-                            buffer_write(write, buffer_u8, signal_login);
-                            buffer_write(write, buffer_u8, message.msg);
-                            if ((message.msg == 1) || (message.msg == 2)) {
-                                buffer_write(write, buffer_string, message.uuid);
-                                buffer_write(write, buffer_string, message.nickname);
-                            }
-                            send_raw(user.socket, write);
-                        }
-                    });
-                    break;
-
-                case 'register':
-                    authenticated_users.each(function (user) {
-                        if (user.uuid == message.uuid) {
-                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
-                            buffer_write(write, buffer_u8, signal_register);
-                            buffer_write(write, buffer_u8, message.msg);
-                            send_raw(user.socket, write);
-                        }
-                    });
-                    break;
-
-                case 'endgame':
-                    authenticated_users.each(function (user) {
-                        if (user.uuid == message.uuid) {
-                            send_id_message(user.socket, signal_endgame, message.team);
-                        }
-                    });
-                    break;
-
-                case 'search':
-                    if (message.id == 1) {
-                        authenticated_users.each(function (user) {
-                            if (user.uuid == message.uuid) {
-                                var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
-                                buffer_write(write, buffer_u8, signal_search);
-                                buffer_write(write, buffer_string, message.team);
-                                buffer_write(write, buffer_u16, message.x);
-                                buffer_write(write, buffer_u16, message.y);
-                                send_raw(user.socket, write);
-                            }
-                        });
-                    }
-                    break;
-
-                case 'move':
-                    var ins = authenticated_users.findUser(message.user_id);
-                    if (ins != undefined) {
-                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
-                        buffer_write(write, buffer_u8, signal_move);
-                        buffer_write(write, buffer_string, message.id);
-                        buffer_write(write, buffer_u8, message._type);
-                        buffer_write(write, buffer_u16, message.x);
-                        buffer_write(write, buffer_u16, message.y);
-                        buffer_write(write, buffer_u16, message.z);
-                        buffer_write(write, buffer_s16, message.weapon_delay_i);
-                        buffer_write(write, buffer_s16, message.weapon_range);
-                        buffer_write(write, buffer_s16, message.weapon_angle);
-                        buffer_write(write, buffer_s16, message.weapon_dir);
-                        buffer_write(write, buffer_s16, message.weapon_xdir);
-                        buffer_write(write, buffer_s8, message.move);
-                        buffer_write(write, buffer_s8, message.jump);
-                        buffer_write(write, buffer_s8, message.xdir);
-                        buffer_write(write, buffer_s16, message.hp);
-                        buffer_write(write, buffer_s16, message.sp);
-                        buffer_write(write, buffer_string, message.team);
-                        buffer_write(write, buffer_string, message.nickname);
-                        buffer_write(write, buffer_s16, message.respawn);
-                        send_raw(ins.socket, write);
-                    }
-                    break;
-
-                case 'handoff':
-                    var ins = authenticated_users.findUser(message.uuid);
-                    if (ins != undefined) {
-                        var json_data = JSON.stringify({
-                            type: message._type,
-                            x: message.x,
-                            y: message.y,
-                            team: message.team
-                        });
-                        send_id_message(ins.socket, signal_handoff, json_data);
-                    }
-                    break;
-
-                case 'instance':
-                    var ins = authenticated_users.findUser(message.uuid);
-                    if (ins != undefined) {
-                        send_id_message(ins.socket, signal_instance, message.msg);
-                    }
-                    break;
-
-                case 'killLog':
-                    var ins = authenticated_users.findUser(message.uuid);
-                    if (ins != undefined) {
-                        var json_data = JSON.stringify({
-                            a: message.a,
-                            b: message.b
-                        });
-                        send_id_message(ins.socket, signal_kill_log, json_data);
-                    }
-                    break;
-
-                case 'myinfo':
-                    var ins = authenticated_users.findUser(message.uuid);
-                    if (ins != undefined) {
-                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
-                        buffer_write(write, buffer_u8, signal_myinfo);
-                        buffer_write(write, buffer_s16, message.hp);
-                        buffer_write(write, buffer_s16, message.sp);
-                        buffer_write(write, buffer_u32, message.red_gage);
-                        buffer_write(write, buffer_u32, message.blue_gage);
-                        buffer_write(write, buffer_s16, message.respawn);
-                        buffer_write(write, buffer_s8, message.engagement);
-                        send_raw(ins.socket, write);
-                    }
-                    break;
-
-                case 'restart':
-                    var ins = authenticated_users.findUser(message.uuid);
-                    if (ins != undefined) {
-                        var json_data = JSON.stringify({
-                            x: message.x,
-                            y: message.y
-                        });
-                        send_id_message(ins.socket, signal_restart, json_data);
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    });
-
     // 클라이언트 통신
     server.onConnection(function (dsocket) {
         // #region 클라이언트 메세지 분석 후 큐에 삽입
@@ -914,6 +858,240 @@ if (cluster.isWorker) {
         });
         // #endregion
     });
+
+    // 파이프 통신
+    process.on('message', function (message) {
+        if (message.to == 'worker') {
+            switch (message.type) {
+                case 'start':
+                    // #region 내용
+                    server.listen(message.port, ip);
+                    worker_id = message.id;
+                    // #endregion
+                    break;
+
+                case 'login':
+                    // #region 내용
+                    var temp_nickname = "null";
+                    if (message.nickname != undefined)
+                        temp_nickname = message.nickname;
+                    authenticated_users.each(function (user) {
+                        if (user.uuid == message.uuid) {
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_login);
+                            buffer_write(write, buffer_u8, message.msg);
+                            if ((message.msg == 1) || (message.msg == 2)) {
+                                buffer_write(write, buffer_string, message.uuid);
+                                buffer_write(write, buffer_string, message.nickname);
+                            }
+                            send_raw(user.socket, write);
+                        }
+                    });
+                    // #endregion
+                    break;
+
+                case 'register':
+                    // #region 내용
+                    authenticated_users.each(function (user) {
+                        if (user.uuid == message.uuid) {
+                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                            buffer_write(write, buffer_u8, signal_register);
+                            buffer_write(write, buffer_u8, message.msg);
+                            send_raw(user.socket, write);
+                        }
+                    });
+                    // #endregion
+                    break;
+
+                case 'endgame':
+                    // #region 내용
+                    authenticated_users.each(function (user) {
+                        if (user.uuid == message.uuid) {
+                            send_id_message(user.socket, signal_endgame, message.team);
+                        }
+                    });
+                    // #endregion
+                    break;
+
+                case 'search':
+                    // #region 내용
+                    if (message.id == 1) {
+                        authenticated_users.each(function (user) {
+                            if (user.uuid == message.uuid) {
+                                var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                                buffer_write(write, buffer_u8, signal_search);
+                                buffer_write(write, buffer_string, message.team);
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                send_raw(user.socket, write);
+                            }
+                        });
+                    }
+                    // #endregion
+                    break;
+
+                case 'move':
+                    // #region 내용
+                    var ins = authenticated_users.findUser(message.user_id);
+                    if (ins != undefined) {
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_move);
+                        buffer_write(write, buffer_string, message.id);
+                        buffer_write(write, buffer_u8, message._type);
+                        buffer_write(write, buffer_u16, message.x);
+                        buffer_write(write, buffer_u16, message.y);
+                        buffer_write(write, buffer_u16, message.z);
+                        buffer_write(write, buffer_s16, message.weapon_delay_i);
+                        buffer_write(write, buffer_s16, message.weapon_range);
+                        buffer_write(write, buffer_s16, message.weapon_angle);
+                        buffer_write(write, buffer_s16, message.weapon_dir);
+                        buffer_write(write, buffer_s16, message.weapon_xdir);
+                        buffer_write(write, buffer_s8, message.move);
+                        buffer_write(write, buffer_s8, message.jump);
+                        buffer_write(write, buffer_s8, message.xdir);
+                        buffer_write(write, buffer_s16, message.hp);
+                        buffer_write(write, buffer_s16, message.sp);
+                        buffer_write(write, buffer_string, message.team);
+                        buffer_write(write, buffer_string, message.nickname);
+                        buffer_write(write, buffer_s16, message.respawn);
+                        send_raw(ins.socket, write);
+                    }
+                    // #endregion
+                    break;
+
+                case 'handoff':
+                    // #region 내용
+                    var ins = authenticated_users.findUser(message.uuid);
+                    if (ins != undefined) {
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_handoff);
+                        buffer_write(write, buffer_u8, message._type);
+                        buffer_write(write, buffer_u16, message.x);
+                        buffer_write(write, buffer_u16, message.y);
+                        buffer_write(write, buffer_string, message.team);
+                        send_raw(ins.socket, write);
+                    }
+                    // #endregion
+                    break;
+
+                case 'instance':
+                    // #region 내용
+                    var ins = authenticated_users.findUser(message.uuid);
+                    if (ins != undefined) {
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_instance);
+                        buffer_write(write, buffer_u8, message.index);
+                        switch (message.index) {
+                            case 0:
+                                // #region 내용
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                buffer_write(write, buffer_s16, message.weapon_dir);
+                                // #endregion
+                                break;
+
+                            case 1:
+                                // #region 내용
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                buffer_write(write, buffer_u8, message.speed);
+                                buffer_write(write, buffer_s16, message.weapon_dir);
+                                buffer_write(write, buffer_s16, message.direction);
+                                buffer_write(write, buffer_s16, message.image_speed);
+                                buffer_write(write, buffer_s16, message.sprite_index);
+                                buffer_write(write, buffer_s8, message.move);
+                                buffer_write(write, buffer_s16, message.effector);
+                                buffer_write(write, buffer_s16, message.range);
+                                buffer_write(write, buffer_string, message.from);
+                                buffer_write(write, buffer_string, message.team);
+                                buffer_write(write, buffer_s16, message.damage);
+                                // #endregion
+                                break;
+
+                            // case 2는 순간이동 기술
+
+                            case 3:
+                                // #region 내용
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                buffer_write(write, buffer_u8, message.speed);
+                                buffer_write(write, buffer_s16, message.weapon_dir);
+                                buffer_write(write, buffer_s16, message.direction);
+                                buffer_write(write, buffer_s16, message.image_speed);
+                                buffer_write(write, buffer_s16, message.sprite_index);
+                                buffer_write(write, buffer_s8, message.move);
+                                buffer_write(write, buffer_s16, message.effector);
+                                buffer_write(write, buffer_s16, message.range);
+                                buffer_write(write, buffer_string, message.from);
+                                buffer_write(write, buffer_string, message.team);
+                                buffer_write(write, buffer_s16, message.damage);
+                                // #endregion
+                                break;
+                            
+                            case 4:
+                                // #region 내용
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                buffer_write(write, buffer_string, message.from);
+                                buffer_write(write, buffer_string, message.team);
+                                buffer_write(write, buffer_s16, message.damage);
+                                // #endregion
+                                break;
+                        }
+                        send_raw(ins.socket, write);
+                    }
+                    // #endregion
+                    break;
+
+                case 'killLog':
+                    // #region 내용
+                    var ins = authenticated_users.findUser(message.uuid);
+                    if (ins != undefined) {
+                        var json_data = JSON.stringify({
+                            a: message.a,
+                            b: message.b
+                        });
+                        send_id_message(ins.socket, signal_kill_log, json_data);
+                    }
+                    // #endregion
+                    break;
+
+                case 'myinfo':
+                    // #region 내용
+                    var ins = authenticated_users.findUser(message.uuid);
+                    if (ins != undefined) {
+                        var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
+                        buffer_write(write, buffer_u8, signal_myinfo);
+                        buffer_write(write, buffer_s16, message.hp);
+                        buffer_write(write, buffer_s16, message.sp);
+                        buffer_write(write, buffer_u32, message.red_gage);
+                        buffer_write(write, buffer_u32, message.blue_gage);
+                        buffer_write(write, buffer_s16, message.respawn);
+                        buffer_write(write, buffer_s8, message.engagement);
+                        send_raw(ins.socket, write);
+                    }
+                    // #endregion
+                    break;
+
+                case 'restart':
+                    // #region 내용
+                    var ins = authenticated_users.findUser(message.uuid);
+                    if (ins != undefined) {
+                        var json_data = JSON.stringify({
+                            x: message.x,
+                            y: message.y
+                        });
+                        send_id_message(ins.socket, signal_restart, json_data);
+                    }
+                    // #endregion
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    });
+
 
     // 메세지 처리
     !function processing() {
@@ -1051,7 +1229,83 @@ if (cluster.isWorker) {
 
                         case signal_instance:
                             // #region 내용
-                            process.send({ type: 'instance', to: 'master', msg: buffer_reading_string, uuid: ins.uuid });
+                            var instance_type = -1;
+                            instance_type = buffer_read(data, buffer_u8, read);
+                            switch (instance_type) {
+                                case 0:
+                                    // 공격 이펙트
+                                    process.send({
+                                        type: 'instance',
+                                        to: 'master',
+                                        index: instance_type,
+                                        x: buffer_read(data, buffer_u16, read),
+                                        y: buffer_read(data, buffer_u16, read),
+                                        weapon_dir: buffer_read(data, buffer_s16, read),
+                                        uuid: ins.uuid
+                                    });
+                                    break;
+
+                                case 1:
+                                    // 마법사 기본 공격
+                                    process.send({
+                                        type: 'instance',
+                                        to: 'master',
+                                        index: instance_type,
+                                        x: buffer_read(data, buffer_u16, read),
+                                        y: buffer_read(data, buffer_u16, read),
+                                        speed: buffer_read(data, buffer_u8, read),
+                                        weapon_dir: buffer_read(data, buffer_s16, read),
+                                        direction: buffer_read(data, buffer_s16, read),
+                                        image_speed: buffer_read(data, buffer_s16, read),
+                                        sprite_index: buffer_read(data, buffer_s16, read),
+                                        move: buffer_read(data, buffer_s8, read),
+                                        effector: buffer_read(data, buffer_s16, read),
+                                        range: buffer_read(data, buffer_s16, read),
+                                        from: buffer_read(data, buffer_string, read),
+                                        team: buffer_read(data, buffer_string, read),
+                                        damage: buffer_read(data, buffer_s16, read),
+                                        uuid: ins.uuid
+                                    });
+                                    break;
+
+                                case 3:
+                                    // 마법사 메테오 날리기
+                                    process.send({
+                                        type: 'instance',
+                                        to: 'master',
+                                        index: instance_type,
+                                        x: buffer_read(data, buffer_u16, read),
+                                        y: buffer_read(data, buffer_u16, read),
+                                        speed: buffer_read(data, buffer_u8, read),
+                                        weapon_dir: buffer_read(data, buffer_s16, read),
+                                        direction: buffer_read(data, buffer_s16, read),
+                                        image_speed: buffer_read(data, buffer_s16, read),
+                                        sprite_index: buffer_read(data, buffer_s16, read),
+                                        move: buffer_read(data, buffer_s8, read),
+                                        effector: buffer_read(data, buffer_s16, read),
+                                        range: buffer_read(data, buffer_s16, read),
+                                        from: buffer_read(data, buffer_string, read),
+                                        team: buffer_read(data, buffer_string, read),
+                                        damage: buffer_read(data, buffer_s16, read),
+                                        uuid: ins.uuid
+                                    });
+                                    break;
+
+                                case 4:
+                                    // 마법사 메테오 떨어뜨리기
+                                    process.send({
+                                        type: 'instance',
+                                        to: 'master',
+                                        index: instance_type,
+                                        x: buffer_read(data, buffer_u16, read),
+                                        y: buffer_read(data, buffer_u16, read),
+                                        from: buffer_read(data, buffer_string, read),
+                                        team: buffer_read(data, buffer_string, read),
+                                        damage: buffer_read(data, buffer_s16, read),
+                                        uuid: ins.uuid
+                                    });
+                                    break;
+                            }
                             // #endregion
                             break;
 

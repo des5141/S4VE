@@ -27,7 +27,7 @@
             <kind>1</kind>
             <string>/// DEFAULT INIT
 move      = 0;
-sprite    = -1;
+effector  = -1;
 turn      = -1;
 from      = -1; // 누구에게서 왔나?
 damage    = 0;  // 데미지
@@ -61,7 +61,7 @@ repeat(2)
     var a = instance_create(x + irandom_range(-move2, move2), y + irandom_range(-move2, move2), obj_effect1);
     a.direction = direction;
     a.image_angle = image_angle;
-    if(sprite != -1)
+    if(effector == 1)
     {
         a.sprite_index = sprite;
         a.image_speed = image_speed;
