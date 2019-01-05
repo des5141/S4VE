@@ -361,7 +361,6 @@ enum NN{
     signal_register = 9,
     signal_endgame = 10,
     signal_kill_log = 11,
-    signal_test = 12,
     
     debug_modes = 1, // 1 is on, 0 is off
     

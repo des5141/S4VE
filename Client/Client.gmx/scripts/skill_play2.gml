@@ -41,40 +41,27 @@ with(par_player) {
                 weapon_angle = -140;
                 attack_delay = 50;
                 
-                var json_data = ds_map_create();
-                ds_map_add(json_data, "id", NN.signal_instance);
-                var json_data_weapon = ds_map_create();
-                ds_map_add(json_data_weapon, "type", 0);
-                ds_map_add(json_data_weapon, "speed", a.speed);
-                ds_map_add(json_data_weapon, "weapon_dir", weapon_dir);
-                ds_map_add(json_data_weapon, "direction", a.direction);
-                ds_map_add(json_data_weapon, "image_speed", a.image_speed);
-                ds_map_add(json_data_weapon, "sprite_index", a.sprite_index);
-                ds_map_add(json_data_weapon, "x", x);
-                ds_map_add(json_data_weapon, "y", y);
-                ds_map_add(json_data_weapon, "from", global.login_id);
-                ds_map_add(json_data_weapon, "damage", a.damage);
-                ds_map_add(json_data_weapon, "team", global.team);
-                ds_map_add(json_data, "msg", json_encode(json_data_weapon));
-                ds_map_destroy(json_data_weapon);
-                var body = json_encode(json_data);
-                ds_map_destroy(json_data);
-                nn_send_message(body);
+                // 이펙트 만들기
+                var buffer = buffer_create(1, buffer_grow, 1);
+                buffer_write(buffer, buffer_u8, NN.signal_instance);
+                buffer_write(buffer, buffer_u8, 0); // type
+                buffer_write(buffer, buffer_u16, x);
+                buffer_write(buffer, buffer_u16, y);
+                buffer_write(buffer, buffer_s16, weapon_dir);
+                nn_send_message(buffer);
+                buffer_delete(buffer);
                 
-                var json_data = ds_map_create();
-                ds_map_add(json_data, "id", NN.signal_instance);
-                var json_data_weapon = ds_map_create();
-                ds_map_add(json_data_weapon, "type", 4);
-                ds_map_add(json_data_weapon, "x", a.x);
-                ds_map_add(json_data_weapon, "y", a.y);
-                ds_map_add(json_data_weapon, "from", global.login_id);
-                ds_map_add(json_data_weapon, "damage", a.damage);
-                ds_map_add(json_data_weapon, "team", global.team);
-                ds_map_add(json_data, "msg", json_encode(json_data_weapon));
-                ds_map_destroy(json_data_weapon);
-                var body = json_encode(json_data);
-                ds_map_destroy(json_data);
-                nn_send_message(body);
+                // 메테오
+                var buffer = buffer_create(1, buffer_grow, 1);
+                buffer_write(buffer, buffer_u8, NN.signal_instance);
+                buffer_write(buffer, buffer_u8, 4); // type
+                buffer_write(buffer, buffer_u16, a.x);
+                buffer_write(buffer, buffer_u16, a.y);
+                buffer_write_string(buffer, global.login_id);
+                buffer_write_string(buffer, global.team);
+                buffer_write(buffer, buffer_s16, a.damage);
+                nn_send_message(buffer);
+                buffer_delete(buffer);
                 
                 other.delay = system.skill_delay[other.skill_index];
                 other.delay_max = other.delay;

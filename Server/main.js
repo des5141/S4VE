@@ -49,7 +49,6 @@ const signal_restart = 8;
 const signal_register = 9;
 const signal_endgame = 10;
 const signal_kill_log = 11;
-const signal_test = 12;
 // #endregion
 
 // #region Functions
@@ -930,24 +929,16 @@ if (cluster.isWorker) {
                 if (ins == null) {
                     // #region 아직 로그인 안한 유저
                     switch (signal) {
-                        case signal_test:
-                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
-                            buffer_write(write, buffer_u8, signal_test);
-                            buffer_write(write, buffer_string, "hello");
-                            send_raw(dsocket, write);
-
-                            var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
-                            buffer_write(write, buffer_u8, signal_test);
-                            buffer_write(write, buffer_string, "sucked");
-                            send_raw(dsocket, write);
-                            break;
                         case signal_ping:
+                            // #region 내용
                             var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
                             buffer_write(write, buffer_u8, signal_ping);
                             send_raw(dsocket, write);
+                            // #endregion
                             break;
 
                         case signal_login:
+                            // #region 내용
                             var get_id = buffer_read(data, buffer_string, read);
                             var get_pass = buffer_read(data, buffer_string, read);
                             console.log(get_id + " | " + get_pass);
@@ -961,10 +952,11 @@ if (cluster.isWorker) {
                                 pass: get_pass
                             });
                             console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
-
+                            // #endregion
                             break;
 
                         case signal_register:
+                            // #region 내용
                             var get_id = buffer_read(data, buffer_string, read);
                             var get_pass = buffer_read(data, buffer_string, read);
                             var get_nickname = buffer_read(data, buffer_string, read);
@@ -979,6 +971,7 @@ if (cluster.isWorker) {
                                 pass: get_pass,
                                 nickname: get_nickname
                             });
+                            // #endregion
                             break;
                     }
                     // #endregion
@@ -986,12 +979,15 @@ if (cluster.isWorker) {
                     // #region 로그인 한 유저
                     switch (signal) {
                         case signal_ping:
+                            // #region 내용
                             var write = { buffer: Buffer.allocUnsafe(1).fill(0), offset: 0 };
                             buffer_write(write, buffer_u8, signal_ping);
                             send_raw(dsocket, write);
+                            // #endregion
                             break;
 
                         case signal_login:
+                            // #region 내용
                             var get_id = buffer_read(data, buffer_string, read);
                             var get_pass = buffer_read(data, buffer_string, read);
                             console.log(get_id + " | " + get_pass);
@@ -1004,10 +1000,11 @@ if (cluster.isWorker) {
                                 pass: get_pass
                             });
                             console.log("   pid ".gray + process.pid + " 에서 ".gray + get_id + "로 로그인 시도".gray);
-
+                            // #endregion
                             break;
 
                         case signal_register:
+                            // #region 내용
                             var get_id = buffer_read(data, buffer_string, read);
                             var get_pass = buffer_read(data, buffer_string, read);
                             var get_nickname = buffer_read(data, buffer_string, read);
@@ -1021,15 +1018,18 @@ if (cluster.isWorker) {
                                 pass: get_pass,
                                 nickname: get_nickname
                             });
-
+                            // #endregion
                             break;
 
                         case signal_search:
+                            // #region 내용
                             var get_type = buffer_read(data, buffer_u8, read);
                             process.send({ type: 'search', to: 'master', uuid: ins.uuid, id: get_type });
+                            // #endregion
                             break;
 
                         case signal_move:
+                            // #region 내용
                             process.send({
                                 type: 'move', to: 'master',
                                 uuid: ins.uuid,
@@ -1046,20 +1046,27 @@ if (cluster.isWorker) {
                                 jump: buffer_read(data, buffer_s8, read),
                                 xdir: buffer_read(data, buffer_s8, read)
                             });
+                            // #endregion
                             break;
 
                         case signal_instance:
+                            // #region 내용
                             process.send({ type: 'instance', to: 'master', msg: buffer_reading_string, uuid: ins.uuid });
+                            // #endregion
                             break;
 
                         case signal_hp:
+                            // #region 내용
                             var get_i = buffer_read(data, buffer_s8, read);
                             var get_id = buffer_read(data, buffer_string, read);
                             process.send({ type: 'hp', to: 'master', msg: get_i, id: get_id });
+                            // #endregion
                             break;
 
                         case signal_kill_log:
+                            // #region 내용
                             process.send({ type: 'killLog', to: 'master', a: json_data.a, b: json_data.b, uuid: ins.uuid });
+                            // #endregion
                             break;
 
                         default:
