@@ -537,7 +537,7 @@ enum NN{
     signal_endgame = 10,
     signal_kill_log = 11,
     
-    debug_modes = 1, // 1 is on, 0 is off
+    debug_modes = 0, // 1 is on, 0 is off
     
     status_disconnected = -1,
     status_connecting   = 0,
