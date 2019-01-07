@@ -71,6 +71,21 @@ with(par_player) {
             
             break;
             
+            case 7:
+                var a = instance_create(x + lengthdir_x(min(point_distance(other.x, other.y, other.pointer[0], other.pointer[1]), 120), point_direction(other.x, other.y, other.pointer[0], other.pointer[1])), y + lengthdir_y(min(point_distance(other.x, other.y, other.pointer[0], other.pointer[1]), 120), point_direction(other.x, other.y, other.pointer[0], other.pointer[1])), obj_totem);
+                a.team = global.team
+                var buffer = buffer_create(1, buffer_grow, 1);
+                buffer_write(buffer, buffer_u8, NN.signal_instance);
+                buffer_write(buffer, buffer_u8, 6); // type
+                buffer_write(buffer, buffer_u16, a.x);
+                buffer_write(buffer, buffer_u16, a.y);
+                buffer_write_string(buffer, global.team);
+                nn_send_message(buffer);
+                buffer_delete(buffer);
+                other.delay = system.skill_delay[other.skill_index];
+                other.delay_max = other.delay;
+            break;
+            
             default:
             
             break;

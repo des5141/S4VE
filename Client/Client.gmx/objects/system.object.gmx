@@ -116,9 +116,9 @@ skill_delay[4] = 30;
 skill_delay[5] = 30;
 
 //
-skill_delay[6] = 30;
-skill_delay[7] = 30;
-skill_delay[8] = 30;
+skill_delay[6] = 60*5;
+skill_delay[7] = 60*25;
+skill_delay[8] = 60*15;
 
 //
 skill_delay[9] = 30;

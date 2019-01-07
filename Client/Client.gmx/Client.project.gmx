@@ -37,6 +37,7 @@
           <sprite>sprites\spr_light_small</sprite>
           <sprite>sprites\spr_smoke</sprite>
         </sprites>
+        <sprite>sprites\spr_totem</sprite>
       </sprites>
       <sprites name="Block">
         <sprite>sprites\spr_block</sprite>
@@ -219,6 +220,7 @@
         <object>objects\obj_effect5</object>
         <object>objects\obj_bullet</object>
         <object>objects\obj_effect_damage</object>
+        <object>objects\obj_totem</object>
         <object>objects\obj_boomeffect</object>
         <objects name="firework">
           <object>objects\obj_light</object>

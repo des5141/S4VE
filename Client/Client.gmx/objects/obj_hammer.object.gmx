@@ -26,7 +26,9 @@
           <argument>
             <kind>1</kind>
             <string>if(control == 1){
-
+obj_skill1.skill_index = 6;
+obj_skill2.skill_index = 7;
+obj_skill3.skill_index = 8;
 }
 </string>
           </argument>
@@ -61,6 +63,13 @@ if (attack_delay &lt;= 0)and(control == 1)and(obj_joy2._distance &gt; 65)and(obj
     a.image_angle = weapon_dir - 47;
     a.sprite_index = spr_effect;
     a.image_single = 1;
+    
+    var a = instance_create(x, y - z - 16, obj_effect_damage);
+    a.image_angle = weapon_dir;
+    a.direction = weapon_dir;
+    a.damage = 20;
+    a.from = global.login_id;
+    a.from_team = global.team;
     
     system.shake = 1;
     weapon_delay = 5;

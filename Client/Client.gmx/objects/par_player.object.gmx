@@ -74,6 +74,7 @@ damaged        = 0; // trigger. 1 is on, 0 is off
 nickname       = "";
 trigger        = 0;
 respawn        = -1;
+boost          = 0;
 go[0]          = 0; // go to place (x)
 go[1]          = 1; // go to place (y)
 go[2]          = 0; // check going
@@ -132,6 +133,10 @@ damaged = 0;
 
 if(control == 1)
 {
+    if(boost &gt;= 0) {
+        boost -= 0.25;
+    }
+    
     if(instance_place(x, y, par_block) != noone) {
         x = xprevious;
         y = yprevious;
@@ -218,24 +223,24 @@ if(control == 1)
                 }
                 
                 if(move_mode == 0) {
-                    if(!place_meeting(x+lengthdir_x(obj_joy._distance/40, obj_joy._direction), y, par_block))
+                    if(!place_meeting(x+lengthdir_x(obj_joy._distance/40+boost/10, obj_joy._direction), y, par_block))
                     {
-                        x += lengthdir_x(obj_joy._distance/40, obj_joy._direction)
+                        x += lengthdir_x(obj_joy._distance/40+boost/10, obj_joy._direction)
                     }
                     
-                    if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/40, obj_joy._direction), par_block))
+                    if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/40+boost/10, obj_joy._direction), par_block))
                     {
-                        y += lengthdir_y(obj_joy._distance/40, obj_joy._direction)
+                        y += lengthdir_y(obj_joy._distance/40+boost/10, obj_joy._direction)
                     }
                 }else {
-                    if(!place_meeting(x+lengthdir_x(obj_joy._distance/80, obj_joy._direction), y, par_block))
+                    if(!place_meeting(x+lengthdir_x(obj_joy._distance/80+boost/10, obj_joy._direction), y, par_block))
                     {
-                        x += lengthdir_x(obj_joy._distance/80, obj_joy._direction)
+                        x += lengthdir_x(obj_joy._distance/80+boost/10, obj_joy._direction)
                     }
                     
-                    if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/80, obj_joy._direction), par_block))
+                    if(!place_meeting(x, y+lengthdir_y(obj_joy._distance/80+boost/10, obj_joy._direction), par_block))
                     {
-                        y += lengthdir_y(obj_joy._distance/80, obj_joy._direction)
+                        y += lengthdir_y(obj_joy._distance/80+boost/10, obj_joy._direction)
                     }
                 }
                 mv = 1
@@ -353,6 +358,45 @@ if(control == 1) {
           </argument>
         </arguments>
       </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// HEALING
+if(control == 1) {
+    var check = -1;
+    with(obj_totem) {
+        if(team == global.team) {
+            if(point_distance(x, y, other.x, other.y) &lt;= 80) {
+                check = 1;
+            }
+        }
+    }
+    if(check == 1) {
+        var buffer = buffer_create(1, buffer_grow, 1);
+        buffer_write(buffer, buffer_u8, NN.signal_hp);
+        buffer_write(buffer, buffer_s16, -1);
+        buffer_write_string(buffer, global.login_id);
+        nn_send_message(buffer);
+        buffer_delete(buffer);
+    }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
     </event>
     <event eventtype="4" ename="obj_danger">
       <action>
@@ -383,7 +427,7 @@ if(control == 1) {
     }else{
         var buffer = buffer_create(1, buffer_grow, 1);
         buffer_write(buffer, buffer_u8, NN.signal_hp);
-        buffer_write(buffer, buffer_s16, -1);
+        buffer_write(buffer, buffer_s16, -2);
         buffer_write_string(buffer, global.login_id);
         nn_send_message(buffer);
         buffer_delete(buffer);

@@ -260,10 +260,19 @@ while (ds_queue_size(message_processing) != 0) {
                         a.sprite_index = spr_effect;
                         a.image_single = 0;
                         var a = instance_create(get_x, get_y - 16, obj_effect_damage);
-                        a.image_angle = get_dir - 47;
+                        a.image_angle = get_dir;
+                        a.direction = get_dir;
                         a.damage = get_damage;
                         a.from = get_from;
                         a.from_team = get_team;
+                        break;
+                        
+                    case 6:
+                        var get_x = buffer_read(buffer, buffer_u16);
+                        var get_y = buffer_read(buffer, buffer_u16);
+                        var get_team = buffer_read(buffer, buffer_string);
+                        var a = instance_create(get_x, get_y, obj_totem);
+                        a.team = get_team;
                         break;
                 }
                 break;

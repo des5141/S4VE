@@ -18,6 +18,10 @@ with(par_player) {
             
             break;
             
+            case 8:
+                boost = 25;
+            break;
+            
             default:
             
             break;

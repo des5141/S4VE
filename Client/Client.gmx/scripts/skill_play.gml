@@ -72,9 +72,50 @@ with(par_player) {
             
             return -1;
             
-            case 3:
-            
+            case 6:
+                var a = instance_create(x, y - 16 - z, obj_effect);
+                a.image_angle = weapon_dir - 47;
+                a.sprite_index = spr_effect;
+                a.image_single = 1;
+                
+                var a = instance_create(x, y - z - 16, obj_effect_damage);
+                a.image_angle = weapon_dir;
+                a.direction = weapon_dir;
+                a.damage = 40;
+                a.from = global.login_id;
+                a.from_team = global.team;
+                
+                system.shake = 1;
+                weapon_delay = 3;
+                weapon_delay_j = 3;
+                attack_delay = 50;
+                weapon_trigger *= -1
+                weapon_range = 30;
+                weapon_angle = 600;
+                weapon_delay_i = -100;
+                attack_delay = 30;
+                
+                // 이펙트 만들기
+                var buffer = buffer_create(1, buffer_grow, 1);
+                buffer_write(buffer, buffer_u8, NN.signal_instance);
+                buffer_write(buffer, buffer_u8, 5); // type
+                buffer_write(buffer, buffer_u16, x);
+                buffer_write(buffer, buffer_u16, y);
+                buffer_write(buffer, buffer_s16, weapon_dir);
+                buffer_write_string(buffer, global.login_id);
+                buffer_write_string(buffer, global.team);
+                buffer_write(buffer, buffer_s16, a.damage);
+                nn_send_message(buffer);
+                buffer_delete(buffer);
             return 1;
+            
+            case 7:
+            
+            return -1;
+            
+            case 8:
+            
+            return -1;
             
             default:
             

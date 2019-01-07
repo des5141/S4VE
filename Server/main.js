@@ -517,6 +517,20 @@ if (cluster.isMaster) {
                                         }
                                         break;
 
+                                    case 6:
+                                        for (var id in cluster.workers) {
+                                            cluster.workers[id].send({
+                                                type: 'instance',
+                                                to: 'worker',
+                                                index: message.index,
+                                                x: message.x,
+                                                y: message.y,
+                                                team: message.team,
+                                                uuid: user.uuid
+                                            });
+                                        }
+                                        break;
+
                                     default:
                                         break;
                                 }
@@ -754,7 +768,7 @@ if (cluster.isMaster) {
             for (i = 0; i < room_max; i++) {
                 if (user.room == room[i]) {
                     if (user.hp <= 0) {
-                        user.respawn = 60 * 10;
+                        user.respawn = 60 * 6;
                         user.hp = 100;
                         if (user.team == "blue") {
                             user.x = 762 + functions.getRandomInt(10, 30);
@@ -1087,6 +1101,14 @@ if (cluster.isWorker) {
                                 buffer_write(write, buffer_s16, message.damage);
                                 // #endregion
                                 break;
+
+                            case 6:
+                                // #region 내용
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                buffer_write(write, buffer_string, message.team);
+                                // #endregion
+                                break;
                         }
                         send_raw(ins.socket, write);
                     }
@@ -1380,6 +1402,19 @@ if (cluster.isWorker) {
                                         from: buffer_read(data, buffer_string, read),
                                         team: buffer_read(data, buffer_string, read),
                                         damage: buffer_read(data, buffer_s16, read),
+                                        uuid: ins.uuid
+                                    });
+                                    break;
+
+                                case 6:
+                                    // 토템
+                                    process.send({
+                                        type: 'instance',
+                                        to: 'master',
+                                        index: instance_type,
+                                        x: buffer_read(data, buffer_u16, read),
+                                        y: buffer_read(data, buffer_u16, read),
+                                        team: buffer_read(data, buffer_string, read),
                                         uuid: ins.uuid
                                     });
                                     break;
