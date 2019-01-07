@@ -156,6 +156,8 @@ while (ds_queue_size(message_processing) != 0) {
                         a.image_angle = buffer_read(buffer, buffer_s16) - 47;
                         a.sprite_index = spr_effect;
                         a.image_single = 1;
+                        audio_emitter_position(global.emitter, x, y, 0);
+                        audio_play_sound_on(global.emitter, _sound, 0, 1);
                         break;
                         
                     case 1:
