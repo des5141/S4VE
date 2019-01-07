@@ -41,6 +41,7 @@ mode = 0;
 alarm[0] = 35;
 alarm[1] = 80;
 alarm[2] = 10;
+//audio_play_sound(sd_ready, 0, 0);
 </string>
           </argument>
         </arguments>

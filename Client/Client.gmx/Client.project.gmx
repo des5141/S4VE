@@ -10,7 +10,22 @@
     <sounds name="Ingame">
       <sound>sound\sd_shoot</sound>
       <sound>sound\sd_pung</sound>
+      <sound>sound\sd_bgm</sound>
     </sounds>
+    <sound>sound\sd_magician_swing</sound>
+    <sound>sound\sd_totem</sound>
+    <sound>sound\sd_swing</sound>
+    <sound>sound\sd_metao</sound>
+    <sound>sound\sd_jump</sound>
+    <sound>sound\sd_win</sound>
+    <sound>sound\sd_lose</sound>
+    <sound>sound\sd_die</sound>
+    <sound>sound\sd_intro</sound>
+    <sound>sound\sd_start</sound>
+    <sound>sound\sd_die_intro</sound>
+    <sound>sound\sd_kill_intro</sound>
+    <sound>sound\sd_kill_two</sound>
+    <sound>sound\sd_ready</sound>
   </sounds>
   <sprites name="sprites">
     <sprites name="Ingame">
@@ -38,6 +53,8 @@
           <sprite>sprites\spr_smoke</sprite>
         </sprites>
         <sprite>sprites\spr_totem</sprite>
+        <sprite>sprites\spr_attack</sprite>
+        <sprite>sprites\spr_attack_piece</sprite>
       </sprites>
       <sprites name="Block">
         <sprite>sprites\spr_block</sprite>
@@ -231,6 +248,8 @@
           <object>objects\obj_ff</object>
           <object>objects\obj_smoke</object>
         </objects>
+        <object>objects\obj_eff2_part1</object>
+        <object>objects\obj_eff2</object>
       </objects>
     </objects>
     <objects name="Menu">

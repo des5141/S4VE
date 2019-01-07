@@ -48,9 +48,6 @@ global.select_char = -1;
 global.check_bytes = 0;
 global.check_bytes_send = 0;
 
-global.emitter = audio_emitter_create()
-audio_falloff_set_model(audio_falloff_linear_distance_clamped)
-audio_emitter_falloff(global.emitter, 50, 800+500, 1)
 
 randomize();
 display_set_gui_size(800, 480);

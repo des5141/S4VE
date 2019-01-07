@@ -20,6 +20,7 @@ with(par_player) {
                     
                     other.delay = system.skill_delay[other.skill_index];
                     other.delay_max = other.delay;
+                    audio_play_sound(sd_jump, 1, 0);
                 }
             break;
             
@@ -65,6 +66,8 @@ with(par_player) {
                 
                 other.delay = system.skill_delay[other.skill_index];
                 other.delay_max = other.delay;
+                audio_play_sound(sd_swing, 1, 0);
+                audio_play_sound(sd_metao, 1, 0);
             break;
             
             case 3:
@@ -84,6 +87,8 @@ with(par_player) {
                 buffer_delete(buffer);
                 other.delay = system.skill_delay[other.skill_index];
                 other.delay_max = other.delay;
+                
+                audio_play_sound(sd_totem, 1, 0);
             break;
             
             default:

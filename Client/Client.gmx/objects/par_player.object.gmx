@@ -133,7 +133,6 @@ damaged = 0;
 
 if(control == 1)
 {
-    audio_emitter_position(global.emitter, x, y, 0);
     if(boost &gt;= 0) {
         boost -= 0.25;
     }
@@ -433,31 +432,6 @@ if(control == 1) {
         nn_send_message(buffer);
         buffer_delete(buffer);
     }
-}
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
-    <event eventtype="7" enumb="5">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>if(control == 1) {
-    audio_emitter_free(emitter);
 }
 </string>
           </argument>

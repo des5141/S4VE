@@ -32,6 +32,7 @@ image_angle = 340;
 mode = 0;
 alarm[0] = 35;
 alarm[1] = 80;
+audio_play_sound(sd_start, 0, 0);
 </string>
           </argument>
         </arguments>

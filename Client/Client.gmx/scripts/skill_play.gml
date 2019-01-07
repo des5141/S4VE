@@ -62,6 +62,8 @@ with(par_player) {
                 
                 other.delay = system.skill_delay[other.skill_index];
                 other.delay_max = other.delay;
+                audio_play_sound(sd_swing, 1, 0);
+                audio_play_sound(sd_magician_swing, 1, 0);
             return 1;
             
             case 1:
@@ -107,6 +109,8 @@ with(par_player) {
                 buffer_write(buffer, buffer_s16, a.damage);
                 nn_send_message(buffer);
                 buffer_delete(buffer);
+                
+                audio_play_sound(sd_swing, 1, 0);
             return 1;
             
             case 7:

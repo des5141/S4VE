@@ -89,6 +89,8 @@ if (attack_delay &lt;= 0)and(control == 1)and(obj_joy2._distance &gt; 65)and(obj
     buffer_write(buffer, buffer_s16, a.damage);
     nn_send_message(buffer);
     buffer_delete(buffer);
+    
+    audio_play_sound(sd_swing, 1, 0);
 }
 </string>
           </argument>

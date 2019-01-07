@@ -106,9 +106,12 @@ while (ds_queue_size(message_processing) != 0) {
                 var ins = instance_create(0, 0, obj_end);
                 if(global.team == buffer_read(buffer, buffer_string)) {
                     ins.message = "승리"
+                    audio_stop_all();
+                    audio_play_sound(sd_win, 0, false);
                     instance_create(400, 300, obj_firework);
                 }else {
                     ins.message = "패배";
+                    audio_play_sound(sd_lose, 0, false);
                 }
             break;
             
@@ -132,6 +135,11 @@ while (ds_queue_size(message_processing) != 0) {
                 
                 ds_list_add(global.kill_log_left, get_a);
                 ds_list_add(global.kill_log_right, get_b);
+                
+                if(get_a == global.nickname) {
+                    audio_play_sound(sd_kill_intro, 0, 0);
+                }
+                
                 system.alarm[0] = 60*5;
                 break;
                 
@@ -156,8 +164,7 @@ while (ds_queue_size(message_processing) != 0) {
                         a.image_angle = buffer_read(buffer, buffer_s16) - 47;
                         a.sprite_index = spr_effect;
                         a.image_single = 1;
-                        audio_emitter_position(global.emitter, x, y, 0);
-                        audio_play_sound_on(global.emitter, _sound, 0, 1);
+                        audio_play_sound(sd_swing, 1, 0);
                         break;
                         
                     case 1:
@@ -188,6 +195,8 @@ while (ds_queue_size(message_processing) != 0) {
                         a.from = get_from;
                         a.from_team = get_team;
                         a.range = get_range;
+                        
+                        audio_play_sound(sd_magician_swing, 1, 0);
                         break;
                         
                     case 2:
@@ -234,6 +243,8 @@ while (ds_queue_size(message_processing) != 0) {
                         a.from_team = get_team;
                         a.range = get_range;
                         a.turn = 1;
+                        
+                        audio_play_sound(sd_magician_swing, 1, 0);
                         break;
                         
                     case 4:
@@ -248,6 +259,8 @@ while (ds_queue_size(message_processing) != 0) {
                         a.damage = get_damage;
                         a.from = get_from;
                         a.from_team = get_team;
+                        
+                        audio_play_sound(sd_metao, 1, 0);
                         break;
                         
                     case 5:
@@ -267,6 +280,8 @@ while (ds_queue_size(message_processing) != 0) {
                         a.damage = get_damage;
                         a.from = get_from;
                         a.from_team = get_team;
+                        
+                        audio_play_sound(sd_swing, 1, 0);
                         break;
                         
                     case 6:
@@ -275,6 +290,8 @@ while (ds_queue_size(message_processing) != 0) {
                         var get_team = buffer_read(buffer, buffer_string);
                         var a = instance_create(get_x, get_y, obj_totem);
                         a.team = get_team;
+                        
+                        audio_play_sound(sd_totem, 1, 0);
                         break;
                 }
                 break;
@@ -454,6 +471,11 @@ while (ds_queue_size(message_processing) != 0) {
                                 buffer_write(buffer, buffer_u16, end_y);
                                 nn_send_message(buffer);
                                 buffer_delete(buffer);
+                                
+                                if(choose(0, 1) == 0)
+                                audio_play_sound(sd_die_intro, 0, 0);
+                                else
+                                audio_play_sound(sd_kill_two, 0, 0);
                             }
                         
                     }
