@@ -500,6 +500,23 @@ if (cluster.isMaster) {
                                         }
                                         break;
 
+                                    case 5:
+                                        for (var id in cluster.workers) {
+                                            cluster.workers[id].send({
+                                                type: 'instance',
+                                                to: 'worker',
+                                                index: message.index,
+                                                x: message.x,
+                                                y: message.y,
+                                                weapon_dir: message.weapon_dir,
+                                                from: message.from,
+                                                team: message.team,
+                                                damage: message.damage,
+                                                uuid: user.uuid
+                                            });
+                                        }
+                                        break;
+
                                     default:
                                         break;
                                 }
@@ -1059,6 +1076,17 @@ if (cluster.isWorker) {
                                 buffer_write(write, buffer_s16, message.damage);
                                 // #endregion
                                 break;
+
+                            case 5:
+                                // #region 내용
+                                buffer_write(write, buffer_u16, message.x);
+                                buffer_write(write, buffer_u16, message.y);
+                                buffer_write(write, buffer_s16, message.weapon_dir);
+                                buffer_write(write, buffer_string, message.from);
+                                buffer_write(write, buffer_string, message.team);
+                                buffer_write(write, buffer_s16, message.damage);
+                                // #endregion
+                                break;
                         }
                         send_raw(ins.socket, write);
                     }
@@ -1333,6 +1361,22 @@ if (cluster.isWorker) {
                                         index: instance_type,
                                         x: buffer_read(data, buffer_u16, read),
                                         y: buffer_read(data, buffer_u16, read),
+                                        from: buffer_read(data, buffer_string, read),
+                                        team: buffer_read(data, buffer_string, read),
+                                        damage: buffer_read(data, buffer_s16, read),
+                                        uuid: ins.uuid
+                                    });
+                                    break;
+
+                                case 5:
+                                    // 근접 공격
+                                    process.send({
+                                        type: 'instance',
+                                        to: 'master',
+                                        index: instance_type,
+                                        x: buffer_read(data, buffer_u16, read),
+                                        y: buffer_read(data, buffer_u16, read),
+                                        weapon_dir: buffer_read(data, buffer_s16, read),
                                         from: buffer_read(data, buffer_string, read),
                                         team: buffer_read(data, buffer_string, read),
                                         damage: buffer_read(data, buffer_s16, read),
